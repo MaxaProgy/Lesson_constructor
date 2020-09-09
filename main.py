@@ -12,6 +12,8 @@ class Menu(QMainWindow):
         super().__init__()
         uic.loadUi('data/ui_file/untitled.ui', self)
         self.geometry = QDesktopWidget().availableGeometry()
+        self.setMinimumHeight(self.geometry.height())
+        self.setMinimumWidth(self.geometry.width())
 
         # --------------------------
         #       Кнопки меню
@@ -247,17 +249,21 @@ class Menu(QMainWindow):
         self.btn_back.hide()
 
         self.btn_new_lesson.clicked.connect(self.new_lesson)
-        self.splash_screen()
+        self.btn_back.clicked.connect(self.menu)
+        self.menu()
+
+    def menu(self):
+        self.hide_object_new_lesson()
+        self.setStyleSheet('.QWidget {background-image: url(data/image/фоны/меню.jpg);}')
+        self.show_object_menu()
 
     def new_lesson(self):
         self.setStyleSheet('.QWidget {background-image: url(data/image/фоны/общий_фон.jpg);}')
         self.btn_new_lesson.hide()
         self.show_object_new_lesson()
 
-    def splash_screen(self):
-        self.setMinimumHeight(self.geometry.height())
-        self.setMinimumWidth(self.geometry.width())
-        self.setStyleSheet('.QWidget {background-image: url(data/image/фоны/меню.jpg);}')
+    def show_object_menu(self):
+        self.btn_new_lesson.show()
 
     def show_object_new_lesson(self):
         self.background_new_lesson.show()
@@ -282,6 +288,31 @@ class Menu(QMainWindow):
         self.check_critical_thinking.show()
         self.check_metacognitive_skills.show()
         self.btn_back.show()
+
+    def hide_object_new_lesson(self):
+        self.background_new_lesson.hide()
+        self.text_lesson_topic.hide()
+        self.text_subjects.hide()
+        self.text_lesson_type.hide()
+        self.text_class.hide()
+        self.text_class_characteristic.hide()
+        self.text_lesson_duration.hide()
+        self.text_lesson_duration_2.hide()
+        self.text_competence.hide()
+        self.edit_lesson_topic.hide()
+        self.combo_subjects.hide()
+        self.combo_lesson_type.hide()
+        self.combo_class.hide()
+        self.combo_class_characteristic.hide()
+        self.edit_lesson_duration.hide()
+        self.check_creative_thinking.hide()
+        self.check_literacy.hide()
+        self.check_cooperation.hide()
+        self.check_communication.hide()
+        self.check_critical_thinking.hide()
+        self.check_metacognitive_skills.hide()
+        self.btn_back.hide()
+
 
 app = QApplication(sys.argv)
 ex = Menu()
