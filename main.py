@@ -243,12 +243,21 @@ class Menu(QMainWindow):
         self.check_metacognitive_skills.hide()
 
         self.btn_back = QPushButton(self)
-        self.btn_back.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}')
+        self.btn_back.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
+                                    '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
         self.btn_back.move(self.geometry.width() // 2 + 390, self.geometry.height() // 2 - 350)
         self.btn_back.resize(55, 40)
         self.btn_back.hide()
 
+        self.btn_ok = QPushButton(self)
+        self.btn_ok.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
+                                  '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
+        self.btn_ok.move(self.geometry.width() // 2 + 350, self.geometry.height() - 310)
+        self.btn_ok.resize(63, 60)
+        self.btn_ok.hide()
+
         self.btn_new_lesson.clicked.connect(self.new_lesson)
+        self.btn_ok.clicked.connect(self.valid_new_lesson_and_show_info)
         self.btn_back.clicked.connect(self.menu)
         self.menu()
 
@@ -257,6 +266,7 @@ class Menu(QMainWindow):
         self.setStyleSheet('.QWidget {background-image: url(data/image/фоны/меню.jpg);}')
         self.show_object_menu()
 
+    # -----------------------------------------
     def new_lesson(self):
         self.setStyleSheet('.QWidget {background-image: url(data/image/фоны/общий_фон.jpg);}')
         self.btn_new_lesson.hide()
@@ -265,8 +275,20 @@ class Menu(QMainWindow):
     def show_object_menu(self):
         self.btn_new_lesson.show()
 
+    def valid_new_lesson_and_show_info(self):
+        if self.edit_lesson_topic.text() != "" and \
+                int(self.edit_lesson_duration.text()) >= 20 and \
+                (self.check_creative_thinking.isChecked() or
+                 self.check_literacy.isChecked() or
+                 self.check_communication.isChecked() or
+                 self.check_cooperation.isChecked() or
+                 self.check_critical_thinking.isChecked() or
+                 self.check_metacognitive_skills.isChecked()):
+            pass
+
     def show_object_new_lesson(self):
         self.background_new_lesson.show()
+
         self.text_lesson_topic.show()
         self.text_subjects.show()
         self.text_lesson_type.show()
@@ -287,10 +309,13 @@ class Menu(QMainWindow):
         self.check_communication.show()
         self.check_critical_thinking.show()
         self.check_metacognitive_skills.show()
+
         self.btn_back.show()
+        self.btn_ok.show()
 
     def hide_object_new_lesson(self):
         self.background_new_lesson.hide()
+
         self.text_lesson_topic.hide()
         self.text_subjects.hide()
         self.text_lesson_type.hide()
@@ -311,7 +336,11 @@ class Menu(QMainWindow):
         self.check_communication.hide()
         self.check_critical_thinking.hide()
         self.check_metacognitive_skills.hide()
+
         self.btn_back.hide()
+        self.btn_ok.hide()
+
+    # -----------------------------------------
 
 
 app = QApplication(sys.argv)
