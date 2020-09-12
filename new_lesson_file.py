@@ -26,6 +26,7 @@ class NewLesson:
         }''')
 
         # Тексты
+        # -----------------------------------------
         self.parent.text_lesson_topic = QLabel("Тема урока", self.parent)
         self.parent.text_lesson_topic.resize(self.parent.text_lesson_topic.sizeHint())
         self.parent.text_lesson_topic.move(self.parent.geometry.width() // 2 - 400,
@@ -104,6 +105,9 @@ class NewLesson:
             font: bold 16px;
             min-width: 12em;
         }''')
+
+        # Поля ввода значений
+        # -----------------------------------------
 
         self.parent.edit_lesson_topic = QLineEdit(self.parent)
         self.parent.edit_lesson_topic.resize(480, 30)
@@ -204,27 +208,54 @@ class NewLesson:
                 font: bold 14px;
             }''')
 
-        self.parent.btn_back = QPushButton(self.parent)
-        self.parent.btn_back.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
-                                           '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
-        self.parent.btn_back.move(self.parent.geometry.width() // 2 + 390, self.parent.geometry.height() // 2 - 350)
-        self.parent.btn_back.resize(55, 40)
+        # -----------------------------------------
+        #                Кнопки 
+        # -----------------------------------------
 
-        self.parent.btn_ok = QPushButton(self.parent)
-        self.parent.btn_ok.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
-                                         '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
-        self.parent.btn_ok.move(self.parent.geometry.width() // 2 + 350, self.parent.geometry.height() - 310)
-        self.parent.btn_ok.resize(63, 60)
+        self.parent.btn_back_valid = QPushButton(self.parent)
+        self.parent.btn_back_valid.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
+                                                 '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
+        self.parent.btn_back_valid.move(self.parent.geometry.width() // 2 + 390,
+                                        self.parent.geometry.height() // 2 - 350)
+        self.parent.btn_back_valid.resize(55, 40)
 
-        self.parent.btn_ok.clicked.connect(self.valid_new_lesson_and_show_info)
-        self.parent.btn_back.clicked.connect(self.open_main_menu)
+        self.parent.btn_ok_valid = QPushButton(self.parent)
+        self.parent.btn_ok_valid.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
+                                               '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
+        self.parent.btn_ok_valid.move(self.parent.geometry.width() // 2 + 350, self.parent.geometry.height() - 310)
+        self.parent.btn_ok_valid.resize(63, 60)
+
+        # -----------------------------------------
+
+        self.parent.btn_back_constructor = QPushButton(self.parent)
+        self.parent.btn_back_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
+                                                       '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
+        self.parent.btn_back_constructor.move(self.parent.geometry.width() - 250, 12)
+        self.parent.btn_back_constructor.resize(55, 40)
+
+        self.parent.btn_ok_constructor = QPushButton(self.parent)
+        self.parent.btn_ok_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
+                                                     '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
+        self.parent.btn_ok_constructor.move(self.parent.geometry.width() - 175, 3)
+        self.parent.btn_ok_constructor.resize(63, 60)
+
+        # -----------------------------------------
+
+        self.parent.btn_ok_valid.clicked.connect(self.valid_new_lesson_and_show_info)
+        self.parent.btn_back_valid.clicked.connect(self.open_main_menu)
+        self.parent.btn_back_constructor.clicked.connect(self.open_new_lesson)
 
         self.parent.btn_new_lesson.hide()
-        self.show_object_new_lesson()
+        self.open_new_lesson()
 
     def open_main_menu(self):
         self.hide_object_new_lesson()
         self.parent.main_menu()
+
+    def open_new_lesson(self):
+        self.parent.setStyleSheet('.QWidget {background-image: url(data/image/фоны/общий_фон.jpg);}')
+        self.hide_object_constructor_field()
+        self.show_object_new_lesson()
 
     def valid_new_lesson_and_show_info(self):
         if self.parent.edit_lesson_topic.text() != "" and \
@@ -235,9 +266,22 @@ class NewLesson:
                  self.parent.check_cooperation.isChecked() or
                  self.parent.check_critical_thinking.isChecked() or
                  self.parent.check_metacognitive_skills.isChecked()):
-            pass
+            self.constructor_field()
         else:
             QMessageBox.critical(self.parent, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
+
+    def constructor_field(self):
+        self.parent.setStyleSheet('.QWidget {background-image: url(data/image/фоны/фон_конструктора.jpg);}')
+        self.hide_object_new_lesson()
+        self.show_object_constructor_field()
+
+    def show_object_constructor_field(self):
+        self.parent.btn_ok_constructor.show()
+        self.parent.btn_back_constructor.show()
+
+    def hide_object_constructor_field(self):
+        self.parent.btn_ok_constructor.hide()
+        self.parent.btn_back_constructor.hide()
 
     def show_object_new_lesson(self):
         self.parent.background_new_lesson.show()
@@ -263,8 +307,8 @@ class NewLesson:
         self.parent.check_critical_thinking.show()
         self.parent.check_metacognitive_skills.show()
 
-        self.parent.btn_back.show()
-        self.parent.btn_ok.show()
+        self.parent.btn_back_valid.show()
+        self.parent.btn_ok_valid.show()
 
     def hide_object_new_lesson(self):
         self.parent.background_new_lesson.hide()
@@ -290,5 +334,5 @@ class NewLesson:
         self.parent.check_critical_thinking.hide()
         self.parent.check_metacognitive_skills.hide()
 
-        self.parent.btn_back.hide()
-        self.parent.btn_ok.hide()
+        self.parent.btn_back_valid.hide()
+        self.parent.btn_ok_valid.hide()

@@ -45,16 +45,14 @@ class Menu(QMainWindow):
 
         self.main_menu()
 
+    # -----------------------------------------
+
     def main_menu(self):
         self.setStyleSheet('.QWidget {background-image: url(data/image/фоны/меню.jpg);}')
-        self.show_object_menu()
-
-    def show_object_menu(self):
         self.btn_new_lesson.show()
 
     # -----------------------------------------
     def create_new_lesson(self):
-        self.setStyleSheet('.QWidget {background-image: url(data/image/фоны/общий_фон.jpg);}')
         self.new_lesson = NewLesson(self)
 
     # -----------------------------------------
