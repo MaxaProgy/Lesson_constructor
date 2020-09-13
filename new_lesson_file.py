@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QWidget
+from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QWidget, QRadioButton, \
+    QButtonGroup
 
 
 class NewLesson:
@@ -86,11 +87,11 @@ class NewLesson:
             min-width: 12em;
         }''')
 
-        self.parent.text_lesson_duration_2 = QLabel("Минут", self.parent)
-        self.parent.text_lesson_duration_2.resize(self.parent.text_lesson_duration_2.sizeHint())
-        self.parent.text_lesson_duration_2.move(self.parent.geometry.width() // 2 - 50,
-                                                self.parent.geometry.height() // 2 + 150)
-        self.parent.text_lesson_duration_2.setStyleSheet('''
+        self.parent.text_acquaintance = QLabel("Требуется знакомство?", self.parent)
+        self.parent.text_acquaintance.resize(self.parent.text_acquaintance.sizeHint())
+        self.parent.text_acquaintance.move(self.parent.geometry.width() // 2 - 20,
+                                           self.parent.geometry.height() // 2 + 150)
+        self.parent.text_acquaintance.setStyleSheet('''
             .QLabel {
             font: bold 16px;
             min-width: 12em;
@@ -147,12 +148,31 @@ class NewLesson:
 
         self.parent.edit_lesson_duration = QLineEdit("40", self.parent)
         self.parent.edit_lesson_duration.resize(80, 30)
-        self.parent.edit_lesson_duration.move(self.parent.geometry.width() // 2 - 140,
+        self.parent.edit_lesson_duration.move(self.parent.geometry.width() // 2 - 130,
                                               self.parent.geometry.height() // 2 + 140)
         self.parent.edit_lesson_duration.setStyleSheet('''
             .QLineEdit {
             font: bold 16px;
         }''')
+
+        self.parent.radio_btn_yes = QRadioButton('Да', self.parent)
+        self.parent.radio_btn_yes.move(self.parent.geometry.width() // 2 + 200,
+                                              self.parent.geometry.height() // 2 + 145)
+        self.parent.radio_btn_yes.setStyleSheet('''
+            .QRadioButton {
+            font: bold 16px;
+        }''')
+        self.parent.radio_btn_no = QRadioButton('Нет', self.parent)
+        self.parent.radio_btn_no.move(self.parent.geometry.width() // 2 + 260,
+                                              self.parent.geometry.height() // 2 + 145)
+        self.parent.radio_btn_no.setStyleSheet('''
+            .QRadioButton {
+            font: bold 16px;
+        }''')
+        self.parent.radio_btn_no.setChecked(True)
+        self.parent.btn_radio_group = QButtonGroup()
+        self.parent.btn_radio_group.addButton(self.parent.radio_btn_yes)
+        self.parent.btn_radio_group.addButton(self.parent.radio_btn_no)
 
         self.parent.check_communication = QCheckBox('Коммуникация', self.parent)
         self.parent.check_communication.resize(200, 30)
@@ -230,13 +250,13 @@ class NewLesson:
         self.parent.btn_back_constructor = QPushButton(self.parent)
         self.parent.btn_back_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
                                                        '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
-        self.parent.btn_back_constructor.move(self.parent.geometry.width() - 250, 12)
+        self.parent.btn_back_constructor.move(self.parent.geometry.width() - 600, 12)
         self.parent.btn_back_constructor.resize(55, 40)
 
         self.parent.btn_ok_constructor = QPushButton(self.parent)
         self.parent.btn_ok_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
                                                      '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
-        self.parent.btn_ok_constructor.move(self.parent.geometry.width() - 175, 3)
+        self.parent.btn_ok_constructor.move(self.parent.geometry.width() - 530, 3)
         self.parent.btn_ok_constructor.resize(63, 60)
 
         # -----------------------------------------
@@ -292,9 +312,11 @@ class NewLesson:
         self.parent.text_class.show()
         self.parent.text_class_characteristic.show()
         self.parent.text_lesson_duration.show()
-        self.parent.text_lesson_duration_2.show()
+        self.parent.text_acquaintance.show()
         self.parent.text_competence.show()
         self.parent.edit_lesson_topic.show()
+        self.parent.radio_btn_no.show()
+        self.parent.radio_btn_yes.show()
         self.parent.combo_subjects.show()
         self.parent.combo_lesson_type.show()
         self.parent.combo_class.show()
@@ -319,9 +341,11 @@ class NewLesson:
         self.parent.text_class.hide()
         self.parent.text_class_characteristic.hide()
         self.parent.text_lesson_duration.hide()
-        self.parent.text_lesson_duration_2.hide()
+        self.parent.text_acquaintance.hide()
         self.parent.text_competence.hide()
         self.parent.edit_lesson_topic.hide()
+        self.parent.radio_btn_no.hide()
+        self.parent.radio_btn_yes.hide()
         self.parent.combo_subjects.hide()
         self.parent.combo_lesson_type.hide()
         self.parent.combo_class.hide()
