@@ -10,4 +10,4 @@ class Fgos(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name_fgos = sqlalchemy.Column(sqlalchemy.String)
 
-    cards = orm.relation("Cards", back_populates='fgos')
+    cards = orm.relationship("Cards", back_populates='fgos')

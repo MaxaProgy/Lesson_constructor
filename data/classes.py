@@ -10,4 +10,4 @@ class Classes(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name_class = sqlalchemy.Column(sqlalchemy.String)
 
-    cards = orm.relation("Cards", back_populates='classes')
+    cards = orm.relationship("Cards", back_populates='classes')
