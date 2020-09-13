@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, \
     QSplashScreen, QPushButton
 from PyQt5 import uic, QtGui, QtCore
 import time
+
+from Lesson_constructor.data import db_session
 from Lesson_constructor.new_lesson_file import NewLesson
 
 
@@ -12,6 +14,7 @@ class Menu(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi('data/ui_file/untitled.ui', self)
+        db_session.global_init("db/lesson_constructor.sqlite")
         self.geometry = QDesktopWidget().availableGeometry()
         self.setMinimumHeight(self.geometry.height())
         self.setMinimumWidth(self.geometry.width())
