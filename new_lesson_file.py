@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QWidget, QRadioButton, \
-    QButtonGroup, QListWidget, QTableWidget, QTableWidgetItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
+    QButtonGroup
 
 
 class NewLesson:
@@ -229,8 +229,11 @@ class NewLesson:
                 font: bold 14px;
             }''')
 
+        self.parent.value_lesson = QListView(self.parent)
+        self.parent.value_lesson.resize(415, 200)
+        self.parent.value_lesson.move(self.parent.geometry.width() - 435, 5)
         # -----------------------------------------
-        #                Кнопки 
+        #                Кнопки
         # -----------------------------------------
 
         self.parent.btn_back_valid = QPushButton(self.parent)
@@ -492,6 +495,31 @@ class NewLesson:
             self.parent.btn_reflection.move(50, 735)
             self.parent.btn_homework.move(50, 820)
 
+        title_value = [('Тема урока', self.parent.edit_lesson_topic.text()),
+                       ('Предмет', self.parent.combo_subjects.currentText()),
+                       ('Тип урока', self.parent.combo_lesson_type.currentText()),
+                       ('Класс', self.parent.combo_class.currentText()),
+                       ('Характеристика класса', self.parent.combo_class_characteristic.currentText()),
+                       ('Длительность', self.parent.edit_lesson_duration.text()),
+                       ('Креативное мышление', self.parent.check_creative_thinking.isChecked()),
+                       ('Клитическое мышление', self.parent.check_critical_thinking.isChecked()),
+                       ('Грамотность', self.parent.check_literacy.isChecked()),
+                       ('Кооперация', self.parent.check_cooperation.isChecked()),
+                       ('Коммуникация', self.parent.check_communication.isChecked()),
+                       ('Метакогнитивные навыки', self.parent.check_metacognitive_skills.isChecked())]
+        model = QStandardItemModel()
+        self.parent.value_lesson.setModel(model)
+        for i in title_value:
+            if type(i[1]) == bool:
+                if i[1]:
+                    item = QStandardItem(i[0] + " - \u2713")
+                    item.setEditable(False)
+                    model.appendRow(item)
+            else:
+                item = QStandardItem(i[0] + " - " + i[1])
+                item.setEditable(False)
+                model.appendRow(item)
+
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()
         self.parent.btn_back_constructor.show()
@@ -504,6 +532,7 @@ class NewLesson:
         self.parent.btn_assimilation_control.show()
         self.parent.btn_reflection.show()
         self.parent.btn_homework.show()
+        self.parent.value_lesson.show()
 
     def hide_object_constructor_field(self):
         self.parent.btn_ok_constructor.hide()
@@ -517,6 +546,7 @@ class NewLesson:
         self.parent.btn_assimilation_control.hide()
         self.parent.btn_reflection.hide()
         self.parent.btn_homework.hide()
+        self.parent.value_lesson.hide()
 
     def show_object_new_lesson(self):
         self.parent.background_new_lesson.show()
