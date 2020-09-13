@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QWidget, QRadioButton, \
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
     QButtonGroup
 
 
@@ -157,14 +158,14 @@ class NewLesson:
 
         self.parent.radio_btn_yes = QRadioButton('Да', self.parent)
         self.parent.radio_btn_yes.move(self.parent.geometry.width() // 2 + 200,
-                                              self.parent.geometry.height() // 2 + 145)
+                                       self.parent.geometry.height() // 2 + 145)
         self.parent.radio_btn_yes.setStyleSheet('''
             .QRadioButton {
             font: bold 16px;
         }''')
         self.parent.radio_btn_no = QRadioButton('Нет', self.parent)
         self.parent.radio_btn_no.move(self.parent.geometry.width() // 2 + 260,
-                                              self.parent.geometry.height() // 2 + 145)
+                                      self.parent.geometry.height() // 2 + 145)
         self.parent.radio_btn_no.setStyleSheet('''
             .QRadioButton {
             font: bold 16px;
@@ -228,8 +229,20 @@ class NewLesson:
                 font: bold 14px;
             }''')
 
+        self.parent.value_lesson = QListView(self.parent)
+        self.parent.value_lesson.resize(415, 200)
+        self.parent.value_lesson.move(self.parent.geometry.width() - 435, 5)
+
+        self.parent.text_lesson_topic_constructor = QLabel(self.parent)
+        self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
+        self.parent.text_lesson_topic_constructor.move(self.parent.geometry.width() - 430, 250)
+        self.parent.text_lesson_topic_constructor.setStyleSheet('''
+            .QLabel {
+            font: bold 16px;
+            min-width: 22em;
+        }''')
         # -----------------------------------------
-        #                Кнопки 
+        #                Кнопки
         # -----------------------------------------
 
         self.parent.btn_back_valid = QPushButton(self.parent)
@@ -261,6 +274,160 @@ class NewLesson:
 
         # -----------------------------------------
 
+        self.parent.btn_stage_acquaintance = QPushButton("Знакомство", self.parent)
+        self.parent.btn_stage_acquaintance.setStyleSheet('''
+                .QPushButton {
+                background-color: #76b7c7;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                font: bold 14px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            .QPushButton:hover {
+                background-color: #548490;
+                border-style: inset;
+            }''')
+
+        self.parent.btn_team_building = QPushButton("Командообразование", self.parent)
+        self.parent.btn_team_building.setStyleSheet('''
+                .QPushButton {
+                background-color: #76b7c7;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                font: bold 14px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            .QPushButton:hover {
+                background-color: #548490;
+                border-style: inset;
+            }''')
+
+        self.parent.btn_new_material = QPushButton("Новый материал", self.parent)
+        self.parent.btn_new_material.setStyleSheet('''
+                .QPushButton {
+                background-color: #76b7c7;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                font: bold 14px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            .QPushButton:hover {
+                background-color: #548490;
+                border-style: inset;
+            }''')
+
+        self.parent.btn_refreshments = QPushButton("Бодрилки", self.parent)
+        self.parent.btn_refreshments.setStyleSheet('''
+                .QPushButton {
+                background-color: #76b7c7;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                font: bold 14px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            .QPushButton:hover {
+                background-color: #548490;
+                border-style: inset;
+            }''')
+
+        self.parent.btn_test_of_understanding = QPushButton("Проверка понимания", self.parent)
+        self.parent.btn_test_of_understanding.setStyleSheet('''
+                .QPushButton {
+                background-color: #76b7c7;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                font: bold 14px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            .QPushButton:hover {
+                background-color: #548490;
+                border-style: inset;
+            }''')
+
+        self.parent.btn_material_fixing = QPushButton("Закрепление материала", self.parent)
+        self.parent.btn_material_fixing.setStyleSheet('''
+                .QPushButton {
+                background-color: #76b7c7;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                font: bold 14px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            .QPushButton:hover {
+                background-color: #548490;
+                border-style: inset;
+            }''')
+
+        self.parent.btn_assimilation_control = QPushButton("Контроль усвоения", self.parent)
+        self.parent.btn_assimilation_control.setStyleSheet('''
+                .QPushButton {
+                background-color: #76b7c7;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                font: bold 14px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            .QPushButton:hover {
+                background-color: #548490;
+                border-style: inset;
+            }''')
+
+        self.parent.btn_reflection = QPushButton("Рефлексия", self.parent)
+        self.parent.btn_reflection.setStyleSheet('''
+                .QPushButton {
+                background-color: #76b7c7;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                font: bold 14px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            .QPushButton:hover {
+                background-color: #548490;
+                border-style: inset;
+            }''')
+
+        self.parent.btn_homework = QPushButton("Домашнее задание", self.parent)
+        self.parent.btn_homework.setStyleSheet('''
+                .QPushButton {
+                background-color: #76b7c7;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                font: bold 14px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            .QPushButton:hover {
+                background-color: #548490;
+                border-style: inset;
+            }''')
+
+        # -----------------------------------------
         self.parent.btn_ok_valid.clicked.connect(self.valid_new_lesson_and_show_info)
         self.parent.btn_back_valid.clicked.connect(self.open_main_menu)
         self.parent.btn_back_constructor.clicked.connect(self.open_new_lesson)
@@ -294,14 +461,106 @@ class NewLesson:
         self.parent.setStyleSheet('.QWidget {background-image: url(data/image/фоны/фон_конструктора.jpg);}')
         self.hide_object_new_lesson()
         self.show_object_constructor_field()
+        if self.parent.radio_btn_no.isChecked():
+            self.parent.btn_stage_acquaintance.hide()
+
+            self.parent.btn_team_building.resize(200, 85)
+            self.parent.btn_new_material.resize(200, 85)
+            self.parent.btn_refreshments.resize(200, 85)
+            self.parent.btn_test_of_understanding.resize(200, 85)
+            self.parent.btn_material_fixing.resize(200, 85)
+            self.parent.btn_assimilation_control.resize(200, 85)
+            self.parent.btn_reflection.resize(200, 85)
+            self.parent.btn_homework.resize(200, 85)
+            self.parent.btn_assimilation_control.resize(200, 85)
+
+            self.parent.btn_team_building.move(50, 140)
+            self.parent.btn_new_material.move(50, 230)
+            self.parent.btn_refreshments.move(50, 320)
+            self.parent.btn_test_of_understanding.move(50, 410)
+            self.parent.btn_material_fixing.move(50, 500)
+            self.parent.btn_assimilation_control.move(50, 590)
+            self.parent.btn_reflection.move(50, 680)
+            self.parent.btn_homework.move(50, 770)
+        else:
+            self.parent.btn_stage_acquaintance.show()
+
+            self.parent.btn_stage_acquaintance.resize(200, 80)
+            self.parent.btn_team_building.resize(200, 80)
+            self.parent.btn_new_material.resize(200, 80)
+            self.parent.btn_refreshments.resize(200, 80)
+            self.parent.btn_test_of_understanding.resize(200, 80)
+            self.parent.btn_material_fixing.resize(200, 80)
+            self.parent.btn_reflection.resize(200, 80)
+            self.parent.btn_homework.resize(200, 80)
+
+            self.parent.btn_stage_acquaintance.move(50, 140)
+            self.parent.btn_team_building.move(50, 225)
+            self.parent.btn_new_material.move(50, 310)
+            self.parent.btn_refreshments.move(50, 395)
+            self.parent.btn_test_of_understanding.move(50, 480)
+            self.parent.btn_material_fixing.move(50, 565)
+            self.parent.btn_assimilation_control.move(50, 650)
+            self.parent.btn_reflection.move(50, 735)
+            self.parent.btn_homework.move(50, 820)
+
+        title_value = [('Тема урока', self.parent.edit_lesson_topic.text()),
+                       ('Предмет', self.parent.combo_subjects.currentText()),
+                       ('Тип урока', self.parent.combo_lesson_type.currentText()),
+                       ('Класс', self.parent.combo_class.currentText()),
+                       ('Характеристика класса', self.parent.combo_class_characteristic.currentText()),
+                       ('Длительность', self.parent.edit_lesson_duration.text()),
+                       ('Креативное мышление', self.parent.check_creative_thinking.isChecked()),
+                       ('Клитическое мышление', self.parent.check_critical_thinking.isChecked()),
+                       ('Грамотность', self.parent.check_literacy.isChecked()),
+                       ('Кооперация', self.parent.check_cooperation.isChecked()),
+                       ('Коммуникация', self.parent.check_communication.isChecked()),
+                       ('Метакогнитивные навыки', self.parent.check_metacognitive_skills.isChecked())]
+        model = QStandardItemModel()
+        self.parent.value_lesson.setModel(model)
+        for i in title_value:
+            if type(i[1]) == bool:
+                if i[1]:
+                    item = QStandardItem(i[0] + " - \u2713")
+                    item.setEditable(False)
+                    model.appendRow(item)
+            else:
+                item = QStandardItem(i[0] + " - " + i[1])
+                item.setEditable(False)
+                model.appendRow(item)
+        self.parent.text_lesson_topic_constructor.setText(self.parent.edit_lesson_topic.text())
+        self.parent.text_lesson_topic_constructor.setWordWrap(True)
+        self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
 
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()
         self.parent.btn_back_constructor.show()
+        self.parent.btn_stage_acquaintance.show()
+        self.parent.btn_team_building.show()
+        self.parent.btn_new_material.show()
+        self.parent.btn_refreshments.show()
+        self.parent.btn_test_of_understanding.show()
+        self.parent.btn_material_fixing.show()
+        self.parent.btn_assimilation_control.show()
+        self.parent.btn_reflection.show()
+        self.parent.btn_homework.show()
+        self.parent.value_lesson.show()
+        self.parent.text_lesson_topic_constructor.show()
 
     def hide_object_constructor_field(self):
         self.parent.btn_ok_constructor.hide()
         self.parent.btn_back_constructor.hide()
+        self.parent.btn_stage_acquaintance.hide()
+        self.parent.btn_team_building.hide()
+        self.parent.btn_new_material.hide()
+        self.parent.btn_refreshments.hide()
+        self.parent.btn_test_of_understanding.hide()
+        self.parent.btn_material_fixing.hide()
+        self.parent.btn_assimilation_control.hide()
+        self.parent.btn_reflection.hide()
+        self.parent.btn_homework.hide()
+        self.parent.value_lesson.hide()
+        self.parent.text_lesson_topic_constructor.hide()
 
     def show_object_new_lesson(self):
         self.parent.background_new_lesson.show()
