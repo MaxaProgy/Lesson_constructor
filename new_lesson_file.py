@@ -232,6 +232,15 @@ class NewLesson:
         self.parent.value_lesson = QListView(self.parent)
         self.parent.value_lesson.resize(415, 200)
         self.parent.value_lesson.move(self.parent.geometry.width() - 435, 5)
+
+        self.parent.text_lesson_topic_constructor = QLabel(self.parent)
+        self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
+        self.parent.text_lesson_topic_constructor.move(self.parent.geometry.width() - 430, 250)
+        self.parent.text_lesson_topic_constructor.setStyleSheet('''
+            .QLabel {
+            font: bold 16px;
+            min-width: 22em;
+        }''')
         # -----------------------------------------
         #                Кнопки
         # -----------------------------------------
@@ -519,6 +528,9 @@ class NewLesson:
                 item = QStandardItem(i[0] + " - " + i[1])
                 item.setEditable(False)
                 model.appendRow(item)
+        self.parent.text_lesson_topic_constructor.setText(self.parent.edit_lesson_topic.text())
+        self.parent.text_lesson_topic_constructor.setWordWrap(True)
+        self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
 
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()
@@ -533,6 +545,7 @@ class NewLesson:
         self.parent.btn_reflection.show()
         self.parent.btn_homework.show()
         self.parent.value_lesson.show()
+        self.parent.text_lesson_topic_constructor.show()
 
     def hide_object_constructor_field(self):
         self.parent.btn_ok_constructor.hide()
@@ -547,6 +560,7 @@ class NewLesson:
         self.parent.btn_reflection.hide()
         self.parent.btn_homework.hide()
         self.parent.value_lesson.hide()
+        self.parent.text_lesson_topic_constructor.hide()
 
     def show_object_new_lesson(self):
         self.parent.background_new_lesson.show()
