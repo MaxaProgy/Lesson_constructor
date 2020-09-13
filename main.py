@@ -13,18 +13,24 @@ from Lesson_constructor.data.stage import Stage
 from Lesson_constructor.data.classes import Classes
 from Lesson_constructor.data.fgos import Fgos
 from Lesson_constructor.data.cards import Cards
+from Lesson_constructor.data.subject import Subject
+from Lesson_constructor.data.class_characteristic import ClassCharacteristic
+from Lesson_constructor.data.lesson_type import LessonType
 
 
 class Menu(QMainWindow):
     def __init__(self):
         super().__init__()
         db_session.global_init("db/lesson_constructor.sqlite")
-        session = db_session.create_session()
+        self.session = db_session.create_session()
 
-        type_method = [item.name_method for item in session.query(TypeMethod).all()]
-        classes = [item.name_class for item in session.query(Classes).all()]
-        fgos = [item.name_fgos for item in session.query(Fgos).all()]
-        stage = [item.name_stage for item in session.query(Stage).all()]
+        type_method = [item.name_method for item in self.session.query(TypeMethod).all()]
+        classes = [item.name_class for item in self.session.query(Classes).all()]
+        fgos = [item.name_fgos for item in self.session.query(Fgos).all()]
+        stage = [item.name_stage for item in self.session.query(Stage).all()]
+        subject = [item.name_subject for item in self.session.query(Subject).all()]
+        class_characteristic = [item.name_class_characteristic for item in self.session.query(ClassCharacteristic).all()]
+        lesson_type = [item.name_lesson_type for item in self.session.query(LessonType).all()]
 
         if not type_method:
             session = db_session.create_session()
@@ -66,6 +72,43 @@ class Menu(QMainWindow):
                     name_stage=value,
                 )
                 session.add(stage_value)
+                session.commit()
+
+        if not subject:
+            session = db_session.create_session()
+            subject_value = ["Начальные классы", "География", "Биология", "Химия", "Физика",
+                             "Математика ", "Алгебра", "Геометрия", "Иностранный язык",
+                             "Русский язык", "Литература", "Технология", "Физкультура", "Изобразительное искусство",
+                             "Музыка", "История", "Обществознание"]
+            for value in subject_value:
+                subject_value = Subject(
+                    name_subject=value,
+                )
+                session.add(subject_value)
+                session.commit()
+
+        if not class_characteristic:
+            session = db_session.create_session()
+            class_characteristic_value = ["Активные дети", "Пассивные дети", "Дружный класс",
+                                          "Имеется наличие лидера (лидеров)", "Имеются проблемы с дисциплиной"]
+
+            for value in class_characteristic_value:
+                class_characteristic_value = ClassCharacteristic(
+                    name_class_characteristic=value,
+                )
+                session.add(class_characteristic_value)
+                session.commit()
+
+        if not lesson_type:
+            session = db_session.create_session()
+            lesson_type_value = ["Новый материал", "Пассивные детиКонтроль усвоения",
+                                 "Проверка понимания", "Закрепление материала"]
+
+            for value in lesson_type_value:
+                lesson_type_value = LessonType(
+                    name_lesson_type=value,
+                )
+                session.add(lesson_type_value)
                 session.commit()
 
         uic.loadUi('data/ui_file/untitled.ui', self)

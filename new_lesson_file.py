@@ -1,6 +1,14 @@
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
     QButtonGroup
+from Lesson_constructor.data.type_method import TypeMethod
+from Lesson_constructor.data.stage import Stage
+from Lesson_constructor.data.classes import Classes
+from Lesson_constructor.data.fgos import Fgos
+from Lesson_constructor.data.cards import Cards
+from Lesson_constructor.data.class_characteristic import ClassCharacteristic
+from Lesson_constructor.data.subject import Subject
+from Lesson_constructor.data.lesson_type import LessonType
 
 
 class NewLesson:
@@ -121,28 +129,28 @@ class NewLesson:
         }''')
 
         self.parent.combo_subjects = QComboBox(self.parent)
-        self.parent.combo_subjects.addItems(["Ubuntu", "Mandriva",
-                                             "Fedora", "Arch", "Gentoo"])
+        self.parent.combo_subjects.addItems([item.name_subject for item
+                                             in self.parent.session.query(Subject).all()])
         self.parent.combo_subjects.resize(480, 30)
         self.parent.combo_subjects.move(self.parent.geometry.width() // 2 - 140,
                                         self.parent.geometry.height() // 2 - 180)
 
         self.parent.combo_lesson_type = QComboBox(self.parent)
-        self.parent.combo_lesson_type.addItems(["Ubuntu", "Mandriva",
-                                                "Fedora", "Arch", "Gentoo"])
+        self.parent.combo_lesson_type.addItems([item.name_lesson_type for item
+                                                in self.parent.session.query(LessonType).all()])
         self.parent.combo_lesson_type.resize(480, 30)
         self.parent.combo_lesson_type.move(self.parent.geometry.width() // 2 - 140,
                                            self.parent.geometry.height() // 2 - 100)
 
         self.parent.combo_class = QComboBox(self.parent)
-        self.parent.combo_class.addItems(["Ubuntu", "Mandriva",
-                                          "Fedora", "Arch", "Gentoo"])
+        self.parent.combo_class.addItems([item.name_class for item
+                                          in self.parent.session.query(Classes).all()])
         self.parent.combo_class.resize(480, 30)
         self.parent.combo_class.move(self.parent.geometry.width() // 2 - 140, self.parent.geometry.height() // 2 - 20)
 
         self.parent.combo_class_characteristic = QComboBox(self.parent)
-        self.parent.combo_class_characteristic.addItems(["Ubuntu", "Mandriva",
-                                                         "Fedora", "Arch", "Gentoo"])
+        self.parent.combo_class_characteristic.addItems([item.name_class_characteristic for item
+                                                         in self.parent.session.query(ClassCharacteristic).all()])
         self.parent.combo_class_characteristic.resize(480, 30)
         self.parent.combo_class_characteristic.move(self.parent.geometry.width() // 2 - 140,
                                                     self.parent.geometry.height() // 2 + 60)
