@@ -1,6 +1,7 @@
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
-    QButtonGroup
+    QButtonGroup, QScrollArea, QWidget, QGridLayout
+from PyQt5.QtCore import Qt
 from Lesson_constructor.data.type_method import TypeMethod
 from Lesson_constructor.data.stage import Stage
 from Lesson_constructor.data.classes import Classes
@@ -544,7 +545,27 @@ class NewLesson:
         x_min, y_min = 270, 150
         x_max, y_max = self.parent.width_windows - 670, 150
 
-        self.b = QLabel(self.parent)
+        """layout = QGridLayout()
+        for i in range(50):
+            for j in range(5):
+                button = QPushButton('{}x{}'.format(i, j))
+                layout.addWidget(button, i, j)
+
+        widget = QWidget()
+        widget.setLayout(layout)
+
+        scroll = QScrollArea(self.parent)
+        scroll.move(100, 100)
+        scroll.resize(500, 500)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        #scroll.setWidgetResizable(True)
+        scroll.setWidget(widget)
+        scroll.show()"""
+
+
+
+        """self.b = QLabel(self.parent)
         self.b.resize(20, 10)
         self.b.move(x_min, y_min)
         self.b.setStyleSheet('''
@@ -557,8 +578,7 @@ class NewLesson:
             font: bold 14px;
             min-width: 10em;x
             padding: 6px;
-        }''')
-
+        }''')"""
 
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()
