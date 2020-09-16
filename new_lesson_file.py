@@ -239,8 +239,8 @@ class NewLesson:
             }''')
 
         self.parent.value_lesson = QListView(self.parent)
-        self.parent.value_lesson.resize(415, 200)
-        self.parent.value_lesson.move(self.parent.width_windows - 435, 5)
+        self.parent.value_lesson.resize(515, 200)
+        self.parent.value_lesson.move(self.parent.width_windows - 535, 5)
 
         self.parent.text_lesson_topic_constructor = QLabel(self.parent)
         self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
@@ -272,13 +272,13 @@ class NewLesson:
         self.parent.btn_back_constructor = QPushButton(self.parent)
         self.parent.btn_back_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
                                                        '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
-        self.parent.btn_back_constructor.move(self.parent.width_windows - 600, 12)
+        self.parent.btn_back_constructor.move(self.parent.width_windows - 700, 12)
         self.parent.btn_back_constructor.resize(55, 40)
 
         self.parent.btn_ok_constructor = QPushButton(self.parent)
         self.parent.btn_ok_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
                                                      '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
-        self.parent.btn_ok_constructor.move(self.parent.width_windows - 530, 3)
+        self.parent.btn_ok_constructor.move(self.parent.width_windows - 630, 3)
         self.parent.btn_ok_constructor.resize(63, 60)
 
         # -----------------------------------------
@@ -542,26 +542,34 @@ class NewLesson:
         self.parent.text_lesson_topic_constructor.setWordWrap(True)
         self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
 
-        x_min, y_min = 270, 150
+        x_min, y_min = 270, 140
         x_max, y_max = self.parent.width_windows - 670, 150
 
-        """layout = QGridLayout()
-        for i in range(50):
-            for j in range(5):
-                button = QPushButton('{}x{}'.format(i, j))
-                layout.addWidget(button, i, j)
+        list_cards = self.parent.session.query(Cards).all()
+        layout = QGridLayout()
+        for i in range(len(list_cards)):
+            for j in range(2):
+                background_card = QLabel(self.parent)
+                background_card.setStyleSheet('.QLabel {'
+                                              'background-color: #6ca9b9;'
+                                              'border-radius: 10px;'
+                                              'min-height: 300px;'
+                                              'min-width: 500px;'
+                                              '}')
+
+                layout.addWidget(background_card)
 
         widget = QWidget()
         widget.setLayout(layout)
 
         scroll = QScrollArea(self.parent)
-        scroll.move(100, 100)
-        scroll.resize(500, 500)
+        scroll.move(270, 140)
+        scroll.resize(self.parent.width_windows - 820, self.parent.height_windows - 200)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         #scroll.setWidgetResizable(True)
         scroll.setWidget(widget)
-        scroll.show()"""
+        scroll.show()
 
 
 
