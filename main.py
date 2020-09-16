@@ -113,8 +113,10 @@ class Menu(QMainWindow):
 
         uic.loadUi('data/ui_file/untitled.ui', self)
         self.geometry = QDesktopWidget().availableGeometry()
-        self.setMinimumHeight(self.geometry.height())
-        self.setMinimumWidth(self.geometry.width())
+        self.height_windows = 1030
+        self.width_windows = 1920
+        self.setMinimumHeight(self.height_windows)
+        self.setMinimumWidth(self.width_windows)
 
         # --------------------------
         #       Кнопки меню
