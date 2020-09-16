@@ -12,9 +12,9 @@ class Cards(SqlAlchemyBase, SerializerMixin):
     name_method = sqlalchemy.Column(sqlalchemy.String)
     time = sqlalchemy.Column(sqlalchemy.String)
 
-    classes_number = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("classes.id"))
-    type_method = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("type_method.id"))
-    stage = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("stage.id"))
+    id_classes_number = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("classes.id"))
+    id_type_method_card = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("type_method.id"))
+    id_stage_card = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("stage.id"))
 
     creative_thinking = sqlalchemy.Column(sqlalchemy.Boolean)
     critical_thinking = sqlalchemy.Column(sqlalchemy.Boolean)
@@ -23,10 +23,10 @@ class Cards(SqlAlchemyBase, SerializerMixin):
     metacognitive_skills = sqlalchemy.Column(sqlalchemy.Boolean)
     literacy = sqlalchemy.Column(sqlalchemy.Boolean)
 
-    fgos = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("fgos.id"))
+    id_fgos = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("fgos.id"))
     text = sqlalchemy.Column(sqlalchemy.Text)
 
-    classes_table = orm.relation('Classes')
-    type_method_table = orm.relation('TypeMethod')
-    stage_table = orm.relation('Stage')
-    fgos_table = orm.relation('Fgos')
+    classes = orm.relation('Classes')
+    type_method = orm.relation('TypeMethod')
+    stage = orm.relation('Stage')
+    fgos = orm.relation('Fgos')

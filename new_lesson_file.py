@@ -1,6 +1,15 @@
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
-    QButtonGroup
+    QButtonGroup, QScrollArea, QWidget, QGridLayout
+from PyQt5.QtCore import Qt
+from Lesson_constructor.data.type_method import TypeMethod
+from Lesson_constructor.data.stage import Stage
+from Lesson_constructor.data.classes import Classes
+from Lesson_constructor.data.fgos import Fgos
+from Lesson_constructor.data.cards import Cards
+from Lesson_constructor.data.class_characteristic import ClassCharacteristic
+from Lesson_constructor.data.subject import Subject
+from Lesson_constructor.data.lesson_type import LessonType
 
 
 class NewLesson:
@@ -13,8 +22,8 @@ class NewLesson:
         # Фон для текстовых полей нового урока
         self.parent.background_new_lesson = QLabel(self.parent)
         self.parent.background_new_lesson.resize(900, 600)
-        self.parent.background_new_lesson.move(self.parent.geometry.width() // 2 - 450,
-                                               self.parent.geometry.height() // 2 - 300)
+        self.parent.background_new_lesson.move(self.parent.width_windows // 2 - 450,
+                                               self.parent.height_windows // 2 - 300)
         self.parent.background_new_lesson.setStyleSheet('''
             .QLabel {
             background-color: #6ca9b9;
@@ -31,8 +40,8 @@ class NewLesson:
         # -----------------------------------------
         self.parent.text_lesson_topic = QLabel("Тема урока", self.parent)
         self.parent.text_lesson_topic.resize(self.parent.text_lesson_topic.sizeHint())
-        self.parent.text_lesson_topic.move(self.parent.geometry.width() // 2 - 400,
-                                           self.parent.geometry.height() // 2 - 250)
+        self.parent.text_lesson_topic.move(self.parent.width_windows // 2 - 400,
+                                           self.parent.height_windows // 2 - 250)
         self.parent.text_lesson_topic.setStyleSheet('''
             .QLabel {
             font: bold 16px;
@@ -41,8 +50,8 @@ class NewLesson:
 
         self.parent.text_subjects = QLabel("Предмет", self.parent)
         self.parent.text_subjects.resize(self.parent.text_subjects.sizeHint())
-        self.parent.text_subjects.move(self.parent.geometry.width() // 2 - 400,
-                                       self.parent.geometry.height() // 2 - 170)
+        self.parent.text_subjects.move(self.parent.width_windows // 2 - 400,
+                                       self.parent.height_windows // 2 - 170)
         self.parent.text_subjects.setStyleSheet('''
             .QLabel {
             font: bold 16px;
@@ -51,8 +60,8 @@ class NewLesson:
 
         self.parent.text_lesson_type = QLabel("Тип урока", self.parent)
         self.parent.text_lesson_type.resize(self.parent.text_lesson_type.sizeHint())
-        self.parent.text_lesson_type.move(self.parent.geometry.width() // 2 - 400,
-                                          self.parent.geometry.height() // 2 - 90)
+        self.parent.text_lesson_type.move(self.parent.width_windows // 2 - 400,
+                                          self.parent.height_windows // 2 - 90)
         self.parent.text_lesson_type.setStyleSheet('''
             .QLabel {
             font: bold 16px;
@@ -61,7 +70,7 @@ class NewLesson:
 
         self.parent.text_class = QLabel("Класс", self.parent)
         self.parent.text_class.resize(self.parent.text_class.sizeHint())
-        self.parent.text_class.move(self.parent.geometry.width() // 2 - 400, self.parent.geometry.height() // 2 - 10)
+        self.parent.text_class.move(self.parent.width_windows // 2 - 400, self.parent.height_windows // 2 - 10)
         self.parent.text_class.setStyleSheet('''
             .QLabel {
             font: bold 16px;
@@ -70,8 +79,8 @@ class NewLesson:
 
         self.parent.text_class_characteristic = QLabel("Характеристика класса", self.parent)
         self.parent.text_class_characteristic.resize(self.parent.text_class_characteristic.sizeHint())
-        self.parent.text_class_characteristic.move(self.parent.geometry.width() // 2 - 400,
-                                                   self.parent.geometry.height() // 2 + 70)
+        self.parent.text_class_characteristic.move(self.parent.width_windows // 2 - 400,
+                                                   self.parent.height_windows // 2 + 70)
         self.parent.text_class_characteristic.setStyleSheet('''
             .QLabel {
             font: bold 16px;
@@ -80,8 +89,8 @@ class NewLesson:
 
         self.parent.text_lesson_duration = QLabel("Длительность урока", self.parent)
         self.parent.text_lesson_duration.resize(self.parent.text_lesson_duration.sizeHint())
-        self.parent.text_lesson_duration.move(self.parent.geometry.width() // 2 - 400,
-                                              self.parent.geometry.height() // 2 + 150)
+        self.parent.text_lesson_duration.move(self.parent.width_windows // 2 - 400,
+                                              self.parent.height_windows // 2 + 150)
         self.parent.text_lesson_duration.setStyleSheet('''
             .QLabel {
             font: bold 16px;
@@ -90,8 +99,8 @@ class NewLesson:
 
         self.parent.text_acquaintance = QLabel("Требуется знакомство?", self.parent)
         self.parent.text_acquaintance.resize(self.parent.text_acquaintance.sizeHint())
-        self.parent.text_acquaintance.move(self.parent.geometry.width() // 2 - 20,
-                                           self.parent.geometry.height() // 2 + 150)
+        self.parent.text_acquaintance.move(self.parent.width_windows // 2 - 20,
+                                           self.parent.height_windows // 2 + 150)
         self.parent.text_acquaintance.setStyleSheet('''
             .QLabel {
             font: bold 16px;
@@ -100,8 +109,8 @@ class NewLesson:
 
         self.parent.text_competence = QLabel("Компетенции ", self.parent)
         self.parent.text_competence.resize(self.parent.text_competence.sizeHint())
-        self.parent.text_competence.move(self.parent.geometry.width() // 2 - 400,
-                                         self.parent.geometry.height() // 2 + 230)
+        self.parent.text_competence.move(self.parent.width_windows // 2 - 400,
+                                         self.parent.height_windows // 2 + 230)
         self.parent.text_competence.setStyleSheet('''
             .QLabel {
             font: bold 16px;
@@ -113,59 +122,59 @@ class NewLesson:
 
         self.parent.edit_lesson_topic = QLineEdit(self.parent)
         self.parent.edit_lesson_topic.resize(480, 30)
-        self.parent.edit_lesson_topic.move(self.parent.geometry.width() // 2 - 140,
-                                           self.parent.geometry.height() // 2 - 260)
+        self.parent.edit_lesson_topic.move(self.parent.width_windows // 2 - 140,
+                                           self.parent.height_windows // 2 - 260)
         self.parent.edit_lesson_topic.setStyleSheet('''
             .QLineEdit {
             font: bold 16px;
         }''')
 
         self.parent.combo_subjects = QComboBox(self.parent)
-        self.parent.combo_subjects.addItems(["Ubuntu", "Mandriva",
-                                             "Fedora", "Arch", "Gentoo"])
+        self.parent.combo_subjects.addItems([item.name_subject for item
+                                             in self.parent.session.query(Subject).all()])
         self.parent.combo_subjects.resize(480, 30)
-        self.parent.combo_subjects.move(self.parent.geometry.width() // 2 - 140,
-                                        self.parent.geometry.height() // 2 - 180)
+        self.parent.combo_subjects.move(self.parent.width_windows // 2 - 140,
+                                        self.parent.height_windows // 2 - 180)
 
         self.parent.combo_lesson_type = QComboBox(self.parent)
-        self.parent.combo_lesson_type.addItems(["Ubuntu", "Mandriva",
-                                                "Fedora", "Arch", "Gentoo"])
+        self.parent.combo_lesson_type.addItems([item.name_lesson_type for item
+                                                in self.parent.session.query(LessonType).all()])
         self.parent.combo_lesson_type.resize(480, 30)
-        self.parent.combo_lesson_type.move(self.parent.geometry.width() // 2 - 140,
-                                           self.parent.geometry.height() // 2 - 100)
+        self.parent.combo_lesson_type.move(self.parent.width_windows // 2 - 140,
+                                           self.parent.height_windows // 2 - 100)
 
         self.parent.combo_class = QComboBox(self.parent)
-        self.parent.combo_class.addItems(["Ubuntu", "Mandriva",
-                                          "Fedora", "Arch", "Gentoo"])
+        self.parent.combo_class.addItems([item.name_class for item
+                                          in self.parent.session.query(Classes).all()])
         self.parent.combo_class.resize(480, 30)
-        self.parent.combo_class.move(self.parent.geometry.width() // 2 - 140, self.parent.geometry.height() // 2 - 20)
+        self.parent.combo_class.move(self.parent.width_windows // 2 - 140, self.parent.height_windows // 2 - 20)
 
         self.parent.combo_class_characteristic = QComboBox(self.parent)
-        self.parent.combo_class_characteristic.addItems(["Ubuntu", "Mandriva",
-                                                         "Fedora", "Arch", "Gentoo"])
+        self.parent.combo_class_characteristic.addItems([item.name_class_characteristic for item
+                                                         in self.parent.session.query(ClassCharacteristic).all()])
         self.parent.combo_class_characteristic.resize(480, 30)
-        self.parent.combo_class_characteristic.move(self.parent.geometry.width() // 2 - 140,
-                                                    self.parent.geometry.height() // 2 + 60)
+        self.parent.combo_class_characteristic.move(self.parent.width_windows // 2 - 140,
+                                                    self.parent.height_windows // 2 + 60)
 
         self.parent.edit_lesson_duration = QLineEdit("40", self.parent)
         self.parent.edit_lesson_duration.resize(80, 30)
-        self.parent.edit_lesson_duration.move(self.parent.geometry.width() // 2 - 130,
-                                              self.parent.geometry.height() // 2 + 140)
+        self.parent.edit_lesson_duration.move(self.parent.width_windows // 2 - 130,
+                                              self.parent.height_windows // 2 + 140)
         self.parent.edit_lesson_duration.setStyleSheet('''
             .QLineEdit {
             font: bold 16px;
         }''')
 
         self.parent.radio_btn_yes = QRadioButton('Да', self.parent)
-        self.parent.radio_btn_yes.move(self.parent.geometry.width() // 2 + 200,
-                                       self.parent.geometry.height() // 2 + 145)
+        self.parent.radio_btn_yes.move(self.parent.width_windows // 2 + 200,
+                                       self.parent.height_windows // 2 + 145)
         self.parent.radio_btn_yes.setStyleSheet('''
             .QRadioButton {
             font: bold 16px;
         }''')
         self.parent.radio_btn_no = QRadioButton('Нет', self.parent)
-        self.parent.radio_btn_no.move(self.parent.geometry.width() // 2 + 260,
-                                      self.parent.geometry.height() // 2 + 145)
+        self.parent.radio_btn_no.move(self.parent.width_windows // 2 + 260,
+                                      self.parent.height_windows // 2 + 145)
         self.parent.radio_btn_no.setStyleSheet('''
             .QRadioButton {
             font: bold 16px;
@@ -177,8 +186,8 @@ class NewLesson:
 
         self.parent.check_communication = QCheckBox('Коммуникация', self.parent)
         self.parent.check_communication.resize(200, 30)
-        self.parent.check_communication.move(self.parent.geometry.width() // 2 - 140,
-                                             self.parent.geometry.height() // 2 + 200)
+        self.parent.check_communication.move(self.parent.width_windows // 2 - 140,
+                                             self.parent.height_windows // 2 + 200)
         self.parent.check_communication.setStyleSheet('''
                 .QCheckBox {
                 font: bold 14px;
@@ -186,8 +195,8 @@ class NewLesson:
 
         self.parent.check_literacy = QCheckBox('Грамотность', self.parent)
         self.parent.check_literacy.resize(200, 30)
-        self.parent.check_literacy.move(self.parent.geometry.width() // 2 - 140,
-                                        self.parent.geometry.height() // 2 + 220)
+        self.parent.check_literacy.move(self.parent.width_windows // 2 - 140,
+                                        self.parent.height_windows // 2 + 220)
         self.parent.check_literacy.setStyleSheet('''
             .QCheckBox {
             font: bold 14px;
@@ -195,8 +204,8 @@ class NewLesson:
 
         self.parent.check_cooperation = QCheckBox('Кооперация', self.parent)
         self.parent.check_cooperation.resize(200, 30)
-        self.parent.check_cooperation.move(self.parent.geometry.width() // 2 - 140,
-                                           self.parent.geometry.height() // 2 + 240)
+        self.parent.check_cooperation.move(self.parent.width_windows // 2 - 140,
+                                           self.parent.height_windows // 2 + 240)
         self.parent.check_cooperation.setStyleSheet('''
             .QCheckBox {
             font: bold 14px;
@@ -204,8 +213,8 @@ class NewLesson:
 
         self.parent.check_creative_thinking = QCheckBox('Креативное мышление', self.parent)
         self.parent.check_creative_thinking.resize(200, 30)
-        self.parent.check_creative_thinking.move(self.parent.geometry.width() // 2 + 60,
-                                                 self.parent.geometry.height() // 2 + 200)
+        self.parent.check_creative_thinking.move(self.parent.width_windows // 2 + 60,
+                                                 self.parent.height_windows // 2 + 200)
         self.parent.check_creative_thinking.setStyleSheet('''
                     .QCheckBox {
                     font: bold 14px;
@@ -213,8 +222,8 @@ class NewLesson:
 
         self.parent.check_critical_thinking = QCheckBox('Критическое мышление', self.parent)
         self.parent.check_critical_thinking.resize(200, 30)
-        self.parent.check_critical_thinking.move(self.parent.geometry.width() // 2 + 60,
-                                                 self.parent.geometry.height() // 2 + 220)
+        self.parent.check_critical_thinking.move(self.parent.width_windows // 2 + 60,
+                                                 self.parent.height_windows // 2 + 220)
         self.parent.check_critical_thinking.setStyleSheet('''
                 .QCheckBox {
                 font: bold 14px;
@@ -222,8 +231,8 @@ class NewLesson:
 
         self.parent.check_metacognitive_skills = QCheckBox('Метакогнитивные навыки', self.parent)
         self.parent.check_metacognitive_skills.resize(200, 30)
-        self.parent.check_metacognitive_skills.move(self.parent.geometry.width() // 2 + 60,
-                                                    self.parent.geometry.height() // 2 + 240)
+        self.parent.check_metacognitive_skills.move(self.parent.width_windows // 2 + 60,
+                                                    self.parent.height_windows // 2 + 240)
         self.parent.check_metacognitive_skills.setStyleSheet('''
                 .QCheckBox {
                 font: bold 14px;
@@ -231,11 +240,11 @@ class NewLesson:
 
         self.parent.value_lesson = QListView(self.parent)
         self.parent.value_lesson.resize(415, 200)
-        self.parent.value_lesson.move(self.parent.geometry.width() - 435, 5)
+        self.parent.value_lesson.move(self.parent.width_windows - 435, 5)
 
         self.parent.text_lesson_topic_constructor = QLabel(self.parent)
         self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
-        self.parent.text_lesson_topic_constructor.move(self.parent.geometry.width() - 430, 250)
+        self.parent.text_lesson_topic_constructor.move(self.parent.width_windows - 430, 250)
         self.parent.text_lesson_topic_constructor.setStyleSheet('''
             .QLabel {
             font: bold 16px;
@@ -248,14 +257,14 @@ class NewLesson:
         self.parent.btn_back_valid = QPushButton(self.parent)
         self.parent.btn_back_valid.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
                                                  '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
-        self.parent.btn_back_valid.move(self.parent.geometry.width() // 2 + 390,
-                                        self.parent.geometry.height() // 2 - 350)
+        self.parent.btn_back_valid.move(self.parent.width_windows // 2 + 390,
+                                        self.parent.height_windows // 2 - 350)
         self.parent.btn_back_valid.resize(55, 40)
 
         self.parent.btn_ok_valid = QPushButton(self.parent)
         self.parent.btn_ok_valid.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
                                                '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
-        self.parent.btn_ok_valid.move(self.parent.geometry.width() // 2 + 350, self.parent.geometry.height() - 310)
+        self.parent.btn_ok_valid.move(self.parent.width_windows // 2 + 350, self.parent.height_windows - 310)
         self.parent.btn_ok_valid.resize(63, 60)
 
         # -----------------------------------------
@@ -263,13 +272,13 @@ class NewLesson:
         self.parent.btn_back_constructor = QPushButton(self.parent)
         self.parent.btn_back_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
                                                        '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
-        self.parent.btn_back_constructor.move(self.parent.geometry.width() - 600, 12)
+        self.parent.btn_back_constructor.move(self.parent.width_windows - 600, 12)
         self.parent.btn_back_constructor.resize(55, 40)
 
         self.parent.btn_ok_constructor = QPushButton(self.parent)
         self.parent.btn_ok_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
                                                      '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
-        self.parent.btn_ok_constructor.move(self.parent.geometry.width() - 530, 3)
+        self.parent.btn_ok_constructor.move(self.parent.width_windows - 530, 3)
         self.parent.btn_ok_constructor.resize(63, 60)
 
         # -----------------------------------------
@@ -493,6 +502,7 @@ class NewLesson:
             self.parent.btn_material_fixing.resize(200, 80)
             self.parent.btn_reflection.resize(200, 80)
             self.parent.btn_homework.resize(200, 80)
+            self.parent.btn_assimilation_control.resize(200, 80)
 
             self.parent.btn_stage_acquaintance.move(50, 140)
             self.parent.btn_team_building.move(50, 225)
@@ -531,6 +541,44 @@ class NewLesson:
         self.parent.text_lesson_topic_constructor.setText(self.parent.edit_lesson_topic.text())
         self.parent.text_lesson_topic_constructor.setWordWrap(True)
         self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
+
+        x_min, y_min = 270, 150
+        x_max, y_max = self.parent.width_windows - 670, 150
+
+        """layout = QGridLayout()
+        for i in range(50):
+            for j in range(5):
+                button = QPushButton('{}x{}'.format(i, j))
+                layout.addWidget(button, i, j)
+
+        widget = QWidget()
+        widget.setLayout(layout)
+
+        scroll = QScrollArea(self.parent)
+        scroll.move(100, 100)
+        scroll.resize(500, 500)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        #scroll.setWidgetResizable(True)
+        scroll.setWidget(widget)
+        scroll.show()"""
+
+
+
+        """self.b = QLabel(self.parent)
+        self.b.resize(20, 10)
+        self.b.move(x_min, y_min)
+        self.b.setStyleSheet('''
+            .QLabel {
+            background-color: #6ca9b9;
+            border-style: outset;
+            border-width: 2px;
+            border-radius: 10px;
+            border-color: beige;
+            font: bold 14px;
+            min-width: 10em;x
+            padding: 6px;
+        }''')"""
 
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()
