@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
     QButtonGroup, QScrollArea, QWidget, QGridLayout
 from PyQt5.QtCore import Qt
@@ -449,7 +449,8 @@ class NewLesson:
         self.parent.main_menu()
 
     def open_new_lesson(self):
-        self.parent.setStyleSheet('.QWidget {background-image: url(data/image/фоны/общий_фон.jpg);}')
+        pixmap = QPixmap('data/image/фоны/общий_фон.jpg')
+        self.parent.background.setPixmap(pixmap)
         self.hide_object_constructor_field()
         self.show_object_new_lesson()
 
@@ -467,7 +468,8 @@ class NewLesson:
             QMessageBox.critical(self.parent, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
 
     def constructor_field(self):
-        self.parent.setStyleSheet('.QWidget {background-image: url(data/image/фоны/фон_конструктора.jpg);}')
+        pixmap = QPixmap('data/image/фоны/фон_конструктора.jpg')
+        self.parent.background.setPixmap(pixmap)
         self.hide_object_new_lesson()
         self.show_object_constructor_field()
         if self.parent.radio_btn_no.isChecked():
@@ -554,15 +556,16 @@ class NewLesson:
                                           'border-radius: 10px;'
                                           'min-height: 300px;'
                                           'min-width: 500px;'
-                                          'margin-right: 20px;'
-                                          'margin-left: 200px;'
+                                          'margin-right: 8px;'
+                                          'margin-left: 8px;'
+                                          'margin-bottom: 16px;'
                                           '}')
 
-            layout.addWidget(background_card)
+            layout.addWidget(background_card, i // 2, i % 2)
 
-        widget = QWidget(self.parent)
+        widget = QWidget()
         widget.setLayout(layout)
-
+        widget.setStyleSheet(".QWidget {background-color:transparent;}")
         scroll = QScrollArea(self.parent)
         scroll.setStyleSheet(".QScrollArea {background-color:transparent;}")
         scroll.move(270, 140)
