@@ -253,6 +253,14 @@ class NewLesson:
             font: bold 16px;
             min-width: 22em;
         }''')
+
+        self.scroll = QScrollArea(self.parent)
+        self.scroll.setStyleSheet(".QScrollArea {background-color:transparent;}")
+        self.scroll.move(270, 140)
+        self.scroll.resize(self.parent.width_windows - 820, self.parent.height_windows - 200)
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
         # -----------------------------------------
         #                Кнопки
         # -----------------------------------------
@@ -589,15 +597,9 @@ class NewLesson:
         widget = QWidget()
         widget.setLayout(layout)
         widget.setStyleSheet(".QWidget {background-color:transparent;}")
-        scroll = QScrollArea(self.parent)
-        scroll.setStyleSheet(".QScrollArea {background-color:transparent;}")
-        scroll.move(270, 140)
-        scroll.resize(self.parent.width_windows - 820, self.parent.height_windows - 200)
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # scroll.setWidgetResizable(True)
-        scroll.setWidget(widget)
-        scroll.show()
+        self.scroll.setWidget(widget)
+        self.scroll.show()
 
     def stage_button_flag(self, button):
         self.flag_stage = self.parent.session.query(Stage).filter(Stage.name_stage == button.text()).first().id
@@ -617,6 +619,7 @@ class NewLesson:
         self.parent.btn_homework.show()
         self.parent.value_lesson.show()
         self.parent.text_lesson_topic_constructor.show()
+        self.scroll.show()
 
     def hide_object_constructor_field(self):
         self.parent.btn_ok_constructor.hide()
@@ -632,6 +635,7 @@ class NewLesson:
         self.parent.btn_homework.hide()
         self.parent.value_lesson.hide()
         self.parent.text_lesson_topic_constructor.hide()
+        self.scroll.hide()
 
     def show_object_new_lesson(self):
         self.parent.background_new_lesson.show()
