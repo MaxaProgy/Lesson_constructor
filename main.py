@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import sys
+
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, \
-    QSplashScreen, QPushButton
+    QSplashScreen, QPushButton, QLabel
 from PyQt5 import uic, QtGui, QtCore
 import time
 
@@ -16,6 +18,7 @@ from Lesson_constructor.data.cards import Cards
 from Lesson_constructor.data.subject import Subject
 from Lesson_constructor.data.class_characteristic import ClassCharacteristic
 from Lesson_constructor.data.lesson_type import LessonType
+from PyQt5.Qt import Qt
 
 
 class Menu(QMainWindow):
@@ -101,7 +104,7 @@ class Menu(QMainWindow):
 
         if not lesson_type:
             session = db_session.create_session()
-            lesson_type_value = ["Новый материал", "Пассивные детиКонтроль усвоения",
+            lesson_type_value = ["Новый материал", "Контроль усвоения",
                                  "Проверка понимания", "Закрепление материала"]
 
             for value in lesson_type_value:
@@ -111,12 +114,16 @@ class Menu(QMainWindow):
                 session.add(lesson_type_value)
                 session.commit()
 
-        uic.loadUi('data/ui_file/untitled.ui', self)
-        self.geometry = QDesktopWidget().availableGeometry()
+
         self.height_windows = 1030
         self.width_windows = 1920
         self.setMinimumHeight(self.height_windows)
         self.setMinimumWidth(self.width_windows)
+        self.geometry = QDesktopWidget().availableGeometry()
+
+        self.background = QLabel(self)
+        pixmap = QPixmap('data/image/фоны/меню.jpg')
+        self.background.resize(self.geometry.width(), self.geometry.height())
 
         # --------------------------
         #       Кнопки меню
@@ -150,7 +157,8 @@ class Menu(QMainWindow):
     # -----------------------------------------
 
     def main_menu(self):
-        self.setStyleSheet('.QWidget {background-image: url(data/image/фоны/меню.jpg);}')
+        pixmap = QPixmap('data/image/фоны/меню.jpg')
+        self.background.setPixmap(pixmap)
         self.btn_new_lesson.show()
 
     # -----------------------------------------

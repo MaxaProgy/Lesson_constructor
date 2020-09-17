@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
     QButtonGroup, QScrollArea, QWidget, QGridLayout
 from PyQt5.QtCore import Qt
@@ -15,6 +15,9 @@ from Lesson_constructor.data.lesson_type import LessonType
 class NewLesson:
     def __init__(self, parent):
         self.parent = parent
+        self.flag_stage = 0
+        self.list_background_card = []
+
         # ------------------------------
         #  Объекты вкладки нового урока
         # ------------------------------
@@ -239,8 +242,8 @@ class NewLesson:
             }''')
 
         self.parent.value_lesson = QListView(self.parent)
-        self.parent.value_lesson.resize(415, 200)
-        self.parent.value_lesson.move(self.parent.width_windows - 435, 5)
+        self.parent.value_lesson.resize(515, 200)
+        self.parent.value_lesson.move(self.parent.width_windows - 535, 5)
 
         self.parent.text_lesson_topic_constructor = QLabel(self.parent)
         self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
@@ -272,13 +275,13 @@ class NewLesson:
         self.parent.btn_back_constructor = QPushButton(self.parent)
         self.parent.btn_back_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
                                                        '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
-        self.parent.btn_back_constructor.move(self.parent.width_windows - 600, 12)
+        self.parent.btn_back_constructor.move(self.parent.width_windows - 700, 12)
         self.parent.btn_back_constructor.resize(55, 40)
 
         self.parent.btn_ok_constructor = QPushButton(self.parent)
         self.parent.btn_ok_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
                                                      '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
-        self.parent.btn_ok_constructor.move(self.parent.width_windows - 530, 3)
+        self.parent.btn_ok_constructor.move(self.parent.width_windows - 630, 3)
         self.parent.btn_ok_constructor.resize(63, 60)
 
         # -----------------------------------------
@@ -436,6 +439,19 @@ class NewLesson:
                 border-style: inset;
             }''')
 
+        self.group_button_stage = QButtonGroup(self.parent)
+        self.group_button_stage.addButton(self.parent.btn_stage_acquaintance)
+        self.group_button_stage.addButton(self.parent.btn_team_building)
+        self.group_button_stage.addButton(self.parent.btn_new_material)
+        self.group_button_stage.addButton(self.parent.btn_refreshments)
+        self.group_button_stage.addButton(self.parent.btn_test_of_understanding)
+        self.group_button_stage.addButton(self.parent.btn_material_fixing)
+        self.group_button_stage.addButton(self.parent.btn_assimilation_control)
+        self.group_button_stage.addButton(self.parent.btn_reflection)
+        self.group_button_stage.addButton(self.parent.btn_homework)
+
+        self.group_button_stage.buttonClicked.connect(self.stage_button_flag)
+
         # -----------------------------------------
         self.parent.btn_ok_valid.clicked.connect(self.valid_new_lesson_and_show_info)
         self.parent.btn_back_valid.clicked.connect(self.open_main_menu)
@@ -449,7 +465,8 @@ class NewLesson:
         self.parent.main_menu()
 
     def open_new_lesson(self):
-        self.parent.setStyleSheet('.QWidget {background-image: url(data/image/фоны/общий_фон.jpg);}')
+        pixmap = QPixmap('data/image/фоны/общий_фон.jpg')
+        self.parent.background.setPixmap(pixmap)
         self.hide_object_constructor_field()
         self.show_object_new_lesson()
 
@@ -467,7 +484,8 @@ class NewLesson:
             QMessageBox.critical(self.parent, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
 
     def constructor_field(self):
-        self.parent.setStyleSheet('.QWidget {background-image: url(data/image/фоны/фон_конструктора.jpg);}')
+        pixmap = QPixmap('data/image/фоны/фон_конструктора.jpg')
+        self.parent.background.setPixmap(pixmap)
         self.hide_object_new_lesson()
         self.show_object_constructor_field()
         if self.parent.radio_btn_no.isChecked():
@@ -542,43 +560,48 @@ class NewLesson:
         self.parent.text_lesson_topic_constructor.setWordWrap(True)
         self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
 
-        x_min, y_min = 270, 150
+        x_min, y_min = 270, 140
         x_max, y_max = self.parent.width_windows - 670, 150
+        self.show_cards_stage()
 
-        """layout = QGridLayout()
-        for i in range(50):
-            for j in range(5):
-                button = QPushButton('{}x{}'.format(i, j))
-                layout.addWidget(button, i, j)
+    def show_cards_stage(self):
+        list_cards = self.parent.session.query(Cards).filter(Cards.id_stage_card.like(self.flag_stage)).all()
+        layout = QGridLayout()
+
+        for i in reversed(range(len(self.list_background_card))):
+            self.list_background_card[i].setParent(None)
+            del self.list_background_card[i]
+
+        for i in range(len(list_cards)):
+            self.list_background_card.append(QLabel())
+            self.list_background_card[i].setStyleSheet('.QLabel {'
+                                             'background-color: #6ca9b9;'
+                                             'border-radius: 10px;'
+                                             'min-height: 300px;'
+                                             'min-width: 500px;'
+                                             'margin-right: 8px;'
+                                             'margin-left: 8px;'
+                                             'margin-bottom: 16px;'
+                                             '}')
+
+            layout.addWidget(self.list_background_card[i], i // 2, i % 2)
 
         widget = QWidget()
         widget.setLayout(layout)
-
+        widget.setStyleSheet(".QWidget {background-color:transparent;}")
         scroll = QScrollArea(self.parent)
-        scroll.move(100, 100)
-        scroll.resize(500, 500)
+        scroll.setStyleSheet(".QScrollArea {background-color:transparent;}")
+        scroll.move(270, 140)
+        scroll.resize(self.parent.width_windows - 820, self.parent.height_windows - 200)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        #scroll.setWidgetResizable(True)
+        # scroll.setWidgetResizable(True)
         scroll.setWidget(widget)
-        scroll.show()"""
+        scroll.show()
 
-
-
-        """self.b = QLabel(self.parent)
-        self.b.resize(20, 10)
-        self.b.move(x_min, y_min)
-        self.b.setStyleSheet('''
-            .QLabel {
-            background-color: #6ca9b9;
-            border-style: outset;
-            border-width: 2px;
-            border-radius: 10px;
-            border-color: beige;
-            font: bold 14px;
-            min-width: 10em;x
-            padding: 6px;
-        }''')"""
+    def stage_button_flag(self, button):
+        self.flag_stage = self.parent.session.query(Stage).filter(Stage.name_stage == button.text()).first().id
+        self.show_cards_stage()
 
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()
