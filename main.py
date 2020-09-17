@@ -101,7 +101,7 @@ class Menu(QMainWindow):
 
         if not lesson_type:
             session = db_session.create_session()
-            lesson_type_value = ["Новый материал", "Пассивные детиКонтроль усвоения",
+            lesson_type_value = ["Новый материал", "Контроль усвоения",
                                  "Проверка понимания", "Закрепление материала"]
 
             for value in lesson_type_value:

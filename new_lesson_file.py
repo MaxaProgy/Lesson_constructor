@@ -548,21 +548,23 @@ class NewLesson:
         list_cards = self.parent.session.query(Cards).all()
         layout = QGridLayout()
         for i in range(len(list_cards)):
-            for j in range(2):
-                background_card = QLabel(self.parent)
-                background_card.setStyleSheet('.QLabel {'
-                                              'background-color: #6ca9b9;'
-                                              'border-radius: 10px;'
-                                              'min-height: 300px;'
-                                              'min-width: 500px;'
-                                              '}')
+            background_card = QLabel()
+            background_card.setStyleSheet('.QLabel {'
+                                          'background-color: #6ca9b9;'
+                                          'border-radius: 10px;'
+                                          'min-height: 300px;'
+                                          'min-width: 500px;'
+                                          'margin-right: 20px;'
+                                          'margin-left: 200px;'
+                                          '}')
 
-                layout.addWidget(background_card)
+            layout.addWidget(background_card)
 
-        widget = QWidget()
+        widget = QWidget(self.parent)
         widget.setLayout(layout)
 
         scroll = QScrollArea(self.parent)
+        scroll.setStyleSheet(".QScrollArea {background-color:transparent;}")
         scroll.move(270, 140)
         scroll.resize(self.parent.width_windows - 820, self.parent.height_windows - 200)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
