@@ -15,6 +15,9 @@ from Lesson_constructor.data.lesson_type import LessonType
 class NewLesson:
     def __init__(self, parent):
         self.parent = parent
+        self.flag_stage = 0
+        self.list_background_card = []
+
         # ------------------------------
         #  Объекты вкладки нового урока
         # ------------------------------
@@ -436,6 +439,19 @@ class NewLesson:
                 border-style: inset;
             }''')
 
+        self.group_button_stage = QButtonGroup(self.parent)
+        self.group_button_stage.addButton(self.parent.btn_stage_acquaintance)
+        self.group_button_stage.addButton(self.parent.btn_team_building)
+        self.group_button_stage.addButton(self.parent.btn_new_material)
+        self.group_button_stage.addButton(self.parent.btn_refreshments)
+        self.group_button_stage.addButton(self.parent.btn_test_of_understanding)
+        self.group_button_stage.addButton(self.parent.btn_material_fixing)
+        self.group_button_stage.addButton(self.parent.btn_assimilation_control)
+        self.group_button_stage.addButton(self.parent.btn_reflection)
+        self.group_button_stage.addButton(self.parent.btn_homework)
+
+        self.group_button_stage.buttonClicked.connect(self.stage_button_flag)
+
         # -----------------------------------------
         self.parent.btn_ok_valid.clicked.connect(self.valid_new_lesson_and_show_info)
         self.parent.btn_back_valid.clicked.connect(self.open_main_menu)
@@ -546,22 +562,29 @@ class NewLesson:
 
         x_min, y_min = 270, 140
         x_max, y_max = self.parent.width_windows - 670, 150
+        self.show_cards_stage()
 
-        list_cards = self.parent.session.query(Cards).all()
+    def show_cards_stage(self):
+        list_cards = self.parent.session.query(Cards).filter(Cards.id_stage_card.like(self.flag_stage)).all()
         layout = QGridLayout()
-        for i in range(len(list_cards)):
-            background_card = QLabel()
-            background_card.setStyleSheet('.QLabel {'
-                                          'background-color: #6ca9b9;'
-                                          'border-radius: 10px;'
-                                          'min-height: 300px;'
-                                          'min-width: 500px;'
-                                          'margin-right: 8px;'
-                                          'margin-left: 8px;'
-                                          'margin-bottom: 16px;'
-                                          '}')
 
-            layout.addWidget(background_card, i // 2, i % 2)
+        for i in reversed(range(len(self.list_background_card))):
+            self.list_background_card[i].setParent(None)
+            del self.list_background_card[i]
+
+        for i in range(len(list_cards)):
+            self.list_background_card.append(QLabel())
+            self.list_background_card[i].setStyleSheet('.QLabel {'
+                                             'background-color: #6ca9b9;'
+                                             'border-radius: 10px;'
+                                             'min-height: 300px;'
+                                             'min-width: 500px;'
+                                             'margin-right: 8px;'
+                                             'margin-left: 8px;'
+                                             'margin-bottom: 16px;'
+                                             '}')
+
+            layout.addWidget(self.list_background_card[i], i // 2, i % 2)
 
         widget = QWidget()
         widget.setLayout(layout)
@@ -572,26 +595,13 @@ class NewLesson:
         scroll.resize(self.parent.width_windows - 820, self.parent.height_windows - 200)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        #scroll.setWidgetResizable(True)
+        # scroll.setWidgetResizable(True)
         scroll.setWidget(widget)
         scroll.show()
 
-
-
-        """self.b = QLabel(self.parent)
-        self.b.resize(20, 10)
-        self.b.move(x_min, y_min)
-        self.b.setStyleSheet('''
-            .QLabel {
-            background-color: #6ca9b9;
-            border-style: outset;
-            border-width: 2px;
-            border-radius: 10px;
-            border-color: beige;
-            font: bold 14px;
-            min-width: 10em;x
-            padding: 6px;
-        }''')"""
+    def stage_button_flag(self, button):
+        self.flag_stage = self.parent.session.query(Stage).filter(Stage.name_stage == button.text()).first().id
+        self.show_cards_stage()
 
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()
