@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, \
     QSplashScreen, QPushButton, QLabel
 from PyQt5 import uic, QtGui, QtCore
 import time
+import random
 
 from Lesson_constructor.data import db_session
 from Lesson_constructor.new_lesson_file import NewLesson
@@ -26,6 +27,18 @@ class Menu(QMainWindow):
         super().__init__()
         db_session.global_init("db/lesson_constructor.sqlite")
         self.session = db_session.create_session()
+        self.list_lesson_quote = ["Учитель прикасается к вечности, никто не знает, где закончится его влияние..",
+                                  "Кто постигает новое, лелея старое, Тот может быть учителем.",
+                                  "Тот, кто обращаясь к старому, способен открывать новое, достоин быть учителем.",
+                                  "Книга — немой учитель.",
+                                  "Плохой учитель преподносит истину, хороший учит ее находить.",
+                                  "Гений – это талант изобретения того, чему нельзя учить или научиться.",
+                                  "Весьма имеют быть наставлены те, которые сами не знают.",
+                                  "Кто хорошо выявляет различия, тот хорошо учит.",
+                                  "Как в утлый мех воду лить, так безумного учить.",
+                                  "Учись тому, чему сам учишь.",
+                                  "Хорошо учит говорить тот, кто учит хорошо делать.",
+                                  "Опыт – самый лучший учитель, но плата за обучение чересур велика."]
 
         type_method = [item.name_method for item in self.session.query(TypeMethod).all()]
         classes = [item.name_class for item in self.session.query(Classes).all()]
@@ -150,6 +163,14 @@ class Menu(QMainWindow):
             border-style: inset;
         }''')
 
+        self.quote = QLabel(random.choice(self.list_lesson_quote), self)
+        self.quote.resize(self.quote.sizeHint())
+        self.quote.move(self.width_windows // 2, 200)
+        self.quote.setStyleSheet('''
+                .QLabel {
+                font: bold;
+            }''')
+
         self.btn_new_lesson.clicked.connect(self.create_new_lesson)
 
         self.main_menu()
@@ -160,9 +181,11 @@ class Menu(QMainWindow):
         pixmap = QPixmap('data/image/фоны/меню.jpg')
         self.background.setPixmap(pixmap)
         self.btn_new_lesson.show()
+        self.quote.show()
 
     # -----------------------------------------
     def create_new_lesson(self):
+        self.quote.hide()
         self.new_lesson = NewLesson(self)
 
     # -----------------------------------------

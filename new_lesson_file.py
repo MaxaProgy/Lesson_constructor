@@ -16,7 +16,7 @@ class NewLesson:
     def __init__(self, parent):
         self.parent = parent
         self.flag_stage = 0
-        self.list_background_card = []
+        self.list_card = []
 
         # ------------------------------
         #  Объекты вкладки нового урока
@@ -255,8 +255,9 @@ class NewLesson:
         }''')
 
         self.scroll = QScrollArea(self.parent)
-        self.scroll.setStyleSheet(".QScrollArea {background-color:transparent;}")
-        self.scroll.move(270, 140)
+        self.scroll.setStyleSheet(".QScrollArea {background-color:transparent;"
+                                  "}")
+        self.scroll.move(270, 80)
         self.scroll.resize(self.parent.width_windows - 820, self.parent.height_windows - 200)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -576,23 +577,23 @@ class NewLesson:
         list_cards = self.parent.session.query(Cards).filter(Cards.id_stage_card.like(self.flag_stage)).all()
         layout = QGridLayout()
 
-        for i in reversed(range(len(self.list_background_card))):
-            self.list_background_card[i].setParent(None)
-            del self.list_background_card[i]
+        for i in reversed(range(len(self.list_card))):
+            self.list_card[i].setParent(None)
+            del self.list_card[i]
 
         for i in range(len(list_cards)):
-            self.list_background_card.append(QLabel())
-            self.list_background_card[i].setStyleSheet('.QLabel {'
-                                             'background-color: #6ca9b9;'
-                                             'border-radius: 10px;'
-                                             'min-height: 300px;'
-                                             'min-width: 500px;'
-                                             'margin-right: 8px;'
-                                             'margin-left: 8px;'
-                                             'margin-bottom: 16px;'
-                                             '}')
+            self.list_card.append(QLabel())
+            self.list_card[i].setStyleSheet('.QLabel {'
+                                     'min-height: 300px;'
+                                     'min-width: 500px;'
+                                     'margin-right: 8px;'
+                                     'margin-left: 8px;'
+                                     'margin-bottom: 16px;'
+                                     '}')
+            pixmap = QPixmap('data/image/фоны/cards1.png')
+            self.list_card[i].setPixmap(pixmap)
 
-            layout.addWidget(self.list_background_card[i], i // 2, i % 2)
+            layout.addWidget(self.list_card[i], i // 2, i % 2)
 
         widget = QWidget()
         widget.setLayout(layout)
