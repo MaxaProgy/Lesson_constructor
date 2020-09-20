@@ -11,6 +11,33 @@ from Lesson_constructor.data.class_characteristic import ClassCharacteristic
 from Lesson_constructor.data.subject import Subject
 from Lesson_constructor.data.lesson_type import LessonType
 
+class Card(QWidget):
+
+    def __init__(self, parent):
+        super(Card).__init__(parent)
+
+        self.initUI()
+
+
+    def initUI(self):
+
+        self.lbl = QLabel(self)
+        qle = QLineEdit(self)
+
+        qle.move(60, 100)
+        self.lbl.move(60, 40)
+
+        qle.textChanged[str].connect(self.onChanged)
+
+        self.setGeometry(300, 300, 280, 170)
+
+        self.show()
+
+
+    def onChanged(self, text):
+
+        self.lbl.setText(text)
+        self.lbl.adjustSize()
 
 class NewLesson:
     def __init__(self, parent):
@@ -582,8 +609,13 @@ class NewLesson:
             del self.list_card[i]
 
         for i in range(len(list_cards)):
-            self.list_card.append(QLabel())
-            self.list_card[i].setStyleSheet('.QLabel {'
+            self.list_card.append(Card(self.parent))
+            """
+            self.label = QLabel(self.list_card[i])
+
+            self.label.setText("sadassdasdas")
+            
+            self.label.setStyleSheet('.QLabel {'
                                      'min-height: 300px;'
                                      'min-width: 500px;'
                                      'margin-right: 8px;'
@@ -591,13 +623,16 @@ class NewLesson:
                                      'margin-bottom: 16px;'
                                      '}')
             pixmap = QPixmap('data/image/фоны/cards1.png')
-            self.list_card[i].setPixmap(pixmap)
-
+            self.label.setPixmap(pixmap)
+            
+            self.list_card[i].resize(100,100)
+            """
             layout.addWidget(self.list_card[i], i // 2, i % 2)
 
         widget = QWidget()
         widget.setLayout(layout)
         widget.setStyleSheet(".QWidget {background-color:transparent;}")
+
         # scroll.setWidgetResizable(True)
         self.scroll.setWidget(widget)
         self.scroll.show()
