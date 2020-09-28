@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
-    QButtonGroup, QScrollArea, QWidget, QGridLayout
+    QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import Qt
 from Lesson_constructor.data.type_method import TypeMethod
 from Lesson_constructor.data.stage import Stage
@@ -11,33 +11,49 @@ from Lesson_constructor.data.class_characteristic import ClassCharacteristic
 from Lesson_constructor.data.subject import Subject
 from Lesson_constructor.data.lesson_type import LessonType
 
+
 class Card(QWidget):
+    def __init__(self, parent, info_card):
+        super(Card, self).__init__(parent)
+        self.parent = parent
+        self.info_card = info_card
+        self.__controls()
 
-    def __init__(self, parent):
-        super(Card).__init__(parent)
+    def __controls(self):
+        self.label = QLabel()
+        self.label.setStyleSheet('.QLabel {'
+                                 'min-height: 300px;'
+                                 'min-width: 500px;'
+                                 'margin-right: 8px;'
+                                 'margin-left: 8px;'
+                                 'margin-bottom: 16px;'
+                                 '}')
+        pixmap = QPixmap('data/image/фоны/cards1.png')
+        self.label.setPixmap(pixmap)
 
-        self.initUI()
+        self.vbox = QVBoxLayout()
+        self.vbox.addWidget(self.label)
+        self.setLayout(self.vbox)
 
+        self.label_lesson_topic = QLabel(self.info_card.name_method, self)
+        self.label_lesson_topic.setMinimumSize(300, 100)
+        self.label_lesson_topic.setWordWrap(True)
+        self.label_lesson_topic.setStyleSheet('''
+            .QLabel {
+            font: bold 18px;
+        }''')
+        self.label_lesson_topic.move(60, 40)
 
-    def initUI(self):
+        self.type_group = QLabel()
 
-        self.lbl = QLabel(self)
-        qle = QLineEdit(self)
+        self.type_group.setStyleSheet('.QLabel {'
+                                      'min-height: 30px;'
+                                      'min-width: 30px;'
+                                      '}')
+        pixmap_2 = QPixmap('data/image/фоны/групп_тип.png')
+        self.type_group.setPixmap(pixmap_2)
+        self.type_group.move(20, 20)
 
-        qle.move(60, 100)
-        self.lbl.move(60, 40)
-
-        qle.textChanged[str].connect(self.onChanged)
-
-        self.setGeometry(300, 300, 280, 170)
-
-        self.show()
-
-
-    def onChanged(self, text):
-
-        self.lbl.setText(text)
-        self.lbl.adjustSize()
 
 class NewLesson:
     def __init__(self, parent):
@@ -596,8 +612,6 @@ class NewLesson:
         self.parent.text_lesson_topic_constructor.setWordWrap(True)
         self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
 
-        x_min, y_min = 270, 140
-        x_max, y_max = self.parent.width_windows - 670, 150
         self.show_cards_stage()
 
     def show_cards_stage(self):
@@ -609,24 +623,7 @@ class NewLesson:
             del self.list_card[i]
 
         for i in range(len(list_cards)):
-            self.list_card.append(Card(self.parent))
-            """
-            self.label = QLabel(self.list_card[i])
-
-            self.label.setText("sadassdasdas")
-            
-            self.label.setStyleSheet('.QLabel {'
-                                     'min-height: 300px;'
-                                     'min-width: 500px;'
-                                     'margin-right: 8px;'
-                                     'margin-left: 8px;'
-                                     'margin-bottom: 16px;'
-                                     '}')
-            pixmap = QPixmap('data/image/фоны/cards1.png')
-            self.label.setPixmap(pixmap)
-            
-            self.list_card[i].resize(100,100)
-            """
+            self.list_card.append(Card(self.parent, list_cards[i]))
             layout.addWidget(self.list_card[i], i // 2, i % 2)
 
         widget = QWidget()

@@ -164,13 +164,12 @@ class Menu(QMainWindow):
         }''')
 
         self.quote = QLabel(random.choice(self.list_lesson_quote), self)
-        self.quote.resize(self.quote.sizeHint())
         self.quote.move(self.width_windows // 2, 200)
         self.quote.setStyleSheet('''
                 .QLabel {
                 font: bold;
             }''')
-
+        self.quote.setMinimumSize(self.quote.sizeHint())
         self.btn_new_lesson.clicked.connect(self.create_new_lesson)
 
         self.main_menu()
