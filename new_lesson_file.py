@@ -24,12 +24,14 @@ class Card(QWidget):
         self.label.setStyleSheet('.QLabel {'
                                  'min-height: 300px;'
                                  'min-width: 500px;'
-                                 'margin-right: 8px;'
-                                 'margin-left: 8px;'
+                                 'margin-right: 4px;'
+                                 'margin-left: 4px;'
                                  'margin-bottom: 16px;'
                                  '}')
         pixmap = QPixmap('data/image/фоны/cards1.png')
         self.label.setPixmap(pixmap)
+
+
 
         self.vbox = QVBoxLayout()
         self.vbox.addWidget(self.label)
@@ -40,9 +42,53 @@ class Card(QWidget):
         self.label_lesson_topic.setWordWrap(True)
         self.label_lesson_topic.setStyleSheet('''
             .QLabel {
-            font: bold 18px;
+            font: bold 40px;
         }''')
-        self.label_lesson_topic.move(60, 40)
+        self.label_lesson_topic.move(60, 60)
+
+        self.label_type_card = QLabel(self)
+        if self.info_card.id_type_method_card == 1:
+            self.label_type_card.setStyleSheet('.QLabel {border-image: url(data/image/индивид_тип.png);}')
+            self.label_type_card.resize(40, 40)
+            self.label_type_card.move(430, 40)
+
+        elif self.info_card.id_type_method_card == 2:
+            self.label_type_card.setStyleSheet('.QLabel {border-image: url(data/image/групп_тип.png);}')
+            self.label_type_card.resize(40, 40)
+            self.label_type_card.move(430, 40)
+
+        elif self.info_card.id_type_method_card == 3:
+            self.label_type_card.setStyleSheet('.QLabel {border-image: url(data/image/индивид_групп_тип.png);}')
+            self.label_type_card.resize(60, 60)
+            self.label_type_card.move(410, 40)
+
+
+        self.label_time = QLabel(self)
+        if self.info_card.time == '5':
+            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/5.png);}')
+
+        elif self.info_card.time == '5-10':
+            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/5-10.png);}')
+
+        elif self.info_card.time == '10':
+            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/10.png);}')
+
+        elif self.info_card.time == '10-15':
+            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/10-15.png);}')
+
+        elif self.info_card.time == '15':
+            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/15.png);}')
+
+        elif self.info_card.time == '15-20':
+            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/15-20.png);}')
+
+        elif self.info_card.time == '20':
+            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/20.png);}')
+
+        elif self.info_card.time == 'все занятие':
+            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/все_занятие.png);}')
+        self.label_time.resize(60, 60)
+        self.label_time.move(420, 100)
 
         self.btn_add = QPushButton(self)
         self.btn_add.setStyleSheet('.QPushButton {border-image: url(data/image/add.png);}'
@@ -58,8 +104,15 @@ class Card(QWidget):
         self.btn_del.resize(40, 40)
         self.btn_del.hide()
 
+        self.btn_more_details = QPushButton(self)
+        self.btn_more_details.setStyleSheet('.QPushButton {border-image: url(data/image/Podtobnee.png);}'
+                                   '.QPushButton:hover {border-image: url(data/image/Podtobnee2.png);}')
+        self.btn_more_details.move(50, 275)
+        self.btn_more_details.resize(175, 60)
+
         self.btn_add.clicked.connect(self.add_card)
         self.btn_del.clicked.connect(self.del_card)
+        self.btn_more_details.clicked.connect(self.more_details)
 
     def add_card(self):
         self.parent.my_list_card.append(self)
@@ -83,6 +136,8 @@ class Card(QWidget):
         self.parent.scroll_my_lesson_card.setWidget(widget)
         self.parent.scroll_my_lesson_card.show()
 
+    def more_details(self):
+        pass
 
 class NewLesson:
     def __init__(self, parent):
@@ -315,7 +370,7 @@ class NewLesson:
             }''')
 
         self.parent.value_lesson = QListView(self.parent)
-        self.parent.value_lesson.resize(530, 200)
+        self.parent.value_lesson.resize(540, 200)
         self.parent.value_lesson.move(self.parent.width_windows - 550, 5)
 
         self.scroll_main = QScrollArea(self.parent)
@@ -330,7 +385,7 @@ class NewLesson:
         self.scroll_my_lesson_card.setStyleSheet(".QScrollArea {background-color:transparent;"
                                                  "}")
         self.scroll_my_lesson_card.move(self.parent.width_windows - 550, 204)
-        self.scroll_my_lesson_card.resize(530, 800)
+        self.scroll_my_lesson_card.resize(540, 800)
         self.scroll_my_lesson_card.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_my_lesson_card.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
