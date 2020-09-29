@@ -2,19 +2,19 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
     QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import Qt
-from Lesson_constructor.data.type_method import TypeMethod
-from Lesson_constructor.data.stage import Stage
-from Lesson_constructor.data.classes import Classes
-from Lesson_constructor.data.fgos import Fgos
-from Lesson_constructor.data.cards import Cards
-from Lesson_constructor.data.class_characteristic import ClassCharacteristic
-from Lesson_constructor.data.subject import Subject
-from Lesson_constructor.data.lesson_type import LessonType
+from data.type_method import TypeMethod
+from data.stage import Stage
+from data.classes import Classes
+from data.fgos import Fgos
+from data.cards import Cards
+from data.class_characteristic import ClassCharacteristic
+from data.subject import Subject
+from data.lesson_type import LessonType
 
 
 class Card(QWidget):
     def __init__(self, parent, info_card):
-        super(Card, self).__init__(parent)
+        super(Card, self).__init__(parent.parent)
         self.parent = parent
         self.info_card = info_card
         self.__controls()
@@ -44,15 +44,44 @@ class Card(QWidget):
         }''')
         self.label_lesson_topic.move(60, 40)
 
-        self.type_group = QLabel()
+        self.btn_add = QPushButton(self)
+        self.btn_add.setStyleSheet('.QPushButton {border-image: url(data/image/add.png);}'
+                                   '.QPushButton:hover {border-image: url(data/image/add2.png);}')
+        self.btn_add.move(430, 245)
+        self.btn_add.resize(40, 40)
+        self.btn_add.show()
 
-        self.type_group.setStyleSheet('.QLabel {'
-                                      'min-height: 30px;'
-                                      'min-width: 30px;'
-                                      '}')
-        pixmap_2 = QPixmap('data/image/фоны/групп_тип.png')
-        self.type_group.setPixmap(pixmap_2)
-        self.type_group.move(20, 20)
+        self.btn_del = QPushButton(self)
+        self.btn_del.setStyleSheet('.QPushButton {border-image: url(data/image/del.png);}'
+                                   '.QPushButton:hover {border-image: url(data/image/del2.png);}')
+        self.btn_del.move(430, 245)
+        self.btn_del.resize(40, 40)
+        self.btn_del.hide()
+
+        self.btn_add.clicked.connect(self.add_card)
+        self.btn_del.clicked.connect(self.del_card)
+
+    def add_card(self):
+        self.parent.my_list_card.append(self)
+        self.show_my_cards()
+        self.btn_add.hide()
+        self.btn_del.show()
+
+    def del_card(self):
+        del self.parent.my_list_card[self.parent.my_list_card.index(self)]
+        self.show_my_cards()
+        self.parent.show_cards_stage()
+
+    def show_my_cards(self):
+        layout = QGridLayout()
+        for card in self.parent.my_list_card:
+            layout.addWidget(card)
+        widget = QWidget()
+        widget.setLayout(layout)
+        widget.setStyleSheet(".QWidget {background-color:transparent;}")
+        # scroll_main.setWidgetResizable(True)
+        self.parent.scroll_my_lesson_card.setWidget(widget)
+        self.parent.scroll_my_lesson_card.show()
 
 
 class NewLesson:
@@ -60,6 +89,7 @@ class NewLesson:
         self.parent = parent
         self.flag_stage = 0
         self.list_card = []
+        self.my_list_card = []
 
         # ------------------------------
         #  Объекты вкладки нового урока
@@ -285,25 +315,24 @@ class NewLesson:
             }''')
 
         self.parent.value_lesson = QListView(self.parent)
-        self.parent.value_lesson.resize(515, 200)
-        self.parent.value_lesson.move(self.parent.width_windows - 535, 5)
+        self.parent.value_lesson.resize(530, 200)
+        self.parent.value_lesson.move(self.parent.width_windows - 550, 5)
 
-        self.parent.text_lesson_topic_constructor = QLabel(self.parent)
-        self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
-        self.parent.text_lesson_topic_constructor.move(self.parent.width_windows - 430, 250)
-        self.parent.text_lesson_topic_constructor.setStyleSheet('''
-            .QLabel {
-            font: bold 16px;
-            min-width: 22em;
-        }''')
+        self.scroll_main = QScrollArea(self.parent)
+        self.scroll_main.setStyleSheet(".QScrollArea {background-color:transparent;"
+                                       "}")
+        self.scroll_main.move(270, 80)
+        self.scroll_main.resize(self.parent.width_windows - 820, self.parent.height_windows - 200)
+        self.scroll_main.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll_main.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.scroll = QScrollArea(self.parent)
-        self.scroll.setStyleSheet(".QScrollArea {background-color:transparent;"
-                                  "}")
-        self.scroll.move(270, 80)
-        self.scroll.resize(self.parent.width_windows - 820, self.parent.height_windows - 200)
-        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_my_lesson_card = QScrollArea(self.parent)
+        self.scroll_my_lesson_card.setStyleSheet(".QScrollArea {background-color:transparent;"
+                                                 "}")
+        self.scroll_my_lesson_card.move(self.parent.width_windows - 550, 204)
+        self.scroll_my_lesson_card.resize(530, 800)
+        self.scroll_my_lesson_card.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll_my_lesson_card.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         # -----------------------------------------
         #                Кнопки
@@ -608,9 +637,6 @@ class NewLesson:
                 item = QStandardItem(i[0] + " - " + i[1])
                 item.setEditable(False)
                 model.appendRow(item)
-        self.parent.text_lesson_topic_constructor.setText(self.parent.edit_lesson_topic.text())
-        self.parent.text_lesson_topic_constructor.setWordWrap(True)
-        self.parent.text_lesson_topic_constructor.resize(self.parent.text_lesson_topic_constructor.sizeHint())
 
         self.show_cards_stage()
 
@@ -619,20 +645,26 @@ class NewLesson:
         layout = QGridLayout()
 
         for i in reversed(range(len(self.list_card))):
-            self.list_card[i].setParent(None)
             del self.list_card[i]
 
+        list_id_my_card = [card.info_card.id for card in self.my_list_card]
+        print(list_id_my_card)
+        for i in reversed(range(len(list_cards))):
+            if list_cards[i].id in list_id_my_card:
+                del list_cards[i]
+
         for i in range(len(list_cards)):
-            self.list_card.append(Card(self.parent, list_cards[i]))
+            self.list_card.append(Card(self, list_cards[i]))
             layout.addWidget(self.list_card[i], i // 2, i % 2)
 
         widget = QWidget()
         widget.setLayout(layout)
         widget.setStyleSheet(".QWidget {background-color:transparent;}")
 
-        # scroll.setWidgetResizable(True)
-        self.scroll.setWidget(widget)
-        self.scroll.show()
+        # scroll_main.setWidgetResizable(True)
+        self.scroll_main.setWidget(widget)
+        self.scroll_main.show()
+        self.scroll_my_lesson_card.show()
 
     def stage_button_flag(self, button):
         self.flag_stage = self.parent.session.query(Stage).filter(Stage.name_stage == button.text()).first().id
@@ -651,8 +683,8 @@ class NewLesson:
         self.parent.btn_reflection.show()
         self.parent.btn_homework.show()
         self.parent.value_lesson.show()
-        self.parent.text_lesson_topic_constructor.show()
-        self.scroll.show()
+        self.scroll_main.show()
+        self.scroll_my_lesson_card.show()
 
     def hide_object_constructor_field(self):
         self.parent.btn_ok_constructor.hide()
@@ -667,8 +699,8 @@ class NewLesson:
         self.parent.btn_reflection.hide()
         self.parent.btn_homework.hide()
         self.parent.value_lesson.hide()
-        self.parent.text_lesson_topic_constructor.hide()
-        self.scroll.hide()
+        self.scroll_main.hide()
+        self.scroll_my_lesson_card.hide()
 
     def show_object_new_lesson(self):
         self.parent.background_new_lesson.show()

@@ -9,16 +9,16 @@ from PyQt5 import uic, QtGui, QtCore
 import time
 import random
 
-from Lesson_constructor.data import db_session
-from Lesson_constructor.new_lesson_file import NewLesson
-from Lesson_constructor.data.type_method import TypeMethod
-from Lesson_constructor.data.stage import Stage
-from Lesson_constructor.data.classes import Classes
-from Lesson_constructor.data.fgos import Fgos
-from Lesson_constructor.data.cards import Cards
-from Lesson_constructor.data.subject import Subject
-from Lesson_constructor.data.class_characteristic import ClassCharacteristic
-from Lesson_constructor.data.lesson_type import LessonType
+from data import db_session
+from new_lesson_file import NewLesson
+from data.type_method import TypeMethod
+from data.stage import Stage
+from data.classes import Classes
+from data.fgos import Fgos
+from data.cards import Cards
+from data.subject import Subject
+from data.class_characteristic import ClassCharacteristic
+from data.lesson_type import LessonType
 from PyQt5.Qt import Qt
 
 
