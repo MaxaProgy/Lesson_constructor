@@ -1,11 +1,9 @@
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
-    QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem
+    QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QDialog, \
+    QAbstractItemView
 from PyQt5.QtCore import Qt
-from data.type_method import TypeMethod
 from data.stage import Stage
-from data.classes import Classes
-from data.fgos import Fgos
 from data.cards import Cards
 from data.class_characteristic import ClassCharacteristic
 from data.subject import Subject
@@ -13,12 +11,16 @@ from data.lesson_type import LessonType
 from sqlalchemy import or_
 
 
-class CardMoreDetails(QWidget):
+class CardMoreDetails(QDialog):
     def __init__(self, info_card):
-        super(CardMoreDetails, self).__init__()
+        super(QDialog, self).__init__()
+        self.setModal(True)
+        self.setWindowTitle(info_card.name_method)
         self.info_card = info_card
-        self.setMinimumHeight(800)
-        self.setMinimumWidth(800)
+        self.setMinimumHeight(300)
+        self.setMinimumWidth(300)
+        self.label = QLabel()
+        self.label.setStyleSheet('.QLabel {background-color: #ffa163}')
 
 
 class Card(QWidget):
@@ -422,15 +424,20 @@ class NewLesson:
 
         self.parent.table_result_constructor = QTableWidget(self.parent)
         self.parent.table_result_constructor.setColumnCount(11)
-        self.parent.table_result_constructor.resize(1000, 500)
-        self.parent.table_result_constructor.move(500, 250)
+        self.parent.table_result_constructor.resize(1800, 600)
+        self.parent.table_result_constructor.move(70, 100)
         self.parent.table_result_constructor.setRowCount(len(self.my_list_card))
 
+        self.parent.table_result_constructor.setColumnCount(11)
+        self.parent.table_result_constructor.setColumnWidth(10, 520)
         self.parent.table_result_constructor.setHorizontalHeaderLabels(
             ["Назвние", "Время", "Этап", "Креативное мышление",
              "Критическое мышление", "Грамотность", "Кооперация",
              "Коммуникация", "Метакогнитивные навыки", "ФГОС навыки",
              "Содержание"])
+        self.parent.table_result_constructor.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.parent.table_result_constructor.setSelectionMode(QAbstractItemView.NoSelection)
+        self.parent.table_result_constructor.setFocusPolicy(Qt.NoFocus)
         for i in range(11):
             self.parent.table_result_constructor.horizontalHeaderItem(i).setTextAlignment(Qt.AlignHCenter)
 
@@ -465,6 +472,13 @@ class NewLesson:
         self.parent.btn_ok_constructor.move(self.parent.width_windows - 630, 3)
         self.parent.btn_ok_constructor.resize(63, 60)
 
+        # -----------------------------------------
+
+        self.parent.btn_back_result = QPushButton(self.parent)
+        self.parent.btn_back_result.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
+                                                  '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
+        self.parent.btn_back_result.move(self.parent.width_windows - 150, 25)
+        self.parent.btn_back_result.resize(65, 50)
         # -----------------------------------------
 
         self.parent.btn_stage_acquaintance = QPushButton("Знакомство", self.parent)
@@ -638,7 +652,7 @@ class NewLesson:
         self.parent.btn_back_valid.clicked.connect(self.open_main_menu)
         self.parent.btn_back_constructor.clicked.connect(self.open_new_lesson)
         self.parent.btn_ok_constructor.clicked.connect(self.valid_constructor_field_and_result_lesson)
-
+        self.parent.btn_back_result.clicked.connect(self.valid_new_lesson_and_show_info)
         self.parent.btn_new_lesson.hide()
         self.open_new_lesson()
 
@@ -679,6 +693,8 @@ class NewLesson:
         self.parent.background.setPixmap(pixmap)
         self.hide_object_new_lesson()
         self.show_object_constructor_field()
+        self.hide_object_result_lesson()
+        self.parent.table_result_constructor.setRowCount(0)
         if self.parent.radio_btn_no.isChecked():
             self.parent.btn_stage_acquaintance.hide()
 
@@ -785,6 +801,7 @@ class NewLesson:
             QMessageBox.critical(self.parent, "Ошибка", "Вы не задействовали все время", QMessageBox.Ok)
             return
         self.hide_object_constructor_field()
+
         for i in range(len(self.my_list_card)):
             list_skills = [self.my_list_card[i].info_card.creative_thinking,
                            self.my_list_card[i].info_card.critical_thinking,
@@ -797,11 +814,11 @@ class NewLesson:
                     list_skills_gk.append('\u2611')
                 else:
                     list_skills_gk.append('\u2716')
-
+            self.parent.table_result_constructor.insertRow(i)
             self.parent.table_result_constructor.setItem(i, 0,
                                                          QTableWidgetItem(self.my_list_card[i].info_card.name_method))
             self.parent.table_result_constructor.setItem(i, 1, QTableWidgetItem(
-                self.my_list_card[i].info_card.time + " минут"))
+                self.my_list_card[i].label_time.text()[:-1] + " минут"))
             self.parent.table_result_constructor.setItem(i, 2, QTableWidgetItem(
                 self.my_list_card[i].info_card.stage.name_stage))
             self.parent.table_result_constructor.setItem(i, 3, QTableWidgetItem(list_skills_gk[0]))
@@ -813,10 +830,17 @@ class NewLesson:
             self.parent.table_result_constructor.setItem(i, 9, QTableWidgetItem(
                 self.my_list_card[i].info_card.fgos.name_fgos))
             self.parent.table_result_constructor.setItem(i, 10, QTableWidgetItem(self.my_list_card[i].info_card.text))
+        self.parent.table_result_constructor.resizeRowsToContents()
 
-        # делаем ресайз колонок по содержимому
-        self.parent.table_result_constructor.resizeColumnsToContents()
+        self.show_object_result_lesson()
+
+    def show_object_result_lesson(self):
         self.parent.table_result_constructor.show()
+        self.parent.btn_back_result.show()
+
+    def hide_object_result_lesson(self):
+        self.parent.table_result_constructor.hide()
+        self.parent.btn_back_result.hide()
 
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()
