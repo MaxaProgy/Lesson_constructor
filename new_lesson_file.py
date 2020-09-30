@@ -101,17 +101,49 @@ class Card(QWidget):
         self.btn_del.clicked.connect(self.del_card)
         self.btn_more_details.clicked.connect(self.more_details)
 
+    def show_time_cards(self):
+        for card in self.parent.my_list_card:
+            card.label_time.setText(card.info_card.time + "'")
+
+        sum_1 = sum([int(card.label_time.text()[:-1]) for card in self.parent.my_list_card])
+        if sum_1 > int(self.parent.parent.edit_lesson_duration.text()):
+            count = 0
+            k = int(self.parent.parent.edit_lesson_duration.text()) / sum_1
+            for card in self.parent.my_list_card:
+                cur_time = int(round(int(card.label_time.text()[:-1]) * k, 0))
+                count += cur_time
+                card.label_time.setText(str(cur_time) + "'")
+
+            self.parent.my_list_card[-1].label_time.setText(
+                str(int(self.parent.my_list_card[-1].label_time.text()[:-1])
+                    + int(self.parent.parent.edit_lesson_duration.text())
+                    - count) + "'")
+            sum_1 = sum([int(card.label_time.text()[:-1]) for card in self.parent.my_list_card])
+
+        self.parent.parent.time_lesson.setText(
+            "Время урока: " + str(int(self.parent.parent.edit_lesson_duration.text()) - sum_1) + " минут")
+
     def add_card(self):
-        self.parent.my_list_card.append(self)
-        self.show_my_cards()
-        self.btn_add.hide()
-        self.btn_del.show()
-        self.parent.show_cards_stage()
+        list_time_my_cards = [int(card.info_card.time) for card in self.parent.my_list_card]
+        if sum(list_time_my_cards) + int(self.info_card.time) <= int(
+                self.parent.parent.edit_lesson_duration.text()) + 20:
+            self.parent.my_list_card.append(self)
+            self.show_my_cards()
+            self.btn_add.hide()
+            self.btn_del.show()
+            self.parent.show_cards_stage()
+            self.show_time_cards()
+
+        else:
+            QMessageBox.critical(self.parent.parent, "Ошибка", "Превышен лимит времени", QMessageBox.Ok)
+            return
 
     def del_card(self):
         del self.parent.my_list_card[self.parent.my_list_card.index(self)]
         self.show_my_cards()
         self.parent.show_cards_stage()
+
+        self.show_time_cards()
 
     def show_my_cards(self):
         layout = QGridLayout()
@@ -125,8 +157,8 @@ class Card(QWidget):
         self.parent.scroll_my_lesson_card.show()
 
     def more_details(self):
-        card_info = CardMoreDetails(self.info_card)
-        card_info.show()
+        self.card_info = CardMoreDetails(self.info_card)
+        self.card_info.show()
 
 
 class NewLesson:
@@ -379,7 +411,7 @@ class NewLesson:
         self.scroll_my_lesson_card.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_my_lesson_card.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.parent.time_lesson = QLabel("Время урока: ", self.parent)
+        self.parent.time_lesson = QLabel(f"Время урока: {self.parent.edit_lesson_duration.text()} минут", self.parent)
         self.parent.time_lesson.resize(100, 50)
         self.parent.time_lesson.move(300, 25)
         self.parent.time_lesson.setStyleSheet('''
@@ -735,21 +767,6 @@ class NewLesson:
             self.list_card.append(Card(self, list_cards[i]))
             layout.addWidget(self.list_card[i], i // 2, i % 2)
 
-        list_time_my_cards = [int(card.info_card.time) for card in self.my_list_card]
-        if sum(list_time_my_cards) <= int(self.parent.edit_lesson_duration.text()):
-            self.parent.time_lesson.setText("Время урока: " +
-                                            str(int(self.parent.edit_lesson_duration.text())
-                                                - sum(list_time_my_cards)) + " минут")
-        elif sum(list_time_my_cards) - int(self.parent.edit_lesson_duration.text()) <= 20:
-            """ for card in self.my_list_card:
-                card.label_time.setText("Время урока: " + str(int(card.label_time.text()[:-1]) 
-                                                              + (sum(list_time_my_cards) // len(list_id_my_card))) + " минут")"""
-            pass
-
-        else:
-            # нужно убрать
-            QMessageBox.critical(self.parent, "Ошибка", "Превышен лимит времени", QMessageBox.Ok)
-
         widget = QWidget()
         widget.setLayout(layout)
         widget.setStyleSheet(".QWidget {background-color:transparent;}")
@@ -783,7 +800,8 @@ class NewLesson:
 
             self.parent.table_result_constructor.setItem(i, 0,
                                                          QTableWidgetItem(self.my_list_card[i].info_card.name_method))
-            self.parent.table_result_constructor.setItem(i, 1, QTableWidgetItem(self.my_list_card[i].info_card.time + " минут"))
+            self.parent.table_result_constructor.setItem(i, 1, QTableWidgetItem(
+                self.my_list_card[i].info_card.time + " минут"))
             self.parent.table_result_constructor.setItem(i, 2, QTableWidgetItem(
                 self.my_list_card[i].info_card.stage.name_stage))
             self.parent.table_result_constructor.setItem(i, 3, QTableWidgetItem(list_skills_gk[0]))
@@ -792,13 +810,13 @@ class NewLesson:
             self.parent.table_result_constructor.setItem(i, 6, QTableWidgetItem(list_skills_gk[3]))
             self.parent.table_result_constructor.setItem(i, 7, QTableWidgetItem(list_skills_gk[4]))
             self.parent.table_result_constructor.setItem(i, 8, QTableWidgetItem(list_skills_gk[5]))
-            self.parent.table_result_constructor.setItem(i, 9, QTableWidgetItem(self.my_list_card[i].info_card.fgos.name_fgos))
+            self.parent.table_result_constructor.setItem(i, 9, QTableWidgetItem(
+                self.my_list_card[i].info_card.fgos.name_fgos))
             self.parent.table_result_constructor.setItem(i, 10, QTableWidgetItem(self.my_list_card[i].info_card.text))
 
         # делаем ресайз колонок по содержимому
         self.parent.table_result_constructor.resizeColumnsToContents()
         self.parent.table_result_constructor.show()
-
 
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()

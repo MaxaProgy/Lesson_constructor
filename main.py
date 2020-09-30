@@ -60,7 +60,7 @@ class Menu(QMainWindow):
 
         if not classes:
             session = db_session.create_session()
-            classes_value = ["1-4", "5-8", "9-11", "1-11", "5", "1-8", "5-11"]
+            classes_value = ["1-4", "5-8", "9-11", "1-11", "1-8", "5-11"]
             for value in classes_value:
                 classes_value = Classes(
                     name_class=value,
