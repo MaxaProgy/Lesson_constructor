@@ -26,7 +26,7 @@ class Menu(QMainWindow):
         self.setWindowTitle('Конструктор уроков')
         self.setWindowIcon(QIcon('data/image/фоны/заставка.png'))
 
-        db_session.global_init("db/lesson_constructor.sqlite")
+        db_session.global_init("db/lesson_constructor_db.sqlite")
         self.session = db_session.create_session()
         self.list_lesson_quote = ["Учитель прикасается к вечности, никто не знает, где закончится его влияние..",
                                   "Кто постигает новое, лелея старое, Тот может быть учителем.",

@@ -2,10 +2,11 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QPainter
 from PyQt5.QtPrintSupport import QPrinter
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
     QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QDialog, \
-    QAbstractItemView, QFrame
+    QAbstractItemView, QFrame, QListWidget
 from PyQt5.QtCore import Qt
 from data.stage import Stage
 from data.cards import Cards
+from data.save_lesson import SaveLesson
 from data.class_characteristic import ClassCharacteristic
 from data.subject import Subject
 from data.lesson_type import LessonType
@@ -445,7 +446,7 @@ class NewLesson:
         self.scroll_my_lesson_card.setStyleSheet(".QScrollArea {background-color:transparent;"
                                                  "}")
         self.scroll_my_lesson_card.move(self.parent.width_windows - 550, 204)
-        self.scroll_my_lesson_card.resize(540, 800)
+        self.scroll_my_lesson_card.resize(540, 730)
         self.scroll_my_lesson_card.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_my_lesson_card.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
@@ -456,6 +457,63 @@ class NewLesson:
             .QLabel {
             font: bold 25px;
             min-width: 20em;
+        }''')
+
+        self.parent.btn_save_lesson = QPushButton("Сохранить урок", self.parent)
+        self.parent.btn_save_lesson.resize(175, 70)
+        self.parent.btn_save_lesson.move(self.parent.width_windows - 365, 894)
+        self.parent.btn_save_lesson.setStyleSheet('''
+            .QPushButton {
+            background-color: #76b7c7;
+            border-style: outset;
+            border-width: 2px;
+            border-radius: 10px;
+            border-color: beige;
+            font: bold 14px;
+            min-width: 10em;
+            padding: 6px;
+        }
+        .QPushButton:hover {
+            background-color: #548490;
+            border-style: inset;
+        }''')
+
+        self.parent.btn_open_lesson = QPushButton("Открыть урок", self.parent)
+        self.parent.btn_open_lesson.resize(175, 70)
+        self.parent.btn_open_lesson.move(self.parent.width_windows - 550, 894)
+        self.parent.btn_open_lesson.setStyleSheet('''
+            .QPushButton {
+            background-color: #76b7c7;
+            border-style: outset;
+            border-width: 2px;
+            border-radius: 10px;
+            border-color: beige;
+            font: bold 14px;
+            min-width: 10em;
+            padding: 6px;
+        }
+        .QPushButton:hover {
+            background-color: #548490;
+            border-style: inset;
+        }''')
+
+        self.parent.btn_del_lesson = QPushButton("Удалить урок", self.parent)
+        self.parent.btn_del_lesson.resize(175, 70)
+        self.parent.btn_del_lesson.move(self.parent.width_windows - 180, 894)
+        self.parent.btn_del_lesson.setStyleSheet('''
+            .QPushButton {
+            background-color: #76b7c7;
+            border-style: outset;
+            border-width: 2px;
+            border-radius: 10px;
+            border-color: beige;
+            font: bold 14px;
+            min-width: 10em;
+            padding: 6px;
+        }
+        .QPushButton:hover {
+            background-color: #548490;
+            border-style: inset;
         }''')
 
         self.parent.table_result_constructor = QTableWidget(self.parent)
@@ -728,9 +786,72 @@ class NewLesson:
         self.parent.btn_ok_constructor.clicked.connect(self.valid_constructor_field_and_result_lesson)
         self.parent.btn_back_result.clicked.connect(self.valid_new_lesson_and_show_info)
         self.parent.btn_print.clicked.connect(self.print)
+        self.parent.btn_save_lesson.clicked.connect(self.save_lesson)
+        self.parent.btn_open_lesson.clicked.connect(self.open_lesson)
+        self.parent.btn_del_lesson.clicked.connect(self.del_lesson)
 
         self.parent.btn_new_lesson.hide()
         self.open_new_lesson()
+
+    def save_lesson(self):
+        if int(self.parent.time_lesson.text().split()[2]) == 0:
+            if self.parent.edit_lesson_topic.text() in [item.name for item in self.parent.session.query(SaveLesson).all()]:
+                reply = QMessageBox.question(self.parent, "Предупреждение",
+                                             "Урок с таким названием уже сущестует. Вы хотите перезаписать?",
+                                             QMessageBox.Yes | QMessageBox.No)
+                if reply == QMessageBox.Yes:
+                    lesson = self.parent.session.query(SaveLesson).filter(
+                        SaveLesson.name == self.parent.edit_lesson_topic.text()).first()
+                    self.parent.session.delete(lesson)
+                    self.parent.session.commit()
+
+            save_lesson = SaveLesson(
+                name=self.parent.edit_lesson_topic.text(),
+                ids=';'.join([str(card.info_card.id) for card in self.my_list_card]),
+            )
+            self.parent.session.add(save_lesson)
+            self.parent.session.commit()
+            QMessageBox.information(self.parent, "Ок", "Урок сохранен", QMessageBox.Ok)
+        else:
+            QMessageBox.critical(self.parent, "Ошибка", "Вы не использовали все время урока", QMessageBox.Ok)
+
+    def dialog_lesson(self, del_or_open):
+        self.open = QDialog()
+        self.open.resize(300, 150)
+        self.list_view = QListWidget(self.open)
+        self.list_view.resize(300, 150)
+        self.list_view.addItems([item.name for item in self.parent.session.query(SaveLesson).all()])
+        self.list_view.doubleClicked.connect(del_or_open)
+        self.open.exec()
+
+    def del_lesson(self):
+        self.dialog_lesson(self.del_select_lesson)
+
+    def open_lesson(self):
+        self.dialog_lesson(self.open_select_lesson)
+
+    def del_select_lesson(self):
+        self.open.close()
+        reply = QMessageBox.question(self.parent, "Удаление", "Вы хотите удалить урок?",
+                                     QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            lesson = self.parent.session.query(SaveLesson).filter(
+                SaveLesson.name == self.list_view.currentItem().text()).first()
+            self.parent.session.delete(lesson)
+            self.parent.session.commit()
+
+    def open_select_lesson(self):
+        self.open.close()
+        self.my_list_card = []
+        for id in self.parent.session.query(SaveLesson).filter(SaveLesson.name ==
+                                                               self.list_view.currentItem().text()).first().ids.split(
+            ";"):
+            self.my_list_card.append(Card(self, self.parent.session.query(Cards).filter(Cards.id == id).first()))
+            self.my_list_card[-1].btn_add.hide()
+            self.my_list_card[-1].btn_del.show()
+        self.my_list_card[0].show_my_cards()
+        self.my_list_card[0].show_time_cards()
+        self.show_cards_stage()
 
     def print(self):
         printer = QPrinter()
@@ -955,6 +1076,9 @@ class NewLesson:
         self.scroll_main.show()
         self.scroll_my_lesson_card.show()
         self.parent.time_lesson.show()
+        self.parent.btn_save_lesson.show()
+        self.parent.btn_del_lesson.show()
+        self.parent.btn_open_lesson.show()
 
     def hide_object_constructor_field(self):
         self.parent.btn_ok_constructor.hide()
@@ -972,6 +1096,9 @@ class NewLesson:
         self.scroll_main.hide()
         self.scroll_my_lesson_card.hide()
         self.parent.time_lesson.hide()
+        self.parent.btn_save_lesson.hide()
+        self.parent.btn_del_lesson.hide()
+        self.parent.btn_open_lesson.hide()
 
     def show_object_new_lesson(self):
         self.parent.background_new_lesson.show()
