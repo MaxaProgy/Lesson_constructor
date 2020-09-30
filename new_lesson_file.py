@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
-    QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QHBoxLayout
+    QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt
 from data.type_method import TypeMethod
 from data.stage import Stage
@@ -19,7 +19,6 @@ class CardMoreDetails(QWidget):
         self.info_card = info_card
         self.setMinimumHeight(800)
         self.setMinimumWidth(800)
-        self.show()
 
 
 class Card(QWidget):
@@ -126,7 +125,8 @@ class Card(QWidget):
         self.parent.scroll_my_lesson_card.show()
 
     def more_details(self):
-        CardMoreDetails(self.info_card).show()
+        card_info = CardMoreDetails(self.info_card)
+        card_info.show()
 
 
 class NewLesson:
@@ -388,6 +388,20 @@ class NewLesson:
             min-width: 20em;
         }''')
 
+        self.parent.table_result_constructor = QTableWidget(self.parent)
+        self.parent.table_result_constructor.setColumnCount(11)
+        self.parent.table_result_constructor.resize(1000, 500)
+        self.parent.table_result_constructor.move(500, 250)
+        self.parent.table_result_constructor.setRowCount(len(self.my_list_card))
+
+        self.parent.table_result_constructor.setHorizontalHeaderLabels(
+            ["Назвние", "Время", "Этап", "Креативное мышление",
+             "Критическое мышление", "Грамотность", "Кооперация",
+             "Коммуникация", "Метакогнитивные навыки", "ФГОС навыки",
+             "Содержание"])
+        for i in range(11):
+            self.parent.table_result_constructor.horizontalHeaderItem(i).setTextAlignment(Qt.AlignHCenter)
+
         # -----------------------------------------
         #                Кнопки
         # -----------------------------------------
@@ -591,6 +605,7 @@ class NewLesson:
         self.parent.btn_ok_valid.clicked.connect(self.valid_new_lesson_and_show_info)
         self.parent.btn_back_valid.clicked.connect(self.open_main_menu)
         self.parent.btn_back_constructor.clicked.connect(self.open_new_lesson)
+        self.parent.btn_ok_constructor.clicked.connect(self.valid_constructor_field_and_result_lesson)
 
         self.parent.btn_new_lesson.hide()
         self.open_new_lesson()
@@ -622,11 +637,11 @@ class NewLesson:
         self.filter_card = self.parent.session.query(Cards).filter(
             Cards.id_lesson_type == self.parent.combo_lesson_type.currentIndex() + 1,
             or_(Cards.creative_thinking == self.parent.check_creative_thinking.isChecked(),
-            Cards.critical_thinking == self.parent.check_critical_thinking.isChecked(),
-            Cards.communication == self.parent.check_communication.isChecked(),
-            Cards.cooperation == self.parent.check_cooperation.isChecked(),
-            Cards.metacognitive_skills == self.parent.check_metacognitive_skills.isChecked(),
-            Cards.literacy == self.parent.check_literacy.isChecked())
+                Cards.critical_thinking == self.parent.check_critical_thinking.isChecked(),
+                Cards.communication == self.parent.check_communication.isChecked(),
+                Cards.cooperation == self.parent.check_cooperation.isChecked(),
+                Cards.metacognitive_skills == self.parent.check_metacognitive_skills.isChecked(),
+                Cards.literacy == self.parent.check_literacy.isChecked())
         )
         pixmap = QPixmap('data/image/фоны/фон_конструктора.jpg')
         self.parent.background.setPixmap(pixmap)
@@ -683,7 +698,7 @@ class NewLesson:
                        ('Характеристика класса', self.parent.combo_class_characteristic.currentText()),
                        ('Длительность', self.parent.edit_lesson_duration.text()),
                        ('Креативное мышление', self.parent.check_creative_thinking.isChecked()),
-                       ('Клитическое мышление', self.parent.check_critical_thinking.isChecked()),
+                       ('Критическое мышление', self.parent.check_critical_thinking.isChecked()),
                        ('Грамотность', self.parent.check_literacy.isChecked()),
                        ('Кооперация', self.parent.check_cooperation.isChecked()),
                        ('Коммуникация', self.parent.check_communication.isChecked()),
@@ -725,8 +740,16 @@ class NewLesson:
             self.parent.time_lesson.setText("Время урока: " +
                                             str(int(self.parent.edit_lesson_duration.text())
                                                 - sum(list_time_my_cards)) + " минут")
-        else:
+        elif sum(list_time_my_cards) - int(self.parent.edit_lesson_duration.text()) <= 20:
+            """ for card in self.my_list_card:
+                card.label_time.setText("Время урока: " + str(int(card.label_time.text()[:-1]) 
+                                                              + (sum(list_time_my_cards) // len(list_id_my_card))) + " минут")"""
             pass
+
+        else:
+            # нужно убрать
+            QMessageBox.critical(self.parent, "Ошибка", "Превышен лимит времени", QMessageBox.Ok)
+
         widget = QWidget()
         widget.setLayout(layout)
         widget.setStyleSheet(".QWidget {background-color:transparent;}")
@@ -739,6 +762,43 @@ class NewLesson:
     def stage_button_flag(self, button):
         self.flag_stage = self.parent.session.query(Stage).filter(Stage.name_stage == button.text()).first().id
         self.show_cards_stage()
+
+    def valid_constructor_field_and_result_lesson(self):
+        if int(self.parent.time_lesson.text().split()[2]) != 0:
+            QMessageBox.critical(self.parent, "Ошибка", "Вы не задействовали все время", QMessageBox.Ok)
+            return
+        self.hide_object_constructor_field()
+        for i in range(len(self.my_list_card)):
+            list_skills = [self.my_list_card[i].info_card.creative_thinking,
+                           self.my_list_card[i].info_card.critical_thinking,
+                           self.my_list_card[i].info_card.literacy, self.my_list_card[i].info_card.cooperation,
+                           self.my_list_card[i].info_card.cooperation,
+                           self.my_list_card[i].info_card.metacognitive_skills]
+            list_skills_gk = []
+            for j in list_skills:
+                if j:
+                    list_skills_gk.append('\u2611')
+                else:
+                    list_skills_gk.append('\u2716')
+
+            self.parent.table_result_constructor.setItem(i, 0,
+                                                         QTableWidgetItem(self.my_list_card[i].info_card.name_method))
+            self.parent.table_result_constructor.setItem(i, 1, QTableWidgetItem(self.my_list_card[i].info_card.time + " минут"))
+            self.parent.table_result_constructor.setItem(i, 2, QTableWidgetItem(
+                self.my_list_card[i].info_card.stage.name_stage))
+            self.parent.table_result_constructor.setItem(i, 3, QTableWidgetItem(list_skills_gk[0]))
+            self.parent.table_result_constructor.setItem(i, 4, QTableWidgetItem(list_skills_gk[1]))
+            self.parent.table_result_constructor.setItem(i, 5, QTableWidgetItem(list_skills_gk[2]))
+            self.parent.table_result_constructor.setItem(i, 6, QTableWidgetItem(list_skills_gk[3]))
+            self.parent.table_result_constructor.setItem(i, 7, QTableWidgetItem(list_skills_gk[4]))
+            self.parent.table_result_constructor.setItem(i, 8, QTableWidgetItem(list_skills_gk[5]))
+            self.parent.table_result_constructor.setItem(i, 9, QTableWidgetItem(self.my_list_card[i].info_card.fgos.name_fgos))
+            self.parent.table_result_constructor.setItem(i, 10, QTableWidgetItem(self.my_list_card[i].info_card.text))
+
+        # делаем ресайз колонок по содержимому
+        self.parent.table_result_constructor.resizeColumnsToContents()
+        self.parent.table_result_constructor.show()
+
 
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()
