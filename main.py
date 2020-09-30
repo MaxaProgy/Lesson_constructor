@@ -2,7 +2,7 @@
 
 import sys
 
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, \
     QSplashScreen, QPushButton, QLabel
 from PyQt5 import uic, QtGui, QtCore
@@ -23,6 +23,9 @@ from data.lesson_type import LessonType
 class Menu(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle('Конструктор уроков')
+        self.setWindowIcon(QIcon('data/image/фоны/заставка.png'))
+
         db_session.global_init("db/lesson_constructor.sqlite")
         self.session = db_session.create_session()
         self.list_lesson_quote = ["Учитель прикасается к вечности, никто не знает, где закончится его влияние..",

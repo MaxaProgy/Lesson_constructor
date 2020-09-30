@@ -1,7 +1,8 @@
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QPainter
+from PyQt5.QtPrintSupport import QPrinter
 from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
     QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QDialog, \
-    QAbstractItemView
+    QAbstractItemView, QFrame
 from PyQt5.QtCore import Qt
 from data.stage import Stage
 from data.cards import Cards
@@ -15,12 +16,46 @@ class CardMoreDetails(QDialog):
     def __init__(self, info_card):
         super(QDialog, self).__init__()
         self.setModal(True)
+        # self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle(info_card.name_method)
         self.info_card = info_card
-        self.setMinimumHeight(300)
-        self.setMinimumWidth(300)
-        self.label = QLabel()
+        self.setFixedSize(700, 500)
+        self.label = QLabel(self)
         self.label.setStyleSheet('.QLabel {background-color: #ffa163}')
+        self.label.resize(700, 500)
+
+        self.fgos = QLabel(self)
+        pixmap = QPixmap('data/image/fgos.png')
+        self.fgos.setPixmap(pixmap)
+        self.fgos.move(370, 200)
+
+        self.text_card = QLabel(info_card.text, self)
+        self.text_card.move(20, 20)
+        self.text_card.setMinimumSize(320, 200)
+        self.text_card.setStyleSheet('''
+            .QLabel {
+            font: 20px;
+        }''')
+
+        list_compet = [(info_card.creative_thinking, "- Креативное мышление"),
+                       (info_card.critical_thinking, "- Критическое мышление"),
+                       (info_card.literacy, "- Грамотность"),
+                       (info_card.cooperation, "- Кооперация"),
+                       (info_card.cooperation, "- Коммуникация"),
+                       (info_card.metacognitive_skills, "- Метакогнитивные навыки")]
+        list_compet = [i[1] for i in list_compet if i[0]]
+
+        if info_card.fgos.name_fgos != "-":
+            list_compet.append("- " + info_card.fgos.name_fgos + " навыки ФГОС")
+        self.text_card.setWordWrap(True)
+        self.text_card = QLabel('\n'.join(list_compet), self)
+        self.text_card.move(370, 20)
+        self.text_card.setMinimumSize(320, 200)
+        self.text_card.setStyleSheet('''
+            .QLabel {
+            font: bold  20px;
+        }''')
+        self.text_card.setWordWrap(True)
 
 
 class Card(QWidget):
@@ -401,9 +436,10 @@ class NewLesson:
         self.scroll_main.setStyleSheet(".QScrollArea {background-color:transparent;"
                                        "}")
         self.scroll_main.move(270, 80)
-        self.scroll_main.resize(self.parent.width_windows - 820, self.parent.height_windows - 200)
-        self.scroll_main.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll_main.resize(self.parent.width_windows - 820, self.parent.height_windows - 150)
+        self.scroll_main.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_main.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_main.setFrameShape(QFrame.NoFrame)
 
         self.scroll_my_lesson_card = QScrollArea(self.parent)
         self.scroll_my_lesson_card.setStyleSheet(".QScrollArea {background-color:transparent;"
@@ -424,7 +460,7 @@ class NewLesson:
 
         self.parent.table_result_constructor = QTableWidget(self.parent)
         self.parent.table_result_constructor.setColumnCount(11)
-        self.parent.table_result_constructor.resize(1800, 600)
+        self.parent.table_result_constructor.resize(1800, 700)
         self.parent.table_result_constructor.move(70, 100)
         self.parent.table_result_constructor.setRowCount(len(self.my_list_card))
 
@@ -480,6 +516,44 @@ class NewLesson:
         self.parent.btn_back_result.move(self.parent.width_windows - 150, 25)
         self.parent.btn_back_result.resize(65, 50)
         # -----------------------------------------
+
+        self.parent.btn_print = QPushButton("Печать", self.parent)
+        self.parent.btn_print.resize(400, 100)
+        self.parent.btn_print.move(self.parent.width_windows // 2 - 600, 800)
+        self.parent.btn_print.setStyleSheet('''
+            .QPushButton {
+            background-color: #76b7c7;
+            border-style: outset;
+            border-width: 2px;
+            border-radius: 10px;
+            border-color: beige;
+            font: bold 14px;
+            min-width: 10em;
+            padding: 6px;
+        }
+        .QPushButton:hover {
+            background-color: #548490;
+            border-style: inset;
+        }''')
+
+        self.parent.btn_menu = QPushButton("Сохранить и закончить", self.parent)
+        self.parent.btn_menu.resize(400, 100)
+        self.parent.btn_menu.move(self.parent.width_windows // 2 + 150, 800)
+        self.parent.btn_menu.setStyleSheet('''
+            .QPushButton {
+            background-color: #76b7c7;
+            border-style: outset;
+            border-width: 2px;
+            border-radius: 10px;
+            border-color: beige;
+            font: bold 14px;
+            min-width: 10em;
+            padding: 6px;
+        }
+        .QPushButton:hover {
+            background-color: #548490;
+            border-style: inset;
+        }''')
 
         self.parent.btn_stage_acquaintance = QPushButton("Знакомство", self.parent)
         self.parent.btn_stage_acquaintance.setStyleSheet('''
@@ -653,8 +727,27 @@ class NewLesson:
         self.parent.btn_back_constructor.clicked.connect(self.open_new_lesson)
         self.parent.btn_ok_constructor.clicked.connect(self.valid_constructor_field_and_result_lesson)
         self.parent.btn_back_result.clicked.connect(self.valid_new_lesson_and_show_info)
+        self.parent.btn_print.clicked.connect(self.print)
+
         self.parent.btn_new_lesson.hide()
         self.open_new_lesson()
+
+    def print(self):
+        printer = QPrinter()
+        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer.setOutputFileName("Test.pdf")
+
+        painter = QPainter(printer)
+        """
+        xscale = printer.pageRect().width() / self.width()
+        yscale = printer.pageRect().height() / self.height()
+        scale = min(xscale, yscale)
+        painter.translate(printer.paperRect().center())
+        painter.scale(scale, scale)
+        painter.translate((self.width() / 2) * -1, (self.height() / 2) * -1)
+        """
+        self.parent.table_result_constructor.render(painter)
+        painter.end()
 
     def open_main_menu(self):
         self.hide_object_new_lesson()
@@ -837,10 +930,14 @@ class NewLesson:
     def show_object_result_lesson(self):
         self.parent.table_result_constructor.show()
         self.parent.btn_back_result.show()
+        self.parent.btn_print.show()
+        self.parent.btn_menu.show()
 
     def hide_object_result_lesson(self):
         self.parent.table_result_constructor.hide()
         self.parent.btn_back_result.hide()
+        self.parent.btn_print.hide()
+        self.parent.btn_menu.hide()
 
     def show_object_constructor_field(self):
         self.parent.btn_ok_constructor.show()
