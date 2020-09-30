@@ -10,6 +10,16 @@ from data.cards import Cards
 from data.class_characteristic import ClassCharacteristic
 from data.subject import Subject
 from data.lesson_type import LessonType
+from sqlalchemy import or_
+
+
+class CardMoreDetails(QWidget):
+    def __init__(self, info_card):
+        super(CardMoreDetails, self).__init__()
+        self.info_card = info_card
+        self.setMinimumHeight(800)
+        self.setMinimumWidth(800)
+        self.show()
 
 
 class Card(QWidget):
@@ -31,14 +41,12 @@ class Card(QWidget):
         pixmap = QPixmap('data/image/фоны/cards1.png')
         self.label.setPixmap(pixmap)
 
-
-
         self.vbox = QVBoxLayout()
         self.vbox.addWidget(self.label)
         self.setLayout(self.vbox)
 
         self.label_lesson_topic = QLabel(self.info_card.name_method, self)
-        self.label_lesson_topic.setMinimumSize(300, 100)
+        self.label_lesson_topic.setMinimumSize(320, 100)
         self.label_lesson_topic.setWordWrap(True)
         self.label_lesson_topic.setStyleSheet('''
             .QLabel {
@@ -62,33 +70,13 @@ class Card(QWidget):
             self.label_type_card.resize(60, 60)
             self.label_type_card.move(410, 40)
 
+        self.label_time = QLabel(self.info_card.time + "'", self)
+        self.label_time.setStyleSheet('.QLabel {font-family: "Impact";'
+                                      'font: 30px }')
 
-        self.label_time = QLabel(self)
-        if self.info_card.time == '5':
-            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/5.png);}')
-
-        elif self.info_card.time == '5-10':
-            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/5-10.png);}')
-
-        elif self.info_card.time == '10':
-            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/10.png);}')
-
-        elif self.info_card.time == '10-15':
-            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/10-15.png);}')
-
-        elif self.info_card.time == '15':
-            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/15.png);}')
-
-        elif self.info_card.time == '15-20':
-            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/15-20.png);}')
-
-        elif self.info_card.time == '20':
-            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/20.png);}')
-
-        elif self.info_card.time == 'все занятие':
-            self.label_time.setStyleSheet('.QLabel {border-image: url(data/image/все_занятие.png);}')
-        self.label_time.resize(60, 60)
-        self.label_time.move(420, 100)
+        self.label_time.resize(70, 80)
+        self.label_time.setWordWrap(True)
+        self.label_time.move(435, 100)
 
         self.btn_add = QPushButton(self)
         self.btn_add.setStyleSheet('.QPushButton {border-image: url(data/image/add.png);}'
@@ -106,7 +94,7 @@ class Card(QWidget):
 
         self.btn_more_details = QPushButton(self)
         self.btn_more_details.setStyleSheet('.QPushButton {border-image: url(data/image/Podtobnee.png);}'
-                                   '.QPushButton:hover {border-image: url(data/image/Podtobnee2.png);}')
+                                            '.QPushButton:hover {border-image: url(data/image/Podtobnee2.png);}')
         self.btn_more_details.move(50, 275)
         self.btn_more_details.resize(175, 60)
 
@@ -119,6 +107,7 @@ class Card(QWidget):
         self.show_my_cards()
         self.btn_add.hide()
         self.btn_del.show()
+        self.parent.show_cards_stage()
 
     def del_card(self):
         del self.parent.my_list_card[self.parent.my_list_card.index(self)]
@@ -137,7 +126,8 @@ class Card(QWidget):
         self.parent.scroll_my_lesson_card.show()
 
     def more_details(self):
-        pass
+        CardMoreDetails(self.info_card).show()
+
 
 class NewLesson:
     def __init__(self, parent):
@@ -145,6 +135,7 @@ class NewLesson:
         self.flag_stage = 0
         self.list_card = []
         self.my_list_card = []
+        self.time_sum = 0
 
         # ------------------------------
         #  Объекты вкладки нового урока
@@ -275,8 +266,7 @@ class NewLesson:
                                            self.parent.height_windows // 2 - 100)
 
         self.parent.combo_class = QComboBox(self.parent)
-        self.parent.combo_class.addItems([item.name_class for item
-                                          in self.parent.session.query(Classes).all()])
+        self.parent.combo_class.addItems([str(class_) for class_ in range(1, 12)])
         self.parent.combo_class.resize(480, 30)
         self.parent.combo_class.move(self.parent.width_windows // 2 - 140, self.parent.height_windows // 2 - 20)
 
@@ -388,6 +378,15 @@ class NewLesson:
         self.scroll_my_lesson_card.resize(540, 800)
         self.scroll_my_lesson_card.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_my_lesson_card.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        self.parent.time_lesson = QLabel("Время урока: ", self.parent)
+        self.parent.time_lesson.resize(100, 50)
+        self.parent.time_lesson.move(300, 25)
+        self.parent.time_lesson.setStyleSheet('''
+            .QLabel {
+            font: bold 25px;
+            min-width: 20em;
+        }''')
 
         # -----------------------------------------
         #                Кнопки
@@ -620,6 +619,15 @@ class NewLesson:
             QMessageBox.critical(self.parent, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
 
     def constructor_field(self):
+        self.filter_card = self.parent.session.query(Cards).filter(
+            Cards.id_lesson_type == self.parent.combo_lesson_type.currentIndex() + 1,
+            or_(Cards.creative_thinking == self.parent.check_creative_thinking.isChecked(),
+            Cards.critical_thinking == self.parent.check_critical_thinking.isChecked(),
+            Cards.communication == self.parent.check_communication.isChecked(),
+            Cards.cooperation == self.parent.check_cooperation.isChecked(),
+            Cards.metacognitive_skills == self.parent.check_metacognitive_skills.isChecked(),
+            Cards.literacy == self.parent.check_literacy.isChecked())
+        )
         pixmap = QPixmap('data/image/фоны/фон_конструктора.jpg')
         self.parent.background.setPixmap(pixmap)
         self.hide_object_new_lesson()
@@ -696,14 +704,14 @@ class NewLesson:
         self.show_cards_stage()
 
     def show_cards_stage(self):
-        list_cards = self.parent.session.query(Cards).filter(Cards.id_stage_card.like(self.flag_stage)).all()
+        list_cards = self.filter_card.filter(Cards.id_stage_card.like(self.flag_stage)).all()
         layout = QGridLayout()
 
         for i in reversed(range(len(self.list_card))):
             del self.list_card[i]
 
         list_id_my_card = [card.info_card.id for card in self.my_list_card]
-        print(list_id_my_card)
+
         for i in reversed(range(len(list_cards))):
             if list_cards[i].id in list_id_my_card:
                 del list_cards[i]
@@ -712,6 +720,13 @@ class NewLesson:
             self.list_card.append(Card(self, list_cards[i]))
             layout.addWidget(self.list_card[i], i // 2, i % 2)
 
+        list_time_my_cards = [int(card.info_card.time) for card in self.my_list_card]
+        if sum(list_time_my_cards) <= int(self.parent.edit_lesson_duration.text()):
+            self.parent.time_lesson.setText("Время урока: " +
+                                            str(int(self.parent.edit_lesson_duration.text())
+                                                - sum(list_time_my_cards)) + " минут")
+        else:
+            pass
         widget = QWidget()
         widget.setLayout(layout)
         widget.setStyleSheet(".QWidget {background-color:transparent;}")
@@ -740,6 +755,7 @@ class NewLesson:
         self.parent.value_lesson.show()
         self.scroll_main.show()
         self.scroll_my_lesson_card.show()
+        self.parent.time_lesson.show()
 
     def hide_object_constructor_field(self):
         self.parent.btn_ok_constructor.hide()
@@ -756,6 +772,7 @@ class NewLesson:
         self.parent.value_lesson.hide()
         self.scroll_main.hide()
         self.scroll_my_lesson_card.hide()
+        self.parent.time_lesson.hide()
 
     def show_object_new_lesson(self):
         self.parent.background_new_lesson.show()
