@@ -15,7 +15,7 @@ class Cards(SqlAlchemyBase, SerializerMixin):
     id_classes_number = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("classes.id"))
     id_type_method_card = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("type_method.id"))
     id_stage_card = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("stage.id"))
-
+    id_lesson_type =  sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("lesson_type.id"))
     creative_thinking = sqlalchemy.Column(sqlalchemy.Boolean)
     critical_thinking = sqlalchemy.Column(sqlalchemy.Boolean)
     communication = sqlalchemy.Column(sqlalchemy.Boolean)
@@ -30,3 +30,4 @@ class Cards(SqlAlchemyBase, SerializerMixin):
     type_method = orm.relation('TypeMethod')
     stage = orm.relation('Stage')
     fgos = orm.relation('Fgos')
+    lesson_type = orm.relation('LessonType')

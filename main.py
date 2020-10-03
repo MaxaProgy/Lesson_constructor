@@ -2,7 +2,7 @@
 
 import sys
 
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, \
     QSplashScreen, QPushButton, QLabel
 from PyQt5 import uic, QtGui, QtCore
@@ -15,17 +15,18 @@ from data.type_method import TypeMethod
 from data.stage import Stage
 from data.classes import Classes
 from data.fgos import Fgos
-from data.cards import Cards
 from data.subject import Subject
 from data.class_characteristic import ClassCharacteristic
 from data.lesson_type import LessonType
-from PyQt5.Qt import Qt
 
 
 class Menu(QMainWindow):
     def __init__(self):
         super().__init__()
-        db_session.global_init("db/lesson_constructor.sqlite")
+        self.setWindowTitle('Конструктор уроков')
+        self.setWindowIcon(QIcon('data/image/фоны/заставка.png'))
+
+        db_session.global_init("db/lesson_constructor_db.sqlite")
         self.session = db_session.create_session()
         self.list_lesson_quote = ["Учитель прикасается к вечности, никто не знает, где закончится его влияние..",
                                   "Кто постигает новое, лелея старое, Тот может быть учителем.",
@@ -60,7 +61,7 @@ class Menu(QMainWindow):
 
         if not classes:
             session = db_session.create_session()
-            classes_value = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]
+            classes_value = ["1-4", "5-8", "9-11", "1-11", "1-8", "5-11"]
             for value in classes_value:
                 classes_value = Classes(
                     name_class=value,
@@ -164,11 +165,11 @@ class Menu(QMainWindow):
         }''')
 
         self.quote = QLabel(random.choice(self.list_lesson_quote), self)
-        self.quote.move(self.width_windows // 2, 200)
-        self.quote.setStyleSheet('''
-                .QLabel {
-                font: bold;
-            }''')
+        self.quote.move(self.width_windows // 2 - 100, 350)
+        self.quote.setMinimumSize(600, 100)
+        self.quote.setWordWrap(True)
+        self.quote.setStyleSheet('.QLabel {font-family: "Impact";'
+                                 'font: 50px }')
         self.quote.setMinimumSize(self.quote.sizeHint())
         self.btn_new_lesson.clicked.connect(self.create_new_lesson)
 
