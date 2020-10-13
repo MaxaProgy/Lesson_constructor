@@ -210,7 +210,6 @@ class NewLesson:
         # ------------------------------
         #  Объекты вкладки нового урока
         # ------------------------------
-        print(88888888888888888822222222)
         # Фон для текстовых полей нового урока
         self.main_window.background_new_lesson = QLabel(self.main_window)
         self.main_window.background_new_lesson.resize(*self.main_window.normal.normal_prop_xy(900, 600))
@@ -226,7 +225,6 @@ class NewLesson:
             "min-width: 10em;"
             "padding: 6px;"
             "}")
-        print(8888888888888888883333333333333444444444)
         # Тексты
         # -----------------------------------------
         self.main_window.text_lesson_topic = QLabel("Тема урока", self.main_window)
@@ -264,7 +262,6 @@ class NewLesson:
             f"font: bold {self.main_window.normal.normal_font(16)}px;"
             "min-width: 12em;"
             "}")
-        print(8888888888888888888800000000000888)
         self.main_window.text_class_characteristic = QLabel("Характеристика класса", self.main_window)
         self.main_window.text_class_characteristic.resize(self.main_window.text_class_characteristic.sizeHint())
         self.main_window.text_class_characteristic.move(*self.main_window.normal.normal_prop_xy(555, 580))
@@ -354,7 +351,6 @@ class NewLesson:
         self.main_window.btn_radio_group = QButtonGroup()
         self.main_window.btn_radio_group.addButton(self.main_window.radio_btn_yes)
         self.main_window.btn_radio_group.addButton(self.main_window.radio_btn_no)
-        print(88888888888888888777777777778)
         self.main_window.check_communication = QCheckBox('Коммуникация', self.main_window)
         self.main_window.check_communication.resize(*self.main_window.normal.normal_prop_xy(200, 30))
         self.main_window.check_communication.move(*self.main_window.normal.normal_prop_xy(820, 710))
@@ -377,7 +373,6 @@ class NewLesson:
         self.main_window.check_cooperation.setStyleSheet(".QCheckBox {"
                                                     f"font: bold {self.main_window.normal.normal_font(14)}px;"
                                                     "}")
-        print(8888888888888888886666666666)
         self.main_window.check_creative_thinking = QCheckBox('Креативное мышление', self.main_window)
         self.main_window.check_creative_thinking.resize(*self.main_window.normal.normal_prop_xy(200, 30))
         self.main_window.check_creative_thinking.move(*self.main_window.normal.normal_prop_xy(1020, 710))
@@ -398,11 +393,9 @@ class NewLesson:
         self.main_window.check_metacognitive_skills.setStyleSheet(".QCheckBox {"
                                                              f"font: bold {self.main_window.normal.normal_font(14)}px;"
                                                              "}")
-        print(88888888888888888855555555555)
         self.main_window.value_lesson = QListView(self.main_window)
         self.main_window.value_lesson.resize(*self.main_window.normal.normal_prop_xy(540, 200))
         self.main_window.value_lesson.move(*self.main_window.normal.normal_xy(1370, 5))
-        print(88888888888888888844444)
         self.scroll_main = QScrollArea(self.main_window)
         self.scroll_main.setStyleSheet(".QScrollArea {background-color:transparent;"
                                        "}")
@@ -411,7 +404,6 @@ class NewLesson:
         self.scroll_main.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_main.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_main.setFrameShape(QFrame.NoFrame)
-        print(8888888888888888883333)
         self.scroll_my_lesson_card = QScrollArea(self.main_window)
         self.scroll_my_lesson_card.setStyleSheet(".QScrollArea {background-color:transparent;"
                                                  "}")
@@ -419,7 +411,6 @@ class NewLesson:
         self.scroll_my_lesson_card.resize(*self.main_window.normal.normal_prop_xy(540, 730))
         self.scroll_my_lesson_card.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_my_lesson_card.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        print(88888888888888888822222)
         self.main_window.time_lesson = QLabel(f"Время урока: {self.main_window.edit_lesson_duration.text()} минут", self.main_window)
         self.main_window.time_lesson.resize(*self.main_window.normal.normal_prop_xy(100, 50))
         self.main_window.time_lesson.move(*self.main_window.normal.normal_xy(300, 25))
@@ -428,7 +419,6 @@ class NewLesson:
             f"font: bold {self.main_window.normal.normal_font(25)}px;"
             "min-width: 20em;"
             "}")
-        print(8888888888888888884444444444444)
         self.main_window.btn_save_lesson = QPushButton("Сохранить урок", self.main_window)
         self.main_window.btn_save_lesson.resize(*self.main_window.normal.normal_prop_xy(175, 70))
         self.main_window.btn_save_lesson.move(*self.main_window.normal.normal_xy(1553, 894))
@@ -466,7 +456,6 @@ class NewLesson:
             "background-color: #548490;"
             "border-style: inset;"
             "}")
-        print(8888888888888888881111111111)
         self.main_window.btn_del_lesson = QPushButton("Удалить урок", self.main_window)
         self.main_window.btn_del_lesson.resize(*self.main_window.normal.normal_prop_xy(175, 70))
         self.main_window.btn_del_lesson.move(*self.main_window.normal.normal_xy(1737, 894))
@@ -520,7 +509,6 @@ class NewLesson:
                                                '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
         self.main_window.btn_ok_valid.move(*self.main_window.normal.normal_prop_xy(1320, 720))
         self.main_window.btn_ok_valid.resize(*self.main_window.normal.normal_prop_xy(63, 60))
-        print(8888888888888888882222222222222)
         # -----------------------------------------
 
         self.main_window.btn_back_constructor = QPushButton(self.main_window)
@@ -528,7 +516,6 @@ class NewLesson:
                                                        '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
         self.main_window.btn_back_constructor.move(*self.main_window.normal.normal_xy(1200, 12))
         self.main_window.btn_back_constructor.resize(*self.main_window.normal.normal_prop_xy(55, 40))
-        print(333333333333344444)
         self.main_window.btn_ok_constructor = QPushButton(self.main_window)
         self.main_window.btn_ok_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
                                                      '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
@@ -536,14 +523,12 @@ class NewLesson:
         self.main_window.btn_ok_constructor.resize(*self.main_window.normal.normal_prop_xy(63, 60))
 
         # -----------------------------------------
-        print(333333333355555)
         self.main_window.btn_back_result = QPushButton(self.main_window)
         self.main_window.btn_back_result.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
                                                   '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
         self.main_window.btn_back_result.move(*self.main_window.normal.normal_xy(1700, 25))
         self.main_window.btn_back_result.resize(*self.main_window.normal.normal_prop_xy(65, 50))
         # -----------------------------------------
-        print(33333333336666)
         self.main_window.btn_print = QPushButton("Печать", self.main_window)
         self.main_window.btn_print.resize(*self.main_window.normal.normal_prop_xy(400, 100))
         self.main_window.btn_print.move(*self.main_window.normal.normal_xy(1200, 800))
@@ -562,7 +547,6 @@ class NewLesson:
             background-color: #548490;
             border-style: inset;
         }''')
-        print(3333333333)
         self.main_window.btn_menu = QPushButton("Сохранить и закончить", self.main_window)
         self.main_window.btn_menu.resize(*self.main_window.normal.normal_prop_xy(400, 100))
         self.main_window.btn_menu.move(*self.main_window.normal.normal_xy(450, 800))
@@ -598,7 +582,6 @@ class NewLesson:
             "background-color: #548490;"
             "border-style: inset;"
             "}")
-        print(888888888888884444444444444448888)
         self.main_window.btn_team_building = QPushButton("Командообразование", self.main_window)
         self.main_window.btn_team_building.setStyleSheet(
             ".QPushButton {"
@@ -770,7 +753,6 @@ class NewLesson:
         self.main_window.btn_new_lesson.hide()
         self.open_new_lesson()
 
-        print(888888888888888888)
 
     def save_lesson(self):
         if int(self.main_window.time_lesson.text().split()[2]) == 0:
