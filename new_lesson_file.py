@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit
     QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QTableWidget, QTableWidgetItem, QDialog, \
     QAbstractItemView, QFrame, QListWidget
 from PyQt5.QtCore import Qt
+
+from data.fgos import Fgos
 from data.stage import Stage
 from data.cards import Cards
 from data.save_lesson import SaveLesson
@@ -36,7 +38,7 @@ class CardMoreDetails(QDialog):
         self.text_card.setStyleSheet(
             ".QLabel {"
             f"font: 20px;"
-        "}")
+            "}")
 
         list_compet = [(info_card.creative_thinking, "- Креативное мышление"),
                        (info_card.critical_thinking, "- Критическое мышление"),
@@ -69,8 +71,8 @@ class Card(QWidget):
     def controls(self):
         self.label = QLabel()
         self.label.setStyleSheet('.QLabel {'
-                                 f'min-height: { str(self.parent.main_window.normal.normal_prop_xy(300, 300)[0]) }px;'
-                                 f'min-width: { str(self.parent.main_window.normal.normal_prop_xy(500, 500)[0]) }px;'
+                                 f'min-height: {str(self.parent.main_window.normal.normal_prop_xy(300, 300)[0])}px;'
+                                 f'min-width: {str(self.parent.main_window.normal.normal_prop_xy(500, 500)[0])}px;'
                                  'margin-right: 4px;'
                                  'margin-left: 4px;'
                                  'margin-bottom: 16px;'
@@ -88,7 +90,7 @@ class Card(QWidget):
         self.label_lesson_topic.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.parent.main_window.normal.normal_font(40)}px;"
-        "}")
+            "}")
         self.label_lesson_topic.move(*self.parent.main_window.normal.normal_prop_xy(60, 60))
 
         self.label_type_card = QLabel(self)
@@ -284,17 +286,17 @@ class NewLesson:
         self.main_window.text_acquaintance.resize(self.main_window.text_acquaintance.sizeHint())
         self.main_window.text_acquaintance.move(*self.main_window.normal.normal_prop_xy(930, 660))
         self.main_window.text_acquaintance.setStyleSheet(".QLabel {"
-                                                    f"font: bold {self.main_window.normal.normal_font(16)}px;"
-                                                    "min-width: 12em;"
-                                                    "}")
+                                                         f"font: bold {self.main_window.normal.normal_font(16)}px;"
+                                                         "min-width: 12em;"
+                                                         "}")
 
         self.main_window.text_competence = QLabel("Компетенции ", self.main_window)
         self.main_window.text_competence.resize(self.main_window.text_competence.sizeHint())
         self.main_window.text_competence.move(*self.main_window.normal.normal_prop_xy(555, 740))
         self.main_window.text_competence.setStyleSheet(".QLabel {"
-                                                  f"font: bold {self.main_window.normal.normal_font(16)}px;"
-                                                  "min-width: 12em;"
-                                                  "}")
+                                                       f"font: bold {self.main_window.normal.normal_font(16)}px;"
+                                                       "min-width: 12em;"
+                                                       "}")
 
         # Поля ввода значений
         # -----------------------------------------
@@ -309,13 +311,13 @@ class NewLesson:
 
         self.main_window.combo_subjects = QComboBox(self.main_window)
         self.main_window.combo_subjects.addItems([item.name_subject for item
-                                             in self.main_window.session.query(Subject).all()])
+                                                  in self.main_window.session.query(Subject).all()])
         self.main_window.combo_subjects.resize(*self.main_window.normal.normal_prop_xy(480, 30))
         self.main_window.combo_subjects.move(*self.main_window.normal.normal_prop_xy(820, 330))
 
         self.main_window.combo_lesson_type = QComboBox(self.main_window)
         self.main_window.combo_lesson_type.addItems([item.name_lesson_type for item
-                                                in self.main_window.session.query(LessonType).all()])
+                                                     in self.main_window.session.query(LessonType).all()])
         self.main_window.combo_lesson_type.resize(*self.main_window.normal.normal_prop_xy(480, 30))
         self.main_window.combo_lesson_type.move(*self.main_window.normal.normal_prop_xy(820, 410))
 
@@ -326,7 +328,8 @@ class NewLesson:
 
         self.main_window.combo_class_characteristic = QComboBox(self.main_window)
         self.main_window.combo_class_characteristic.addItems([item.name_class_characteristic for item
-                                                         in self.main_window.session.query(ClassCharacteristic).all()])
+                                                              in self.main_window.session.query(
+                ClassCharacteristic).all()])
         self.main_window.combo_class_characteristic.resize(*self.main_window.normal.normal_prop_xy(480, 30))
         self.main_window.combo_class_characteristic.move(*self.main_window.normal.normal_prop_xy(820, 570))
 
@@ -334,19 +337,19 @@ class NewLesson:
         self.main_window.edit_lesson_duration.resize(*self.main_window.normal.normal_prop_xy(80, 30))
         self.main_window.edit_lesson_duration.move(*self.main_window.normal.normal_prop_xy(820, 650))
         self.main_window.edit_lesson_duration.setStyleSheet(".QLineEdit {"
-                                                       f"font: bold {self.main_window.normal.normal_font(16)}px;"
-                                                       "}")
+                                                            f"font: bold {self.main_window.normal.normal_font(16)}px;"
+                                                            "}")
 
         self.main_window.radio_btn_yes = QRadioButton('Да', self.main_window)
         self.main_window.radio_btn_yes.move(*self.main_window.normal.normal_prop_xy(1160, 650))
         self.main_window.radio_btn_yes.setStyleSheet(".QRadioButton {"
-                                                f"font: bold {self.main_window.normal.normal_font(16)}px;"
-                                                "}")
+                                                     f"font: bold {self.main_window.normal.normal_font(16)}px;"
+                                                     "}")
         self.main_window.radio_btn_no = QRadioButton('Нет', self.main_window)
         self.main_window.radio_btn_no.move(*self.main_window.normal.normal_prop_xy(1240, 650))
         self.main_window.radio_btn_no.setStyleSheet(".QRadioButton {"
-                                               f"font: bold {self.main_window.normal.normal_font(16)}px;"
-                                               "}")
+                                                    f"font: bold {self.main_window.normal.normal_font(16)}px;"
+                                                    "}")
         self.main_window.radio_btn_no.setChecked(True)
         self.main_window.btn_radio_group = QButtonGroup()
         self.main_window.btn_radio_group.addButton(self.main_window.radio_btn_yes)
@@ -371,28 +374,28 @@ class NewLesson:
         self.main_window.check_cooperation.resize(*self.main_window.normal.normal_prop_xy(200, 30))
         self.main_window.check_cooperation.move(*self.main_window.normal.normal_prop_xy(820, 754))
         self.main_window.check_cooperation.setStyleSheet(".QCheckBox {"
-                                                    f"font: bold {self.main_window.normal.normal_font(14)}px;"
-                                                    "}")
+                                                         f"font: bold {self.main_window.normal.normal_font(14)}px;"
+                                                         "}")
         self.main_window.check_creative_thinking = QCheckBox('Креативное мышление', self.main_window)
         self.main_window.check_creative_thinking.resize(*self.main_window.normal.normal_prop_xy(200, 30))
         self.main_window.check_creative_thinking.move(*self.main_window.normal.normal_prop_xy(1020, 710))
         self.main_window.check_creative_thinking.setStyleSheet(".QCheckBox {"
-                                                          f"font: bold {self.main_window.normal.normal_font(14)}px;"
-                                                          "}")
+                                                               f"font: bold {self.main_window.normal.normal_font(14)}px;"
+                                                               "}")
 
         self.main_window.check_critical_thinking = QCheckBox('Критическое мышление', self.main_window)
         self.main_window.check_critical_thinking.resize(*self.main_window.normal.normal_prop_xy(200, 30))
         self.main_window.check_critical_thinking.move(*self.main_window.normal.normal_prop_xy(1020, 732))
         self.main_window.check_critical_thinking.setStyleSheet(".QCheckBox {"
-                                                          f"font: bold {self.main_window.normal.normal_font(14)}px;"
-                                                          "}")
+                                                               f"font: bold {self.main_window.normal.normal_font(14)}px;"
+                                                               "}")
 
         self.main_window.check_metacognitive_skills = QCheckBox('Метакогнитивные навыки', self.main_window)
         self.main_window.check_metacognitive_skills.resize(*self.main_window.normal.normal_prop_xy(200, 30))
         self.main_window.check_metacognitive_skills.move(*self.main_window.normal.normal_prop_xy(1020, 754))
         self.main_window.check_metacognitive_skills.setStyleSheet(".QCheckBox {"
-                                                             f"font: bold {self.main_window.normal.normal_font(14)}px;"
-                                                             "}")
+                                                                  f"font: bold {self.main_window.normal.normal_font(14)}px;"
+                                                                  "}")
         self.main_window.value_lesson = QListView(self.main_window)
         self.main_window.value_lesson.resize(*self.main_window.normal.normal_prop_xy(540, 200))
         self.main_window.value_lesson.move(*self.main_window.normal.normal_xy(1370, 5))
@@ -411,7 +414,8 @@ class NewLesson:
         self.scroll_my_lesson_card.resize(*self.main_window.normal.normal_prop_xy(540, 730))
         self.scroll_my_lesson_card.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_my_lesson_card.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.main_window.time_lesson = QLabel(f"Время урока: {self.main_window.edit_lesson_duration.text()} минут", self.main_window)
+        self.main_window.time_lesson = QLabel(f"Время урока: {self.main_window.edit_lesson_duration.text()} минут",
+                                              self.main_window)
         self.main_window.time_lesson.resize(*self.main_window.normal.normal_prop_xy(100, 50))
         self.main_window.time_lesson.move(*self.main_window.normal.normal_xy(300, 25))
         self.main_window.time_lesson.setStyleSheet(
@@ -500,32 +504,32 @@ class NewLesson:
 
         self.main_window.btn_back_valid = QPushButton(self.main_window)
         self.main_window.btn_back_valid.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
-                                                 '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
+                                                      '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
         self.main_window.btn_back_valid.move(*self.main_window.normal.normal_prop_xy(1320, 210))
         self.main_window.btn_back_valid.resize(*self.main_window.normal.normal_prop_xy(55, 40))
 
         self.main_window.btn_ok_valid = QPushButton(self.main_window)
         self.main_window.btn_ok_valid.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
-                                               '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
+                                                    '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
         self.main_window.btn_ok_valid.move(*self.main_window.normal.normal_prop_xy(1320, 720))
         self.main_window.btn_ok_valid.resize(*self.main_window.normal.normal_prop_xy(63, 60))
         # -----------------------------------------
 
         self.main_window.btn_back_constructor = QPushButton(self.main_window)
         self.main_window.btn_back_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
-                                                       '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
+                                                            '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
         self.main_window.btn_back_constructor.move(*self.main_window.normal.normal_xy(1200, 12))
         self.main_window.btn_back_constructor.resize(*self.main_window.normal.normal_prop_xy(55, 40))
         self.main_window.btn_ok_constructor = QPushButton(self.main_window)
         self.main_window.btn_ok_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
-                                                     '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
+                                                          '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
         self.main_window.btn_ok_constructor.move(*self.main_window.normal.normal_xy(1280, 3))
         self.main_window.btn_ok_constructor.resize(*self.main_window.normal.normal_prop_xy(63, 60))
 
         # -----------------------------------------
         self.main_window.btn_back_result = QPushButton(self.main_window)
         self.main_window.btn_back_result.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
-                                                  '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
+                                                       '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
         self.main_window.btn_back_result.move(*self.main_window.normal.normal_xy(1700, 25))
         self.main_window.btn_back_result.resize(*self.main_window.normal.normal_prop_xy(65, 50))
         # -----------------------------------------
@@ -753,11 +757,10 @@ class NewLesson:
         self.main_window.btn_new_lesson.hide()
         self.open_new_lesson()
 
-
     def save_lesson(self):
         if int(self.main_window.time_lesson.text().split()[2]) == 0:
             if self.main_window.edit_lesson_topic.text() in [item.name for item in
-                                                        self.main_window.session.query(SaveLesson).all()]:
+                                                             self.main_window.session.query(SaveLesson).all()]:
                 reply = QMessageBox.question(self.main_window, "Предупреждение",
                                              "Урок с таким названием уже сущестует. Вы хотите перезаписать?",
                                              QMessageBox.Yes | QMessageBox.No)
@@ -806,7 +809,7 @@ class NewLesson:
         self.open.close()
         self.my_list_card = []
         for id in self.main_window.session.query(SaveLesson).filter(SaveLesson.name ==
-                                                               self.list_view.currentItem().text()).first().ids.split(
+                                                                    self.list_view.currentItem().text()).first().ids.split(
             ";"):
             self.my_list_card.append(Card(self, self.main_window.session.query(Cards).filter(Cards.id == id).first()))
             self.my_list_card[-1].btn_add.hide()
@@ -857,7 +860,6 @@ class NewLesson:
 
     def constructor_field(self):
         self.filter_card = self.main_window.session.query(Cards).filter(
-            Cards.id_lesson_type == self.main_window.combo_lesson_type.currentIndex() + 1,
             or_(Cards.creative_thinking == self.main_window.check_creative_thinking.isChecked(),
                 Cards.critical_thinking == self.main_window.check_critical_thinking.isChecked(),
                 Cards.communication == self.main_window.check_communication.isChecked(),
@@ -985,27 +987,39 @@ class NewLesson:
                            self.my_list_card[i].info_card.cooperation,
                            self.my_list_card[i].info_card.metacognitive_skills]
             list_skills_gk = []
+
             for j in list_skills:
                 if j:
                     list_skills_gk.append('\u2611')
                 else:
                     list_skills_gk.append('\u2716')
+
             self.main_window.table_result_constructor.insertRow(i)
+
             self.main_window.table_result_constructor.setItem(i, 0,
-                                                         QTableWidgetItem(self.my_list_card[i].info_card.name_method))
+                                                              QTableWidgetItem(
+                                                                  self.my_list_card[i].info_card.name_method))
+
             self.main_window.table_result_constructor.setItem(i, 1, QTableWidgetItem(
                 self.my_list_card[i].label_time.text()[:-1] + " минут"))
-            self.main_window.table_result_constructor.setItem(i, 2, QTableWidgetItem(
-                self.my_list_card[i].info_card.stage.name_stage))
             self.main_window.table_result_constructor.setItem(i, 3, QTableWidgetItem(list_skills_gk[0]))
             self.main_window.table_result_constructor.setItem(i, 4, QTableWidgetItem(list_skills_gk[1]))
             self.main_window.table_result_constructor.setItem(i, 5, QTableWidgetItem(list_skills_gk[2]))
             self.main_window.table_result_constructor.setItem(i, 6, QTableWidgetItem(list_skills_gk[3]))
             self.main_window.table_result_constructor.setItem(i, 7, QTableWidgetItem(list_skills_gk[4]))
             self.main_window.table_result_constructor.setItem(i, 8, QTableWidgetItem(list_skills_gk[5]))
+            self.main_window.table_result_constructor.setItem(i, 2, QTableWidgetItem(
+                self.main_window.session.query(Stage).filter(Stage.id ==
+                                                             self.my_list_card[
+                                                                 i].info_card.id_stage_card).first().name_stage))
+
             self.main_window.table_result_constructor.setItem(i, 9, QTableWidgetItem(
-                self.my_list_card[i].info_card.fgos.name_fgos))
-            self.main_window.table_result_constructor.setItem(i, 10, QTableWidgetItem(self.my_list_card[i].info_card.text))
+                self.main_window.session.query(Fgos).filter(Fgos.id ==
+                                                            self.my_list_card[i].info_card.id_fgos).first().name_fgos))
+
+            self.main_window.table_result_constructor.setItem(i, 10, QTableWidgetItem(
+                self.my_list_card[i].info_card.text))
+
         self.main_window.table_result_constructor.resizeRowsToContents()
 
         self.show_object_result_lesson()
