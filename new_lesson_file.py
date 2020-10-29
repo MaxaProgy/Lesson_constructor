@@ -780,20 +780,21 @@ class NewLesson:
         else:
             QMessageBox.critical(self.main_window, "Ошибка", "Вы не использовали все время урока", QMessageBox.Ok)
 
-    def dialog_lesson(self, del_or_open):
+    def dialog_lesson(self, del_or_open, title):
         self.open = QDialog()
-        self.open.resize(*self.main_window.parent.normal_prop_xy(300, 150))
+        self.open.setWindowTitle(title)
+        self.open.resize(*self.main_window.normal.normal_prop_xy(300, 150))
         self.list_view = QListWidget(self.open)
-        self.list_view.resize(*self.main_window.parent.normal_prop_xy(300, 150))
+        self.list_view.resize(*self.main_window.normal.normal_prop_xy(300, 150))
         self.list_view.addItems([item.name for item in self.main_window.session.query(SaveLesson).all()])
         self.list_view.doubleClicked.connect(del_or_open)
         self.open.exec()
 
     def del_lesson(self):
-        self.dialog_lesson(self.del_select_lesson)
+        self.dialog_lesson(self.del_select_lesson, "Удалить")
 
     def open_lesson(self):
-        self.dialog_lesson(self.open_select_lesson)
+        self.dialog_lesson(self.open_select_lesson, "Открыть")
 
     def del_select_lesson(self):
         self.open.close()
@@ -821,19 +822,20 @@ class NewLesson:
     def print(self):
         printer = QPrinter()
         printer.setOutputFormat(QPrinter.PdfFormat)
-        printer.setOutputFileName("Test.pdf")
+        printer.setOutputFileName(f"{self.main_window.edit_lesson_topic.text()}.pdf")
 
         painter = QPainter(printer)
-        """
-        xscale = printer.pageRect().width() / self.width()
-        yscale = printer.pageRect().height() / self.height()
+
+        xscale = printer.pageRect().width() / self.main_window.normal.width_windows
+        yscale = printer.pageRect().height() / self.main_window.normal.height_windows
         scale = min(xscale, yscale)
         painter.translate(printer.paperRect().center())
         painter.scale(scale, scale)
-        painter.translate((self.width() / 2) * -1, (self.height() / 2) * -1)
-        """
+        painter.translate((self.main_window.normal.width_windows / 2) * -1, (self.main_window.normal.height_windows / 2) * -1)
+
         self.main_window.table_result_constructor.render(painter)
         painter.end()
+        QMessageBox.critical(self.main_window, "Готово!", "Урок сохранен", QMessageBox.Ok)
 
     def open_main_menu(self):
         self.hide_object_new_lesson()
