@@ -16,9 +16,10 @@ from sqlalchemy import or_
 
 
 class CardMoreDetails(QDialog):
-    def __init__(self, info_card):
+    def __init__(self, info_card, parent):
         super(QDialog, self).__init__()
         self.setModal(True)
+        self.parent = parent
         # self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle(info_card.name_method)
         self.info_card = info_card
@@ -48,8 +49,8 @@ class CardMoreDetails(QDialog):
                        (info_card.metacognitive_skills, "- Метакогнитивные навыки")]
         list_compet = [i[1] for i in list_compet if i[0]]
 
-        if info_card.fgos.name_fgos != "-":
-            list_compet.append("- " + info_card.fgos.name_fgos + " навыки ФГОС")
+        if self.parent.session.query(Fgos).filter(Fgos.id == info_card.id_fgos).first().name_fgos != "-":
+            list_compet.append("- " + self.parent.session.query(Fgos).filter(Fgos.id == info_card.id_fgos).first().name_fgos + " навыки ФГОС")
         self.text_card.setWordWrap(True)
         self.text_card = QLabel('\n'.join(list_compet), self)
         self.text_card.move(370, 20)
@@ -197,7 +198,7 @@ class Card(QWidget):
         self.parent.scroll_my_lesson_card.show()
 
     def more_details(self):
-        self.card_info = CardMoreDetails(self.info_card)
+        self.card_info = CardMoreDetails(self.info_card, self.parent.main_window)
         self.card_info.show()
 
 

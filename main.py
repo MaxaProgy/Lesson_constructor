@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, \
 from PyQt5 import QtGui, QtCore
 import time
 import random
-from  util import Normalize
+from util import Normalize
 
 from data import db_session
 from new_lesson_file import NewLesson
@@ -139,7 +139,7 @@ class Menu(QMainWindow):
         self.setGeometry(QRect(0, 0, self.normal.width_windows, self.normal.height_windows))
 
         self.background = QLabel(self)
-
+        
         # --------------------------
         #       Кнопки меню
         # --------------------------
@@ -157,13 +157,13 @@ class Menu(QMainWindow):
             'border-radius: 10px;'
             'border-color: beige;'
             'font: bold ' + self.normal.normal_font(14) + 'px;'
-                                                   'min-width: 10em;'
-                                                   'padding: 6px;'
-                                                   '}'
-                                                   '.QPushButton:hover {'
-                                                   'background-color: #548490;'
-                                                   'border-style: inset;'
-                                                   '}')
+                                                          'min-width: 10em;'
+                                                          'padding: 6px;'
+                                                          '}'
+                                                          '.QPushButton:hover {'
+                                                          'background-color: #548490;'
+                                                          'border-style: inset;'
+                                                          '}')
 
         self.quote = QLabel(random.choice(self.list_lesson_quote), self)
         self.quote.move(self.normal.width_windows // 3, self.normal.height_windows // 3)
@@ -191,8 +191,6 @@ class Menu(QMainWindow):
         self.new_lesson = NewLesson(self)
 
     # -----------------------------------------
-
-
 
 
 app = QApplication(sys.argv)
