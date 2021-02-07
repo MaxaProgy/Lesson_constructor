@@ -5,14 +5,11 @@ from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit
     QAbstractItemView, QFrame, QListWidget
 from PyQt5.QtCore import Qt
 
-from data.fgos import Fgos
-from data.stage import Stage
 from data.cards import Cards
 from data.save_lesson import SaveLesson
-from data.class_characteristic import ClassCharacteristic
-from data.subject import Subject
-from data.lesson_type import LessonType
 from sqlalchemy import or_
+
+from const import *
 
 
 class CardMoreDetails(QDialog):
@@ -20,7 +17,6 @@ class CardMoreDetails(QDialog):
         super(QDialog, self).__init__()
         self.setModal(True)
         self.parent = parent
-        # self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle(info_card.name_method)
         self.info_card = info_card
         self.setFixedSize(700, 500)
@@ -50,7 +46,8 @@ class CardMoreDetails(QDialog):
         list_compet = [i[1] for i in list_compet if i[0]]
 
         if self.parent.session.query(Fgos).filter(Fgos.id == info_card.id_fgos).first().name_fgos != "-":
-            list_compet.append("- " + self.parent.session.query(Fgos).filter(Fgos.id == info_card.id_fgos).first().name_fgos + " навыки ФГОС")
+            list_compet.append("- " + self.parent.session.query(Fgos).filter(
+                Fgos.id == info_card.id_fgos).first().name_fgos + " навыки ФГОС")
         self.text_card.setWordWrap(True)
         self.text_card = QLabel('\n'.join(list_compet), self)
         self.text_card.move(370, 20)
@@ -228,6 +225,7 @@ class NewLesson:
             "min-width: 10em;"
             "padding: 6px;"
             "}")
+
         # Тексты
         # -----------------------------------------
         self.main_window.text_lesson_topic = QLabel("Тема урока", self.main_window)
@@ -312,13 +310,13 @@ class NewLesson:
 
         self.main_window.combo_subjects = QComboBox(self.main_window)
         self.main_window.combo_subjects.addItems([item.name_subject for item
-                                                  in self.main_window.session.query(Subject).all()])
+                                                  in SESSION.query(Subject).all()])
         self.main_window.combo_subjects.resize(*self.main_window.normal.normal_prop_xy(480, 30))
         self.main_window.combo_subjects.move(*self.main_window.normal.normal_prop_xy(820, 330))
 
         self.main_window.combo_lesson_type = QComboBox(self.main_window)
         self.main_window.combo_lesson_type.addItems([item.name_lesson_type for item
-                                                     in self.main_window.session.query(LessonType).all()])
+                                                     in SESSION.query(LessonType).all()])
         self.main_window.combo_lesson_type.resize(*self.main_window.normal.normal_prop_xy(480, 30))
         self.main_window.combo_lesson_type.move(*self.main_window.normal.normal_prop_xy(820, 410))
 
@@ -329,8 +327,7 @@ class NewLesson:
 
         self.main_window.combo_class_characteristic = QComboBox(self.main_window)
         self.main_window.combo_class_characteristic.addItems([item.name_class_characteristic for item
-                                                              in self.main_window.session.query(
-                ClassCharacteristic).all()])
+                                                              in SESSION.query(ClassCharacteristic).all()])
         self.main_window.combo_class_characteristic.resize(*self.main_window.normal.normal_prop_xy(480, 30))
         self.main_window.combo_class_characteristic.move(*self.main_window.normal.normal_prop_xy(820, 570))
 
@@ -380,23 +377,27 @@ class NewLesson:
         self.main_window.check_creative_thinking = QCheckBox('Креативное мышление', self.main_window)
         self.main_window.check_creative_thinking.resize(*self.main_window.normal.normal_prop_xy(200, 30))
         self.main_window.check_creative_thinking.move(*self.main_window.normal.normal_prop_xy(1020, 710))
-        self.main_window.check_creative_thinking.setStyleSheet(".QCheckBox {"
-                                                               f"font: bold {self.main_window.normal.normal_font(14)}px;"
-                                                               "}")
+        self.main_window.check_creative_thinking.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(14)} px;"
+            "}")
 
         self.main_window.check_critical_thinking = QCheckBox('Критическое мышление', self.main_window)
         self.main_window.check_critical_thinking.resize(*self.main_window.normal.normal_prop_xy(200, 30))
         self.main_window.check_critical_thinking.move(*self.main_window.normal.normal_prop_xy(1020, 732))
-        self.main_window.check_critical_thinking.setStyleSheet(".QCheckBox {"
-                                                               f"font: bold {self.main_window.normal.normal_font(14)}px;"
-                                                               "}")
+        self.main_window.check_critical_thinking.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(14)} px;"
+            "}")
 
         self.main_window.check_metacognitive_skills = QCheckBox('Метакогнитивные навыки', self.main_window)
         self.main_window.check_metacognitive_skills.resize(*self.main_window.normal.normal_prop_xy(200, 30))
         self.main_window.check_metacognitive_skills.move(*self.main_window.normal.normal_prop_xy(1020, 754))
-        self.main_window.check_metacognitive_skills.setStyleSheet(".QCheckBox {"
-                                                                  f"font: bold {self.main_window.normal.normal_font(14)}px;"
-                                                                  "}")
+        self.main_window.check_metacognitive_skills.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(14)} px;"
+            "}")
+
         self.main_window.value_lesson = QListView(self.main_window)
         self.main_window.value_lesson.resize(*self.main_window.normal.normal_prop_xy(540, 200))
         self.main_window.value_lesson.move(*self.main_window.normal.normal_xy(1370, 5))
@@ -517,8 +518,10 @@ class NewLesson:
         # -----------------------------------------
 
         self.main_window.btn_back_constructor = QPushButton(self.main_window)
-        self.main_window.btn_back_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
-                                                            '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
+        self.main_window.btn_back_constructor.setStyleSheet(
+            '.QPushButton {border-image: url(data/image/назад.png);}'
+            '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
+
         self.main_window.btn_back_constructor.move(*self.main_window.normal.normal_xy(1200, 12))
         self.main_window.btn_back_constructor.resize(*self.main_window.normal.normal_prop_xy(55, 40))
         self.main_window.btn_ok_constructor = QPushButton(self.main_window)
@@ -761,22 +764,22 @@ class NewLesson:
     def save_lesson(self):
         if int(self.main_window.time_lesson.text().split()[2]) == 0:
             if self.main_window.edit_lesson_topic.text() in [item.name for item in
-                                                             self.main_window.session.query(SaveLesson).all()]:
+                                                             SESSION.query(SaveLesson).all()]:
                 reply = QMessageBox.question(self.main_window, "Предупреждение",
                                              "Урок с таким названием уже сущестует. Вы хотите перезаписать?",
                                              QMessageBox.Yes | QMessageBox.No)
                 if reply == QMessageBox.Yes:
-                    lesson = self.main_window.session.query(SaveLesson).filter(
+                    lesson = SESSION.query(SaveLesson).filter(
                         SaveLesson.name == self.main_window.edit_lesson_topic.text()).first()
-                    self.main_window.session.delete(lesson)
-                    self.main_window.session.commit()
+                    SESSION.delete(lesson)
+                    SESSION.commit()
 
             save_lesson = SaveLesson(
                 name=self.main_window.edit_lesson_topic.text(),
                 ids=';'.join([str(card.info_card.id) for card in self.my_list_card]),
             )
-            self.main_window.session.add(save_lesson)
-            self.main_window.session.commit()
+            SESSION.add(save_lesson)
+            SESSION.commit()
             QMessageBox.information(self.main_window, "Ок", "Урок сохранен", QMessageBox.Ok)
         else:
             QMessageBox.critical(self.main_window, "Ошибка", "Вы не использовали все время урока", QMessageBox.Ok)
@@ -787,7 +790,7 @@ class NewLesson:
         self.open.resize(*self.main_window.normal.normal_prop_xy(300, 150))
         self.list_view = QListWidget(self.open)
         self.list_view.resize(*self.main_window.normal.normal_prop_xy(300, 150))
-        self.list_view.addItems([item.name for item in self.main_window.session.query(SaveLesson).all()])
+        self.list_view.addItems([item.name for item in SESSION.query(SaveLesson).all()])
         self.list_view.doubleClicked.connect(del_or_open)
         self.open.exec()
 
@@ -802,18 +805,17 @@ class NewLesson:
         reply = QMessageBox.question(self.main_window, "Удаление", "Вы хотите удалить урок?",
                                      QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
-            lesson = self.main_window.session.query(SaveLesson).filter(
+            lesson = SESSION.query(SaveLesson).filter(
                 SaveLesson.name == self.list_view.currentItem().text()).first()
-            self.main_window.session.delete(lesson)
-            self.main_window.session.commit()
+            SESSION.delete(lesson)
+            SESSION.commit()
 
     def open_select_lesson(self):
         self.open.close()
         self.my_list_card = []
-        for id in self.main_window.session.query(SaveLesson).filter(SaveLesson.name ==
-                                                                    self.list_view.currentItem().text()).first().ids.split(
-            ";"):
-            self.my_list_card.append(Card(self, self.main_window.session.query(Cards).filter(Cards.id == id).first()))
+        for id_card in SESSION.query(SaveLesson).filter(SaveLesson.name ==
+                                                        self.list_view.currentItem().text()).first().ids.split(";"):
+            self.my_list_card.append(Card(self, SESSION.query(Cards).filter(Cards.id == id_card).first()))
             self.my_list_card[-1].btn_add.hide()
             self.my_list_card[-1].btn_del.show()
         self.my_list_card[0].show_my_cards()
@@ -832,7 +834,8 @@ class NewLesson:
         scale = min(xscale, yscale)
         painter.translate(printer.paperRect().center())
         painter.scale(scale, scale)
-        painter.translate((self.main_window.normal.width_windows / 2) * -1, (self.main_window.normal.height_windows / 2) * -1)
+        painter.translate((self.main_window.normal.width_windows / 2) * -1,
+                          (self.main_window.normal.height_windows / 2) * -1)
 
         self.main_window.table_result_constructor.render(painter)
         painter.end()
@@ -862,7 +865,7 @@ class NewLesson:
             QMessageBox.critical(self.main_window, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
 
     def constructor_field(self):
-        self.filter_card = self.main_window.session.query(Cards).filter(
+        self.filter_card = SESSION.query(Cards).filter(
             or_(Cards.creative_thinking == self.main_window.check_creative_thinking.isChecked(),
                 Cards.critical_thinking == self.main_window.check_critical_thinking.isChecked(),
                 Cards.communication == self.main_window.check_communication.isChecked(),
@@ -974,7 +977,7 @@ class NewLesson:
         self.scroll_my_lesson_card.show()
 
     def stage_button_flag(self, button):
-        self.flag_stage = self.main_window.session.query(Stage).filter(Stage.name_stage == button.text()).first().id
+        self.flag_stage = SESSION.query(Stage).filter(Stage.name_stage == button.text()).first().id
         self.show_cards_stage()
 
     def valid_constructor_field_and_result_lesson(self):
@@ -1012,13 +1015,13 @@ class NewLesson:
             self.main_window.table_result_constructor.setItem(i, 7, QTableWidgetItem(list_skills_gk[4]))
             self.main_window.table_result_constructor.setItem(i, 8, QTableWidgetItem(list_skills_gk[5]))
             self.main_window.table_result_constructor.setItem(i, 2, QTableWidgetItem(
-                self.main_window.session.query(Stage).filter(Stage.id ==
-                                                             self.my_list_card[
-                                                                 i].info_card.id_stage_card).first().name_stage))
+                SESSION.query(Stage).filter(Stage.id ==
+                                            self.my_list_card[
+                                                i].info_card.id_stage_card).first().name_stage))
 
             self.main_window.table_result_constructor.setItem(i, 9, QTableWidgetItem(
-                self.main_window.session.query(Fgos).filter(Fgos.id ==
-                                                            self.my_list_card[i].info_card.id_fgos).first().name_fgos))
+                SESSION.query(Fgos).filter(Fgos.id ==
+                                           self.my_list_card[i].info_card.id_fgos).first().name_fgos))
 
             self.main_window.table_result_constructor.setItem(i, 10, QTableWidgetItem(
                 self.my_list_card[i].info_card.text))
