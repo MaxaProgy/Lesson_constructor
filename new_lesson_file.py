@@ -89,7 +89,6 @@ class Card(QWidget):
             ".QLabel {"
             f"font: bold {self.parent.main_window.normal.normal_font(40)}px;"
             "}")
-        self.label_lesson_topic.move(*self.parent.main_window.normal.normal_prop_xy(60, 60))
 
         self.label_type_card = QLabel(self)
         if self.info_card.id_type_method_card == 1:
@@ -212,8 +211,6 @@ class NewLesson:
         # ------------------------------
         # Фон для текстовых полей нового урока
         self.main_window.background_new_lesson = QLabel(self.main_window)
-        self.main_window.background_new_lesson.resize(*self.main_window.normal.normal_prop_xy(900, 600))
-        self.main_window.background_new_lesson.move(*self.main_window.normal.normal_prop_xy(500, 200))
         self.main_window.background_new_lesson.setStyleSheet(
             ".QLabel {"
             "background-color: #6ca9b9;"
@@ -229,8 +226,6 @@ class NewLesson:
         # Тексты
         # -----------------------------------------
         self.main_window.text_lesson_topic = QLabel("Тема урока", self.main_window)
-        self.main_window.text_lesson_topic.resize(self.main_window.text_lesson_topic.sizeHint())
-        self.main_window.text_lesson_topic.move(*self.main_window.normal.normal_prop_xy(555, 260))
         self.main_window.text_lesson_topic.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(16)}px;"
@@ -238,8 +233,6 @@ class NewLesson:
             "}")
 
         self.main_window.text_subjects = QLabel("Предмет", self.main_window)
-        self.main_window.text_subjects.resize(self.main_window.text_subjects.sizeHint())
-        self.main_window.text_subjects.move(*self.main_window.normal.normal_prop_xy(555, 340))
         self.main_window.text_subjects.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(16)}px;"
@@ -247,8 +240,6 @@ class NewLesson:
             "}")
 
         self.main_window.text_lesson_type = QLabel("Тип урока", self.main_window)
-        self.main_window.text_lesson_type.resize(self.main_window.text_lesson_type.sizeHint())
-        self.main_window.text_lesson_type.move(*self.main_window.normal.normal_prop_xy(555, 420))
         self.main_window.text_lesson_type.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(16)}px;"
@@ -256,16 +247,12 @@ class NewLesson:
             "}")
 
         self.main_window.text_class = QLabel("Класс", self.main_window)
-        self.main_window.text_class.resize(self.main_window.text_class.sizeHint())
-        self.main_window.text_class.move(*self.main_window.normal.normal_prop_xy(555, 500))
         self.main_window.text_class.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(16)}px;"
             "min-width: 12em;"
             "}")
         self.main_window.text_class_characteristic = QLabel("Характеристика класса", self.main_window)
-        self.main_window.text_class_characteristic.resize(self.main_window.text_class_characteristic.sizeHint())
-        self.main_window.text_class_characteristic.move(*self.main_window.normal.normal_prop_xy(555, 580))
         self.main_window.text_class_characteristic.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(16)}px;"
@@ -273,8 +260,6 @@ class NewLesson:
             "}")
 
         self.main_window.text_lesson_duration = QLabel("Длительность урока", self.main_window)
-        self.main_window.text_lesson_duration.resize(self.main_window.text_lesson_duration.sizeHint())
-        self.main_window.text_lesson_duration.move(*self.main_window.normal.normal_prop_xy(555, 660))
         self.main_window.text_lesson_duration.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(16)}px;"
@@ -282,16 +267,12 @@ class NewLesson:
             "}")
 
         self.main_window.text_acquaintance = QLabel("Требуется знакомство?", self.main_window)
-        self.main_window.text_acquaintance.resize(self.main_window.text_acquaintance.sizeHint())
-        self.main_window.text_acquaintance.move(*self.main_window.normal.normal_prop_xy(930, 660))
         self.main_window.text_acquaintance.setStyleSheet(".QLabel {"
                                                          f"font: bold {self.main_window.normal.normal_font(16)}px;"
                                                          "min-width: 12em;"
                                                          "}")
 
         self.main_window.text_competence = QLabel("Компетенции ", self.main_window)
-        self.main_window.text_competence.resize(self.main_window.text_competence.sizeHint())
-        self.main_window.text_competence.move(*self.main_window.normal.normal_prop_xy(555, 740))
         self.main_window.text_competence.setStyleSheet(".QLabel {"
                                                        f"font: bold {self.main_window.normal.normal_font(16)}px;"
                                                        "min-width: 12em;"
@@ -301,8 +282,6 @@ class NewLesson:
         # -----------------------------------------
 
         self.main_window.edit_lesson_topic = QLineEdit(self.main_window)
-        self.main_window.edit_lesson_topic.resize(*self.main_window.normal.normal_prop_xy(480, 30))
-        self.main_window.edit_lesson_topic.move(*self.main_window.normal.normal_prop_xy(820, 250))
         self.main_window.edit_lesson_topic.setStyleSheet(
             ".QLineEdit {"
             f"font: bold {self.main_window.normal.normal_font(16)}px;"
@@ -311,40 +290,28 @@ class NewLesson:
         self.main_window.combo_subjects = QComboBox(self.main_window)
         self.main_window.combo_subjects.addItems([item.name_subject for item
                                                   in SESSION.query(Subject).all()])
-        self.main_window.combo_subjects.resize(*self.main_window.normal.normal_prop_xy(480, 30))
-        self.main_window.combo_subjects.move(*self.main_window.normal.normal_prop_xy(820, 330))
 
         self.main_window.combo_lesson_type = QComboBox(self.main_window)
         self.main_window.combo_lesson_type.addItems([item.name_lesson_type for item
                                                      in SESSION.query(LessonType).all()])
-        self.main_window.combo_lesson_type.resize(*self.main_window.normal.normal_prop_xy(480, 30))
-        self.main_window.combo_lesson_type.move(*self.main_window.normal.normal_prop_xy(820, 410))
 
         self.main_window.combo_class = QComboBox(self.main_window)
         self.main_window.combo_class.addItems([str(class_) for class_ in range(1, 12)])
-        self.main_window.combo_class.resize(*self.main_window.normal.normal_prop_xy(480, 30))
-        self.main_window.combo_class.move(*self.main_window.normal.normal_prop_xy(820, 490))
 
         self.main_window.combo_class_characteristic = QComboBox(self.main_window)
         self.main_window.combo_class_characteristic.addItems([item.name_class_characteristic for item
                                                               in SESSION.query(ClassCharacteristic).all()])
-        self.main_window.combo_class_characteristic.resize(*self.main_window.normal.normal_prop_xy(480, 30))
-        self.main_window.combo_class_characteristic.move(*self.main_window.normal.normal_prop_xy(820, 570))
 
         self.main_window.edit_lesson_duration = QLineEdit("40", self.main_window)
-        self.main_window.edit_lesson_duration.resize(*self.main_window.normal.normal_prop_xy(80, 30))
-        self.main_window.edit_lesson_duration.move(*self.main_window.normal.normal_prop_xy(820, 650))
         self.main_window.edit_lesson_duration.setStyleSheet(".QLineEdit {"
                                                             f"font: bold {self.main_window.normal.normal_font(16)}px;"
                                                             "}")
 
         self.main_window.radio_btn_yes = QRadioButton('Да', self.main_window)
-        self.main_window.radio_btn_yes.move(*self.main_window.normal.normal_prop_xy(1160, 650))
         self.main_window.radio_btn_yes.setStyleSheet(".QRadioButton {"
                                                      f"font: bold {self.main_window.normal.normal_font(16)}px;"
                                                      "}")
         self.main_window.radio_btn_no = QRadioButton('Нет', self.main_window)
-        self.main_window.radio_btn_no.move(*self.main_window.normal.normal_prop_xy(1240, 650))
         self.main_window.radio_btn_no.setStyleSheet(".QRadioButton {"
                                                     f"font: bold {self.main_window.normal.normal_font(16)}px;"
                                                     "}")
@@ -353,81 +320,59 @@ class NewLesson:
         self.main_window.btn_radio_group.addButton(self.main_window.radio_btn_yes)
         self.main_window.btn_radio_group.addButton(self.main_window.radio_btn_no)
         self.main_window.check_communication = QCheckBox('Коммуникация', self.main_window)
-        self.main_window.check_communication.resize(*self.main_window.normal.normal_prop_xy(200, 30))
-        self.main_window.check_communication.move(*self.main_window.normal.normal_prop_xy(820, 710))
         self.main_window.check_communication.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(14)}px;"
             "}")
 
         self.main_window.check_literacy = QCheckBox('Грамотность', self.main_window)
-        self.main_window.check_literacy.resize(*self.main_window.normal.normal_prop_xy(200, 30))
-        self.main_window.check_literacy.move(*self.main_window.normal.normal_prop_xy(820, 732))
         self.main_window.check_literacy.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(14)}px;"
             "}")
 
         self.main_window.check_cooperation = QCheckBox('Кооперация', self.main_window)
-        self.main_window.check_cooperation.resize(*self.main_window.normal.normal_prop_xy(200, 30))
-        self.main_window.check_cooperation.move(*self.main_window.normal.normal_prop_xy(820, 754))
         self.main_window.check_cooperation.setStyleSheet(".QCheckBox {"
                                                          f"font: bold {self.main_window.normal.normal_font(14)}px;"
                                                          "}")
         self.main_window.check_creative_thinking = QCheckBox('Креативное мышление', self.main_window)
-        self.main_window.check_creative_thinking.resize(*self.main_window.normal.normal_prop_xy(200, 30))
-        self.main_window.check_creative_thinking.move(*self.main_window.normal.normal_prop_xy(1020, 710))
         self.main_window.check_creative_thinking.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(14)} px;"
             "}")
 
         self.main_window.check_critical_thinking = QCheckBox('Критическое мышление', self.main_window)
-        self.main_window.check_critical_thinking.resize(*self.main_window.normal.normal_prop_xy(200, 30))
-        self.main_window.check_critical_thinking.move(*self.main_window.normal.normal_prop_xy(1020, 732))
         self.main_window.check_critical_thinking.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(14)} px;"
             "}")
 
         self.main_window.check_metacognitive_skills = QCheckBox('Метакогнитивные навыки', self.main_window)
-        self.main_window.check_metacognitive_skills.resize(*self.main_window.normal.normal_prop_xy(200, 30))
-        self.main_window.check_metacognitive_skills.move(*self.main_window.normal.normal_prop_xy(1020, 754))
         self.main_window.check_metacognitive_skills.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(14)} px;"
             "}")
 
         self.main_window.value_lesson = QListView(self.main_window)
-        self.main_window.value_lesson.resize(*self.main_window.normal.normal_prop_xy(540, 200))
-        self.main_window.value_lesson.move(*self.main_window.normal.normal_xy(1370, 5))
         self.scroll_main = QScrollArea(self.main_window)
         self.scroll_main.setStyleSheet(".QScrollArea {background-color:transparent;"
                                        "}")
-        self.scroll_main.move(*self.main_window.normal.normal_prop_xy(270, 80))
-        self.scroll_main.resize(*self.main_window.normal.normal_prop_xy(1200, 900))
         self.scroll_main.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_main.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_main.setFrameShape(QFrame.NoFrame)
         self.scroll_my_lesson_card = QScrollArea(self.main_window)
         self.scroll_my_lesson_card.setStyleSheet(".QScrollArea {background-color:transparent;"
                                                  "}")
-        self.scroll_my_lesson_card.move(*self.main_window.normal.normal_prop_xy(1370, 204))
-        self.scroll_my_lesson_card.resize(*self.main_window.normal.normal_prop_xy(540, 730))
         self.scroll_my_lesson_card.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_my_lesson_card.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.main_window.time_lesson = QLabel(f"Время урока: {self.main_window.edit_lesson_duration.text()} минут",
                                               self.main_window)
-        self.main_window.time_lesson.resize(*self.main_window.normal.normal_prop_xy(100, 50))
-        self.main_window.time_lesson.move(*self.main_window.normal.normal_xy(300, 25))
         self.main_window.time_lesson.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(25)}px;"
             "min-width: 20em;"
             "}")
         self.main_window.btn_save_lesson = QPushButton("Сохранить урок", self.main_window)
-        self.main_window.btn_save_lesson.resize(*self.main_window.normal.normal_prop_xy(175, 70))
-        self.main_window.btn_save_lesson.move(*self.main_window.normal.normal_xy(1553, 894))
         self.main_window.btn_save_lesson.setStyleSheet(
             ".QPushButton {"
             "background-color: #76b7c7;"
@@ -445,8 +390,6 @@ class NewLesson:
             "}")
 
         self.main_window.btn_open_lesson = QPushButton("Открыть урок", self.main_window)
-        self.main_window.btn_open_lesson.resize(*self.main_window.normal.normal_prop_xy(175, 70))
-        self.main_window.btn_open_lesson.move(*self.main_window.normal.normal_xy(1370, 894))
         self.main_window.btn_open_lesson.setStyleSheet(
             ".QPushButton {"
             "background-color: #76b7c7;"
@@ -463,8 +406,6 @@ class NewLesson:
             "border-style: inset;"
             "}")
         self.main_window.btn_del_lesson = QPushButton("Удалить урок", self.main_window)
-        self.main_window.btn_del_lesson.resize(*self.main_window.normal.normal_prop_xy(175, 70))
-        self.main_window.btn_del_lesson.move(*self.main_window.normal.normal_xy(1737, 894))
         self.main_window.btn_del_lesson.setStyleSheet(
             ".QPushButton {"
             "background-color: #76b7c7;"
@@ -483,8 +424,6 @@ class NewLesson:
 
         self.main_window.table_result_constructor = QTableWidget(self.main_window)
         self.main_window.table_result_constructor.setColumnCount(11)
-        self.main_window.table_result_constructor.resize(*self.main_window.normal.normal_prop_xy(1800, 550))
-        self.main_window.table_result_constructor.move(*self.main_window.normal.normal_xy(70, 100))
         self.main_window.table_result_constructor.setRowCount(len(self.my_list_card))
 
         self.main_window.table_result_constructor.setColumnCount(11)
@@ -507,39 +446,25 @@ class NewLesson:
         self.main_window.btn_back_valid = QPushButton(self.main_window)
         self.main_window.btn_back_valid.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
                                                       '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
-        self.main_window.btn_back_valid.move(*self.main_window.normal.normal_prop_xy(1320, 210))
-        self.main_window.btn_back_valid.resize(*self.main_window.normal.normal_prop_xy(55, 40))
-
         self.main_window.btn_ok_valid = QPushButton(self.main_window)
         self.main_window.btn_ok_valid.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
                                                     '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
-        self.main_window.btn_ok_valid.move(*self.main_window.normal.normal_prop_xy(1320, 720))
-        self.main_window.btn_ok_valid.resize(*self.main_window.normal.normal_prop_xy(63, 60))
         # -----------------------------------------
 
         self.main_window.btn_back_constructor = QPushButton(self.main_window)
         self.main_window.btn_back_constructor.setStyleSheet(
             '.QPushButton {border-image: url(data/image/назад.png);}'
             '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
-
-        self.main_window.btn_back_constructor.move(*self.main_window.normal.normal_xy(1200, 12))
-        self.main_window.btn_back_constructor.resize(*self.main_window.normal.normal_prop_xy(55, 40))
         self.main_window.btn_ok_constructor = QPushButton(self.main_window)
         self.main_window.btn_ok_constructor.setStyleSheet('.QPushButton {border-image: url(data/image/ок.png);}'
                                                           '.QPushButton:hover {border-image: url(data/image/ок2.png);}')
-        self.main_window.btn_ok_constructor.move(*self.main_window.normal.normal_xy(1280, 3))
-        self.main_window.btn_ok_constructor.resize(*self.main_window.normal.normal_prop_xy(63, 60))
 
         # -----------------------------------------
         self.main_window.btn_back_result = QPushButton(self.main_window)
         self.main_window.btn_back_result.setStyleSheet('.QPushButton {border-image: url(data/image/назад.png);}'
                                                        '.QPushButton:hover {border-image: url(data/image/назад2.png);}')
-        self.main_window.btn_back_result.move(*self.main_window.normal.normal_xy(1700, 25))
-        self.main_window.btn_back_result.resize(*self.main_window.normal.normal_prop_xy(65, 50))
         # -----------------------------------------
         self.main_window.btn_print = QPushButton("Печать", self.main_window)
-        self.main_window.btn_print.resize(*self.main_window.normal.normal_prop_xy(400, 100))
-        self.main_window.btn_print.move(*self.main_window.normal.normal_xy(1200, 800))
         self.main_window.btn_print.setStyleSheet('''
             .QPushButton {
             background-color: #76b7c7;
@@ -556,8 +481,6 @@ class NewLesson:
             border-style: inset;
         }''')
         self.main_window.btn_menu = QPushButton("Сохранить и закончить", self.main_window)
-        self.main_window.btn_menu.resize(*self.main_window.normal.normal_prop_xy(400, 100))
-        self.main_window.btn_menu.move(*self.main_window.normal.normal_xy(450, 800))
         self.main_window.btn_menu.setStyleSheet('''
             .QPushButton {
             background-color: #76b7c7;
@@ -759,6 +682,8 @@ class NewLesson:
         self.main_window.btn_del_lesson.clicked.connect(self.del_lesson)
 
         self.main_window.btn_new_lesson.hide()
+        self.new_move_object()
+        self.new_size_object()
         self.open_new_lesson()
 
     def save_lesson(self):
@@ -1139,3 +1064,87 @@ class NewLesson:
 
         self.main_window.btn_back_valid.hide()
         self.main_window.btn_ok_valid.hide()
+
+    def new_size_object(self):
+        self.main_window.background_new_lesson.resize(*self.main_window.normal.normal_prop_xy(900, 600))
+
+        self.main_window.text_lesson_topic.resize(self.main_window.text_lesson_topic.sizeHint())
+        self.main_window.text_subjects.resize(self.main_window.text_subjects.sizeHint())
+        self.main_window.text_lesson_type.resize(self.main_window.text_lesson_type.sizeHint())
+        self.main_window.text_class.resize(self.main_window.text_class.sizeHint())
+        self.main_window.text_class_characteristic.resize(self.main_window.text_class_characteristic.sizeHint())
+        self.main_window.text_lesson_duration.resize(self.main_window.text_lesson_duration.sizeHint())
+        self.main_window.text_acquaintance.resize(self.main_window.text_acquaintance.sizeHint())
+        self.main_window.text_competence.resize(self.main_window.text_competence.sizeHint())
+
+        self.main_window.edit_lesson_topic.resize(*self.main_window.normal.normal_prop_xy(480, 30))
+        self.main_window.combo_subjects.resize(*self.main_window.normal.normal_prop_xy(480, 30))
+        self.main_window.combo_lesson_type.resize(*self.main_window.normal.normal_prop_xy(480, 30))
+        self.main_window.combo_class.resize(*self.main_window.normal.normal_prop_xy(480, 30))
+        self.main_window.combo_class_characteristic.resize(*self.main_window.normal.normal_prop_xy(480, 30))
+        self.main_window.edit_lesson_duration.resize(*self.main_window.normal.normal_prop_xy(80, 30))
+        self.main_window.check_communication.resize(*self.main_window.normal.normal_prop_xy(200, 30))
+        self.main_window.check_literacy.resize(*self.main_window.normal.normal_prop_xy(200, 30))
+        self.main_window.check_cooperation.resize(*self.main_window.normal.normal_prop_xy(200, 30))
+        self.main_window.check_creative_thinking.resize(*self.main_window.normal.normal_prop_xy(200, 30))
+        self.main_window.check_critical_thinking.resize(*self.main_window.normal.normal_prop_xy(200, 30))
+        self.main_window.check_metacognitive_skills.resize(*self.main_window.normal.normal_prop_xy(200, 30))
+
+        self.main_window.value_lesson.resize(*self.main_window.normal.normal_prop_xy(540, 200))
+        self.scroll_main.resize(*self.main_window.normal.normal_prop_xy(1200, 900))
+        self.scroll_my_lesson_card.resize(*self.main_window.normal.normal_prop_xy(540, 730))
+        self.main_window.time_lesson.resize(*self.main_window.normal.normal_prop_xy(100, 50))
+        self.main_window.btn_save_lesson.resize(*self.main_window.normal.normal_prop_xy(175, 70))
+        self.main_window.btn_open_lesson.resize(*self.main_window.normal.normal_prop_xy(175, 70))
+        self.main_window.btn_del_lesson.resize(*self.main_window.normal.normal_prop_xy(175, 70))
+        self.main_window.table_result_constructor.resize(*self.main_window.normal.normal_prop_xy(1800, 550))
+        self.main_window.btn_back_valid.resize(*self.main_window.normal.normal_prop_xy(55, 40))
+        self.main_window.btn_ok_valid.resize(*self.main_window.normal.normal_prop_xy(63, 60))
+        self.main_window.btn_back_constructor.resize(*self.main_window.normal.normal_prop_xy(55, 40))
+        self.main_window.btn_ok_constructor.resize(*self.main_window.normal.normal_prop_xy(63, 60))
+        self.main_window.btn_back_result.resize(*self.main_window.normal.normal_prop_xy(65, 50))
+        self.main_window.btn_print.resize(*self.main_window.normal.normal_prop_xy(400, 100))
+        self.main_window.btn_menu.resize(*self.main_window.normal.normal_prop_xy(400, 100))
+
+    def new_move_object(self):
+        self.main_window.background_new_lesson.move(*self.main_window.normal.normal_prop_xy(500, 200))
+
+        self.main_window.text_lesson_topic.move(*self.main_window.normal.normal_prop_xy(555, 260))
+        self.main_window.text_subjects.move(*self.main_window.normal.normal_prop_xy(555, 340))
+        self.main_window.text_lesson_type.move(*self.main_window.normal.normal_prop_xy(555, 420))
+        self.main_window.text_class.move(*self.main_window.normal.normal_prop_xy(555, 500))
+        self.main_window.text_class_characteristic.move(*self.main_window.normal.normal_prop_xy(555, 580))
+        self.main_window.text_lesson_duration.move(*self.main_window.normal.normal_prop_xy(555, 660))
+        self.main_window.text_acquaintance.move(*self.main_window.normal.normal_prop_xy(930, 660))
+        self.main_window.text_competence.move(*self.main_window.normal.normal_prop_xy(555, 740))
+
+        self.main_window.edit_lesson_topic.move(*self.main_window.normal.normal_prop_xy(820, 250))
+        self.main_window.combo_subjects.move(*self.main_window.normal.normal_prop_xy(820, 330))
+        self.main_window.combo_lesson_type.move(*self.main_window.normal.normal_prop_xy(820, 410))
+        self.main_window.combo_class.move(*self.main_window.normal.normal_prop_xy(820, 490))
+        self.main_window.combo_class_characteristic.move(*self.main_window.normal.normal_prop_xy(820, 570))
+        self.main_window.edit_lesson_duration.move(*self.main_window.normal.normal_prop_xy(820, 650))
+        self.main_window.radio_btn_yes.move(*self.main_window.normal.normal_prop_xy(1160, 650))
+        self.main_window.radio_btn_no.move(*self.main_window.normal.normal_prop_xy(1240, 650))
+        self.main_window.check_communication.move(*self.main_window.normal.normal_prop_xy(820, 710))
+        self.main_window.check_literacy.move(*self.main_window.normal.normal_prop_xy(820, 732))
+        self.main_window.check_cooperation.move(*self.main_window.normal.normal_prop_xy(820, 754))
+        self.main_window.check_creative_thinking.move(*self.main_window.normal.normal_prop_xy(1020, 710))
+        self.main_window.check_critical_thinking.move(*self.main_window.normal.normal_prop_xy(1020, 732))
+        self.main_window.check_metacognitive_skills.move(*self.main_window.normal.normal_prop_xy(1020, 754))
+
+        self.main_window.value_lesson.move(*self.main_window.normal.normal_xy(1370, 5))
+        self.scroll_main.move(*self.main_window.normal.normal_prop_xy(270, 80))
+        self.scroll_my_lesson_card.move(*self.main_window.normal.normal_prop_xy(1370, 204))
+        self.main_window.time_lesson.move(*self.main_window.normal.normal_xy(300, 25))
+        self.main_window.btn_save_lesson.move(*self.main_window.normal.normal_xy(1553, 894))
+        self.main_window.btn_open_lesson.move(*self.main_window.normal.normal_xy(1370, 894))
+        self.main_window.btn_del_lesson.move(*self.main_window.normal.normal_xy(1737, 894))
+        self.main_window.table_result_constructor.move(*self.main_window.normal.normal_xy(70, 100))
+        self.main_window.btn_back_valid.move(*self.main_window.normal.normal_prop_xy(1320, 210))
+        self.main_window.btn_ok_valid.move(*self.main_window.normal.normal_prop_xy(1320, 720))
+        self.main_window.btn_back_constructor.move(*self.main_window.normal.normal_xy(1200, 12))
+        self.main_window.btn_ok_constructor.move(*self.main_window.normal.normal_xy(1280, 3))
+        self.main_window.btn_back_result.move(*self.main_window.normal.normal_xy(1700, 25))
+        self.main_window.btn_print.move(*self.main_window.normal.normal_xy(1200, 800))
+        self.main_window.btn_menu.move(*self.main_window.normal.normal_xy(450, 800))

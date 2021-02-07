@@ -2,24 +2,21 @@
 
 import sys
 
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import QRect
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, \
-    QSplashScreen, QPushButton, QLabel, QHBoxLayout, QWidget, QGridLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QSplashScreen, QPushButton, QLabel
 from PyQt5 import QtGui, QtCore
 import time
 import random
 from util import Normalize
 
 from new_lesson_file import NewLesson
-from PyQt5 import uic
 from const import *
 
 
 class Menu(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('data/ui/main.ui', self)
         self.setWindowTitle('Конструктор уроков')
         self.setWindowIcon(QIcon(PATH_SPLASH_SCREEN))
         self.geometry = QDesktopWidget().availableGeometry()
@@ -28,7 +25,7 @@ class Menu(QMainWindow):
         self.background = QLabel(self)
 
         self.setMinimumSize(self.normal.width_windows * 0.6, self.normal.height_windows * 0.6)
-        self.setGeometry(QRect(0, 0, self.normal.width_windows * 0.8, self.normal.height_windows * 0.8  ))
+        self.setGeometry(QRect(0, 0, self.normal.width_windows * 0.8, self.normal.height_windows * 0.8))
         """gridLayoutWidget = QWidget(self)
         gridLayoutWidget.setGeometry(QRect(0, 0, self.normal.width_windows * 0.8, self.normal.height_windows * 0.8  ))
         gridLayout = QGridLayout(gridLayoutWidget)
@@ -87,6 +84,14 @@ class Menu(QMainWindow):
         self.new_lesson = NewLesson(self)
 
     # -----------------------------------------
+
+    def new_size_object(self):
+        self.btn_new_lesson.resize(*self.normal.normal_prop_xy(200, 50))
+        self.background.resize(self.normal.width_windows, self.normal.height_windows)
+
+    def new_move_object(self):
+        self.btn_new_lesson.move(*self.normal.normal_xy(175, 200))
+        self.quote.move(self.normal.width_windows // 3, self.normal.height_windows // 3)
 
 
 app = QApplication(sys.argv)
