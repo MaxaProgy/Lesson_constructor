@@ -1,8 +1,8 @@
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QPainter
 from PyQt5.QtPrintSupport import QPrinter
-from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, QRadioButton, \
-    QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QTableWidget, QTableWidgetItem, QDialog, \
-    QAbstractItemView, QFrame, QListWidget
+from PyQt5.QtWidgets import QLabel, QCheckBox, QComboBox, QPushButton, QLineEdit, QMessageBox, QListView, \
+    QRadioButton, QButtonGroup, QScrollArea, QWidget, QGridLayout, QVBoxLayout, QTableWidget, QTableWidgetItem, \
+    QDialog, QAbstractItemView, QFrame, QListWidget
 from PyQt5.QtCore import Qt
 
 from data.cards import Cards
