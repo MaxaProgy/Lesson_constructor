@@ -2,6 +2,7 @@
 
 import sys
 import time
+import random
 
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt
@@ -68,11 +69,12 @@ class MainWindow(QMainWindow):
 
 
 class Menu(QWidget):
-    def __init__(self, mainwindow):
-        super().__init__(mainwindow)
-        self.normal = mainwindow.normal
-
+    def __init__(self, main_window):
+        super().__init__(main_window)
+        self.normal = main_window.normal
+        self.main_window = main_window
         self.btn_new_lesson = QPushButton("Новый урок", self)
+        self.quote = QLabel(random.choice(LIST_LESSON_QUOTE), self)
         self.initUI()
 
     def initUI(self):
@@ -99,6 +101,14 @@ class Menu(QWidget):
                                                           'background-color: #548490;'
                                                           'border-style: inset;'
                                                           '}')
+
+        # Цитата в главном меню
+
+        self.quote.move(int(self.main_window.geometry.width() / 2.6), int(self.main_window.geometry.height() / 3))
+        self.quote.setWordWrap(True)
+        self.quote.setStyleSheet('.QLabel {font-family: "Impact";'
+                                 'font: ' + self.normal.normal_font(55) + 'px}')
+        self.quote.setMinimumSize(self.main_window.geometry.width() // 2,  self.main_window.geometry.height() // 4)
 
 
 if __name__ == '__main__':
