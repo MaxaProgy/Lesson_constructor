@@ -8,7 +8,7 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
-    QGridLayout, QLineEdit, QTextEdit
+    QGridLayout, QLineEdit, QTextEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton
 
 from const import *
 
@@ -149,94 +149,195 @@ class NewLesson(QWidget):
             '}')
         self.background_form_options_new_lesson.resize(self.geometry().width(), self.geometry().height())
 
-        # self.layout_options_new_lesson =
-
         # Тексты
         # -----------------------------------------
         self.text_lesson_topic = QLabel("Тема урока")
         self.text_lesson_topic.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.main_window.normal.normal_font(16)}px;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "min-width: 12em;"
             "}")
         # -----------------------------------------
         self.text_subjects = QLabel("Предмет")
         self.text_subjects.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.main_window.normal.normal_font(16)}px;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "min-width: 12em;"
             "}")
         # -----------------------------------------
         self.text_lesson_type = QLabel("Тип урока")
         self.text_lesson_type.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.main_window.normal.normal_font(16)}px;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "min-width: 12em;"
             "}")
         # -----------------------------------------
         self.text_class = QLabel("Класс")
         self.text_class.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.main_window.normal.normal_font(16)}px;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "min-width: 12em;"
             "}")
         # -----------------------------------------
         self.text_class_characteristic = QLabel("Характеристика класса")
         self.text_class_characteristic.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.main_window.normal.normal_font(16)}px;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "min-width: 12em;"
             "}")
         # -----------------------------------------
         self.text_lesson_duration = QLabel("Длительность урока")
         self.text_lesson_duration.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.main_window.normal.normal_font(16)}px;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "min-width: 12em;"
             "}")
         # -----------------------------------------
         self.text_acquaintance = QLabel("Требуется знакомство?")
-        self.text_acquaintance.setStyleSheet(".QLabel {"
-                                             f"font: bold {self.main_window.normal.normal_font(16)}px;"
-                                             "min-width: 12em;"
-                                             "}")
+        self.text_acquaintance.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}")
         # -----------------------------------------
         self.text_competence = QLabel("Компетенции ")
-        self.text_competence.setStyleSheet(".QLabel {"
-                                                       f"font: bold {self.main_window.normal.normal_font(16)}px;"
-                                                       "min-width: 12em;"
-                                                       "}")
+        self.text_competence.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}")
 
-        titleEdit = QLineEdit()
-        authorEdit = QLineEdit()
-        reviewEdit = QTextEdit()
+        # Поля ввода значений
+        # -----------------------------------------
+        self.edit_lesson_topic = QLineEdit()
+        self.edit_lesson_topic.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.combo_subjects = QComboBox()
+        self.combo_subjects.addItems([item.name_subject for item in SESSION.query(Subject).all()])
+        self.combo_subjects.setStyleSheet(
+            ".QComboBox {"
+            f"font: {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.combo_lesson_type = QComboBox()
+        self.combo_lesson_type.addItems([item.name_lesson_type for item in SESSION.query(LessonType).all()])
+        self.combo_lesson_type.setStyleSheet(
+            ".QComboBox {"
+            f"font: {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.combo_class = QComboBox()
+        self.combo_class.addItems([str(class_) for class_ in range(1, 12)])
+        self.combo_class.setStyleSheet(
+            ".QComboBox {"
+            f"font: {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.combo_class_characteristic = QComboBox()
+        self.combo_class_characteristic.addItems([item.name_class_characteristic for item
+                                                  in SESSION.query(ClassCharacteristic).all()])
+        self.combo_class_characteristic.setStyleSheet(
+            ".QComboBox {"
+            f"font: {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.edit_lesson_duration = QLineEdit("40")
+        self.edit_lesson_duration.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.radio_btn_yes = QRadioButton('Да')
+        self.radio_btn_yes.setStyleSheet(
+            ".QRadioButton {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        self.radio_btn_no = QRadioButton('Нет')
+        self.radio_btn_no.setStyleSheet(
+            ".QRadioButton {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        self.radio_btn_no.setChecked(True)
+        self.btn_radio_group = QButtonGroup()
+        self.btn_radio_group.addButton(self.radio_btn_yes)
+        self.btn_radio_group.addButton(self.radio_btn_no)
+        # -----------------------------------------
+        self.check_communication = QCheckBox('Коммуникация')
+        self.check_communication.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.check_literacy = QCheckBox('Грамотность')
+        self.check_literacy.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.check_cooperation = QCheckBox('Кооперация')
+        self.check_cooperation.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.check_creative_thinking = QCheckBox('Креативное мышление')
+        self.check_creative_thinking.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.check_critical_thinking = QCheckBox('Критическое мышление')
+        self.check_critical_thinking.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
+        self.check_metacognitive_skills = QCheckBox('Метакогнитивные навыки')
+        self.check_metacognitive_skills.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}")
+        # -----------------------------------------
 
         grid = QGridLayout()
         grid.setSpacing(10)
 
         grid.addWidget(self.text_lesson_topic, 1, 0)
-        grid.addWidget(titleEdit, 1, 1)
+        grid.addWidget(self.edit_lesson_topic, 1, 1)
 
         grid.addWidget(self.text_subjects, 2, 0)
-        grid.addWidget(authorEdit, 2, 1)
+        grid.addWidget(self.combo_subjects, 2, 1)
 
         grid.addWidget(self.text_lesson_type, 3, 0)
-        grid.addWidget(authorEdit, 3, 1)
+        grid.addWidget(self.combo_lesson_type, 3, 1)
 
         grid.addWidget(self.text_class, 4, 0)
-        grid.addWidget(authorEdit, 4, 1)
+        grid.addWidget(self.combo_class, 4, 1)
 
         grid.addWidget(self.text_class_characteristic, 5, 0)
-        grid.addWidget(authorEdit, 5, 1)
+        grid.addWidget(self.combo_class_characteristic, 5, 1)
 
         grid.addWidget(self.text_lesson_duration, 6, 0)
-        grid.addWidget(authorEdit, 6, 1)
+        grid.addWidget(self.edit_lesson_duration, 6, 1)
 
         grid.addWidget(self.text_acquaintance, 7, 0)
-        grid.addWidget(authorEdit, 7, 1)
+        grid_acquaintance = QGridLayout()
+        grid_acquaintance.addWidget(self.radio_btn_yes, 1, 0)
+        grid_acquaintance.addWidget(self.radio_btn_no, 1, 1)
+        grid.addLayout(grid_acquaintance, 7, 1)
 
         grid.addWidget(self.text_competence, 8, 0)
-        grid.addWidget(authorEdit, 8, 1)
+        grid_competence = QGridLayout()
+        grid_competence.addWidget(self.check_communication, 1, 0)
+        grid_competence.addWidget(self.check_literacy, 2, 0)
+        grid_competence.addWidget(self.check_cooperation, 3, 0)
+        grid_competence.addWidget(self.check_creative_thinking, 1, 1)
+        grid_competence.addWidget(self.check_critical_thinking, 2, 1)
+        grid_competence.addWidget(self.check_metacognitive_skills, 3, 1)
+        grid.addLayout(grid_competence, 8, 1)
         self.setLayout(grid)
 
 
