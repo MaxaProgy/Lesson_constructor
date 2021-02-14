@@ -8,9 +8,9 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
-    QGridLayout, QLineEdit, QTextEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton
+    QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox
 
-from const import *
+from app_window.const import *
 
 
 class Normalize:
@@ -64,20 +64,44 @@ class MainWindow(QMainWindow):
         self.background.resize(self.geometry.width(), self.geometry.width())
         self.background.setScaledContents(True)
 
-        self.menu = Menu(self)
-        self.menu.setAttribute(Qt.WA_DeleteOnClose)
-        self.menu.new_lesson_event.connect(self.on_new_lesson)
-        self.menu.show()
+        self.run_menu()
 
     def on_new_lesson(self):
         self.menu.close()
         self.menu = None
+        self.run_new_lesson()
+
+    def on_menu(self):
+        self.new_lesson.close()
+        self.new_lesson = None
+        self.run_menu()
+
+    def on_constructor(self, data):
+        self.new_lesson.close()
+        self.new_lesson = None
+        self.run_constructor(data)
+
+    def run_menu(self):
+        self.menu = Menu(self)
+        self.menu.setAttribute(Qt.WA_DeleteOnClose)
+        self.menu.create_new_lesson_event.connect(self.on_new_lesson)
+        self.menu.show()
+
+    def run_new_lesson(self):
         self.new_lesson = NewLesson(self)
+        self.new_lesson.setAttribute(Qt.WA_DeleteOnClose)
+        self.new_lesson.back_menu_event.connect(self.on_menu)
+        self.new_lesson.create_constructor_event.connect(self.on_constructor)
         self.new_lesson.show()
+
+    def run_constructor(self, data):
+        self.constructor = Constructor(self, data)
+        self.constructor.setAttribute(Qt.WA_DeleteOnClose)
+        self.constructor.show()
 
 
 class Menu(QWidget):
-    new_lesson_event = pyqtSignal()
+    create_new_lesson_event = pyqtSignal()
 
     def __init__(self, main_window):
         super().__init__(main_window)
@@ -124,10 +148,13 @@ class Menu(QWidget):
         self.quote.setMinimumSize(self.main_window.geometry.width() // 2, self.main_window.geometry.height() // 4)
 
     def create_new_lesson(self):
-        self.new_lesson_event.emit()
+        self.create_new_lesson_event.emit()
 
 
 class NewLesson(QWidget):
+    back_menu_event = pyqtSignal()
+    create_constructor_event = pyqtSignal(dict)
+
     def __init__(self, main_window):
         super().__init__(main_window)
         self.main_window = main_window
@@ -220,6 +247,7 @@ class NewLesson(QWidget):
         self.combo_subjects.setStyleSheet(
             ".QComboBox {"
             f"font: {self.main_window.normal.normal_font(18)}px;"
+            "background-color: white;"
             "}")
         # -----------------------------------------
         self.combo_lesson_type = QComboBox()
@@ -227,6 +255,7 @@ class NewLesson(QWidget):
         self.combo_lesson_type.setStyleSheet(
             ".QComboBox {"
             f"font: {self.main_window.normal.normal_font(18)}px;"
+            "background-color: white;"
             "}")
         # -----------------------------------------
         self.combo_class = QComboBox()
@@ -234,6 +263,7 @@ class NewLesson(QWidget):
         self.combo_class.setStyleSheet(
             ".QComboBox {"
             f"font: {self.main_window.normal.normal_font(18)}px;"
+            "background-color: white;"
             "}")
         # -----------------------------------------
         self.combo_class_characteristic = QComboBox()
@@ -242,6 +272,7 @@ class NewLesson(QWidget):
         self.combo_class_characteristic.setStyleSheet(
             ".QComboBox {"
             f"font: {self.main_window.normal.normal_font(18)}px;"
+            "background-color: white;"
             "}")
         # -----------------------------------------
         self.edit_lesson_duration = QLineEdit("40")
@@ -301,10 +332,33 @@ class NewLesson(QWidget):
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "}")
         # -----------------------------------------
+        self.btn_back_valid = QPushButton(self)
+        self.btn_back_valid.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_BACK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
+            '}')
+        self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back_valid.move(15, 3)
+        self.btn_back_valid.clicked.connect(self.back_menu)
+        # -----------------------------------------
+        self.btn_ok_valid = QPushButton(self)
+        self.btn_ok_valid.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_OK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_OK_HOVER});'
+            '}')
+        self.btn_ok_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_ok_valid.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 3)
+        self.btn_ok_valid.clicked.connect(self.valid_options_new_lesson)
+        # -----------------------------------------
 
         grid = QGridLayout()
-        grid.setSpacing(10)
-
+        grid.setContentsMargins(15, self.main_window.normal.normal_proportion(75, 0)[0], 15, 15)
         grid.addWidget(self.text_lesson_topic, 1, 0)
         grid.addWidget(self.edit_lesson_topic, 1, 1)
 
@@ -339,6 +393,46 @@ class NewLesson(QWidget):
         grid_competence.addWidget(self.check_metacognitive_skills, 3, 1)
         grid.addLayout(grid_competence, 8, 1)
         self.setLayout(grid)
+
+    def back_menu(self):
+        self.back_menu_event.emit()
+
+    def valid_options_new_lesson(self):
+        if self.edit_lesson_topic.text() != "" and \
+                int(self.edit_lesson_duration.text()) >= 20 and \
+                (self.check_creative_thinking.isChecked() or
+                 self.check_literacy.isChecked() or
+                 self.check_communication.isChecked() or
+                 self.check_cooperation.isChecked() or
+                 self.check_critical_thinking.isChecked() or
+                 self.check_metacognitive_skills.isChecked()):
+
+            self.create_constructor_event.emit(
+                {
+                    "lesson_topic": self.edit_lesson_topic.text(),
+                    "subjects": self.combo_subjects.currentText(),
+                    "lesson_type": self.combo_lesson_type.currentText(),
+                    "class": self.combo_class.currentText(),
+                    "class_characteristic": self.combo_class_characteristic.currentText(),
+                    "lesson_duration": int(self.edit_lesson_duration.text()),
+                    "acquaintance": self.radio_btn_yes.isChecked(),
+                    "competence": {
+                        "creative_thinking": self.check_creative_thinking.isChecked(),
+                        "literacy": self.check_literacy.isChecked(),
+                        "communication": self.check_communication.isChecked(),
+                        "cooperation": self.check_cooperation.isChecked(),
+                        "critical_thinking": self.check_critical_thinking.isChecked(),
+                        "metacognitive_skills": self.check_metacognitive_skills.isChecked()
+                    }
+                })
+        else:
+            QMessageBox.critical(self, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
+
+
+class Constructor(QWidget):
+    def __init(self, data, main_window):
+        super().__init__(main_window)
+        self.data_lesson = data
 
 
 if __name__ == '__main__':

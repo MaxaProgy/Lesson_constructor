@@ -11,6 +11,10 @@ from app_window.data.subject import Subject
 
 PATH_SPLASH_SCREEN = path.join('data', 'image', 'background', 'заставка.png')
 PATH_MAIN_MENU = path.join('data', 'image', 'background', 'main_background_app.jpg')
+PATH_BUTTON_OK = 'data/image/ok.png'
+PATH_BUTTON_OK_HOVER = 'data/image/ok2.png'
+PATH_BUTTON_BACK = 'data/image/back.png'
+PATH_BUTTON_BACK_HOVER = 'data/image/back2.png'
 
 LIST_LESSON_QUOTE = ["Учитель прикасается к вечности, никто не знает, где закончится его влияние..",
                      "Кто постигает новое, лелея старое, Тот может быть учителем.",
