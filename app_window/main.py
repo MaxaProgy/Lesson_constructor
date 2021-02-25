@@ -465,23 +465,24 @@ class Constructor(QWidget):
             '}')"""
         # -----------------------------------------
 
-        self.btn_stage_acquaintance = QPushButton("Знакомство", self)
-        self.btn_stage_acquaintance.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
-        self.btn_stage_acquaintance.setStyleSheet(
-            ".QPushButton {"
-            "background-color: #76b7c7;"
-            "border-style: outset;"
-            "border-width: 2px;"
-            "border-radius: 10px;"
-            "border-color: beige;"
-            f"font: bold {self.main_window.normal.normal_font(18)}px;"
-            "min-width: 10em;"
-            "padding: 6px;"
-            "}"
-            ".QPushButton:hover {"
-            "background-color: #548490;"
-            "border-style: inset;"
-            "}")
+        if self.data_lesson['acquaintance']:
+            self.btn_stage_acquaintance = QPushButton("Знакомство", self)
+            self.btn_stage_acquaintance.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
+            self.btn_stage_acquaintance.setStyleSheet(
+                ".QPushButton {"
+                "background-color: #76b7c7;"
+                "border-style: outset;"
+                "border-width: 2px;"
+                "border-radius: 10px;"
+                "border-color: beige;"
+                f"font: bold {self.main_window.normal.normal_font(18)}px;"
+                "min-width: 10em;"
+                "padding: 6px;"
+                "}"
+                ".QPushButton:hover {"
+                "background-color: #548490;"
+                "border-style: inset;"
+                "}")
         self.btn_team_building = QPushButton("Командообразование", self)
         self.btn_team_building.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
         self.btn_team_building.setStyleSheet(
@@ -620,7 +621,8 @@ class Constructor(QWidget):
             "}")
 
         self.group_button_stage = QButtonGroup(self)
-        self.group_button_stage.addButton(self.btn_stage_acquaintance)
+        if self.data_lesson['acquaintance']:
+            self.group_button_stage.addButton(self.btn_stage_acquaintance)
         self.group_button_stage.addButton(self.btn_team_building)
         self.group_button_stage.addButton(self.btn_new_material)
         self.group_button_stage.addButton(self.btn_refreshments)
@@ -636,7 +638,8 @@ class Constructor(QWidget):
         grid.setContentsMargins(25, int(self.window().width() / 18.5),
                                 int(self.window().width() / 0.9),
                                 int(self.window().width() / 12.5))
-        grid.addWidget(self.btn_stage_acquaintance)
+        if self.data_lesson['acquaintance']:
+            grid.addWidget(self.btn_stage_acquaintance)
         grid.addWidget(self.btn_team_building)
         grid.addWidget(self.btn_new_material)
         grid.addWidget(self.btn_refreshments)
