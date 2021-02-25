@@ -8,7 +8,8 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
-    QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox
+    QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox, QVBoxLayout, \
+    QAbstractItemView, QSizePolicy
 
 from app_window.const import *
 
@@ -430,9 +431,227 @@ class NewLesson(QWidget):
 
 
 class Constructor(QWidget):
-    def __init(self, data, main_window):
+    def __init__(self, main_window, data):
         super().__init__(main_window)
         self.data_lesson = data
+        self.main_window = main_window
+        self.setGeometry(0, 0, self.main_window.geometry.width(), self.main_window.geometry.height())
+        self.initUI()
+
+    def initUI(self):
+        # -----------------------------------------
+        #                Кнопки
+        # -----------------------------------------
+
+        """self.btn_back_valid = QPushButton(self)
+        self.btn_back_valid.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_BACK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
+            '}')
+        self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back_valid.move(15, 3)
+        self.btn_back_valid.clicked.connect(self.back_menu)
+        # -----------------------------------------
+        self.btn_ok_valid = QPushButton(self)
+        self.btn_ok_valid.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_OK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_OK_HOVER});'
+            '}')"""
+        # -----------------------------------------
+
+        self.btn_stage_acquaintance = QPushButton("Знакомство", self)
+        self.btn_stage_acquaintance.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
+        self.btn_stage_acquaintance.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        self.btn_team_building = QPushButton("Командообразование", self)
+        self.btn_team_building.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
+        self.btn_team_building.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        self.btn_new_material = QPushButton("Новый материал", self)
+        self.btn_new_material.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
+        self.btn_new_material.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        self.btn_refreshments = QPushButton("Бодрилки", self)
+        self.btn_refreshments.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
+        self.btn_refreshments.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        self.btn_test_of_understanding = QPushButton("Проверка понимания", self)
+        self.btn_test_of_understanding.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
+        self.btn_test_of_understanding.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        self.btn_material_fixing = QPushButton("Закрепление", self)
+        self.btn_material_fixing.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
+        self.btn_material_fixing.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        self.btn_assimilation_control = QPushButton("Контроль усвоения", self)
+        self.btn_assimilation_control.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
+        self.btn_assimilation_control.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        self.btn_reflection = QPushButton("Рефлексия", self)
+        self.btn_reflection.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
+        self.btn_reflection.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        self.btn_homework = QPushButton("Домашнее задание", self)
+        self.btn_homework.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
+        self.btn_homework.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+
+        self.group_button_stage = QButtonGroup(self)
+        self.group_button_stage.addButton(self.btn_stage_acquaintance)
+        self.group_button_stage.addButton(self.btn_team_building)
+        self.group_button_stage.addButton(self.btn_new_material)
+        self.group_button_stage.addButton(self.btn_refreshments)
+        self.group_button_stage.addButton(self.btn_test_of_understanding)
+        self.group_button_stage.addButton(self.btn_material_fixing)
+        self.group_button_stage.addButton(self.btn_assimilation_control)
+        self.group_button_stage.addButton(self.btn_reflection)
+        self.group_button_stage.addButton(self.btn_homework)
+
+        self.group_button_stage.buttonClicked.connect(self.button_stage_flag)
+
+        grid = QVBoxLayout(self)
+        grid.setContentsMargins(25, int(self.window().width() / 18.5),
+                                int(self.window().width() / 0.9),
+                                int(self.window().width() / 12.5))
+        grid.addWidget(self.btn_stage_acquaintance)
+        grid.addWidget(self.btn_team_building)
+        grid.addWidget(self.btn_new_material)
+        grid.addWidget(self.btn_refreshments)
+        grid.addWidget(self.btn_test_of_understanding)
+        grid.addWidget(self.btn_material_fixing)
+        grid.addWidget(self.btn_assimilation_control)
+        grid.addWidget(self.btn_reflection)
+        grid.addWidget(self.btn_homework)
+
+        grid.addStretch(int(self.window().width() / 23.5))
+        grid.setSpacing(int(self.window().width() / 23.5))
+        self.setLayout(grid)
+
+    def button_stage_flag(self):
+        pass
 
 
 if __name__ == '__main__':
