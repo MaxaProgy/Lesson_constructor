@@ -9,9 +9,11 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
     QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox, QVBoxLayout, \
-    QAbstractItemView, QSizePolicy
+    QScrollArea, QFrame, QHBoxLayout
+from sqlalchemy import or_
 
 from app_window.const import *
+from app_window.data.cards import Cards
 
 
 class Normalize:
@@ -436,6 +438,18 @@ class Constructor(QWidget):
         self.data_lesson = data
         self.main_window = main_window
         self.setGeometry(0, 0, self.main_window.geometry.width(), self.main_window.geometry.height())
+
+        self.filter_methods = SESSION.query(Cards).filter(
+            or_(Cards.creative_thinking == data['competence']['creative_thinking'],
+                Cards.critical_thinking == data['competence']['critical_thinking'],
+                Cards.communication == data['competence']['communication'],
+                Cards.cooperation == data['competence']['cooperation'],
+                Cards.metacognitive_skills == data['competence']['metacognitive_skills'],
+                Cards.literacy == data['competence']['literacy'])
+        )
+        self.flag_stage = 0  # id Командообразования
+        self.object_methods = []
+        self.my_methods = []
         self.initUI()
 
     def initUI(self):
@@ -464,7 +478,8 @@ class Constructor(QWidget):
             f'border-image: url({PATH_BUTTON_OK_HOVER});'
             '}')"""
         # -----------------------------------------
-
+        self.layout_constructor_h_3 = QHBoxLayout(self
+                                                  )
         if self.data_lesson['acquaintance']:
             self.btn_stage_acquaintance = QPushButton("Знакомство", self)
             self.btn_stage_acquaintance.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
@@ -635,9 +650,7 @@ class Constructor(QWidget):
         self.group_button_stage.buttonClicked.connect(self.button_stage_flag)
 
         grid = QVBoxLayout(self)
-        grid.setContentsMargins(25, int(self.window().width() / 18.5),
-                                int(self.window().width() / 0.9),
-                                int(self.window().width() / 12.5))
+        grid.setContentsMargins(25, int(self.window().width() / 18.5), 10, int(self.window().width() / 12.5))
         if self.data_lesson['acquaintance']:
             grid.addWidget(self.btn_stage_acquaintance)
         grid.addWidget(self.btn_team_building)
@@ -651,10 +664,169 @@ class Constructor(QWidget):
 
         grid.addStretch(int(self.window().width() / 23.5))
         grid.setSpacing(int(self.window().width() / 23.5))
-        self.setLayout(grid)
 
-    def button_stage_flag(self):
-        pass
+        self.layout_constructor_h_3.addLayout(grid)
+
+        # -----------------------------------------
+        #                Методики
+        # -----------------------------------------
+
+        self.scroll_main_methods = QScrollArea(self)
+        self.scroll_main_methods.setStyleSheet(".QScrollArea {"
+                                               "background-color:transparent;"
+                                               "}")
+        # self.scroll_main_methods.setFrameShape(QFrame.NoFrame)
+        self.scroll_main_methods.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_main_methods.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_main_methods.resize(int(self.main_window.geometry.width() / 2),
+                                        int(self.main_window.geometry.height() / 1.1))
+        self.layout_constructor_h_3.addWidget(self.scroll_main_methods)
+
+        layout_3_constructor = QVBoxLayout(self)
+        # -------------------------------------------
+        layout_time_back_ok = QHBoxLayout(self)
+        self.time_lesson = QLabel(f"Время урока: {self.data_lesson['lesson_duration']} минут", self)
+        self.time_lesson.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 20em;"
+            "}")
+        layout_time_back_ok.addWidget(self.time_lesson)
+        self.btn_back_constructor = QPushButton(self)
+        self.btn_back_constructor.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_BACK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
+            '}')
+        layout_time_back_ok.addWidget(self.btn_back_constructor)
+        self.btn_ok_constructor = QPushButton(self)
+        self.btn_ok_constructor.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_OK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_OK_HOVER});'
+            '}')
+        layout_time_back_ok.addWidget(self.btn_ok_constructor)
+        layout_3_constructor.addLayout(layout_time_back_ok)
+        # -------------------------------------------
+        self.scroll_my_methods = QScrollArea(self)
+        self.scroll_my_methods.setStyleSheet(".QScrollArea {background-color:transparent;"
+                                             "}")
+        self.scroll_my_methods.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll_my_methods.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        layout_3_constructor.addWidget(self.scroll_my_methods)
+        # -------------------------------------------
+        layout_btn_save_open_del = QHBoxLayout(self)
+        self.btn_save_lesson = QPushButton("Сохранить урок", self)
+        self.btn_save_lesson.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        layout_btn_save_open_del.addWidget(self.btn_save_lesson)
+        self.btn_open_lesson = QPushButton("Открыть урок", self)
+        self.btn_open_lesson.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        layout_btn_save_open_del.addWidget(self.btn_open_lesson)
+        self.btn_del_lesson = QPushButton("Удалить урок", self)
+        self.btn_del_lesson.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}")
+        layout_btn_save_open_del.addWidget(self.btn_del_lesson)
+        layout_3_constructor.addLayout(layout_btn_save_open_del)
+
+        self.layout_constructor_h_3.addLayout(layout_3_constructor)
+    def button_stage_flag(self, button):
+        self.flag_stage = SESSION.query(Stage).filter(Stage.name_stage == button.text()).first().id
+        self.show_methods_stage()
+
+    def show_methods_stage(self):
+        # Забираем все методы в соответствии с выбранным нами этапом урока
+        filter_stage_methods = self.filter_methods.filter(Cards.id_stage_card.like(self.flag_stage)).all()
+
+        # Удаление всех элементов из прошлого списка обектов методов
+        for i in reversed(range(len(self.object_methods))):
+            del self.object_methods[i]
+
+        # Список id выбранных мной методов
+        id_my_methods = [method.info_card.id for method in self.my_methods]
+
+        # Удаляем все методы, входящие в список моих методов из общего списка
+        # Чтобы повторно не отображать методы в панели
+        for i in reversed(range(len(filter_stage_methods))):
+            if filter_stage_methods[i].id in id_my_methods:
+                del filter_stage_methods[i]
+
+        # Создаем обекты-методы вносим их в лейаут
+        layout = QVBoxLayout()
+        for i in range(len(filter_stage_methods)):
+            self.object_methods.append(Method(self, filter_stage_methods[i]))
+            layout.addWidget(self.object_methods[i])
+
+        widget = QWidget()
+        widget.setGeometry(0, 0, int(self.main_window.geometry.height() / 1.1), 116 * len(filter_stage_methods))
+        widget.setLayout(layout)
+        widget.setStyleSheet(".QWidget {background-color:transparent;}")
+        self.scroll_main_methods.setWidget(widget)
+        self.scroll_main_methods.show()
+
+
+class Method(QWidget):
+    def __init__(self, parent, data):
+        super(Method, self).__init__(parent.main_window)
+        self.parent = parent
+        self.data = data
+        self.initUI()
+
+    def initUI(self):
+        self.background = QLabel(self)
+        self.background.setStyleSheet('.QLabel {'
+                                      f'min-height: {100}px;'
+                                      f'min-width: {int(self.parent.main_window.geometry.height() / 1.1)}px;'
+                                      'margin-right: 4px;'
+                                      'margin-left: 4px;'
+                                      'margin-bottom: 16px;'
+                                      'background-color: #FFA25F'
+                                      '}')
+        self.layout = QHBoxLayout(self)
 
 
 if __name__ == '__main__':
