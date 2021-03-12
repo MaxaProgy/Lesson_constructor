@@ -478,8 +478,10 @@ class Constructor(QWidget):
             f'border-image: url({PATH_BUTTON_OK_HOVER});'
             '}')"""
         # -----------------------------------------
-        self.layout_constructor_h_3 = QHBoxLayout(self
-                                                  )
+        self.layout_constructor_h_3 = QGridLayout(self)
+        self.layout_constructor_h_3.setContentsMargins(0, int(self.window().width() / 25.5), 0,
+                                                       int(self.window().width() / 25.5))
+        # Кнопки этапов урока
         if self.data_lesson['acquaintance']:
             self.btn_stage_acquaintance = QPushButton("Знакомство", self)
             self.btn_stage_acquaintance.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
@@ -646,7 +648,6 @@ class Constructor(QWidget):
         self.group_button_stage.addButton(self.btn_assimilation_control)
         self.group_button_stage.addButton(self.btn_reflection)
         self.group_button_stage.addButton(self.btn_homework)
-
         self.group_button_stage.buttonClicked.connect(self.button_stage_flag)
 
         grid = QVBoxLayout(self)
@@ -665,34 +666,30 @@ class Constructor(QWidget):
         grid.addStretch(int(self.window().width() / 23.5))
         grid.setSpacing(int(self.window().width() / 23.5))
 
-        self.layout_constructor_h_3.addLayout(grid)
-
-        # -----------------------------------------
-        #                Методики
-        # -----------------------------------------
-
+        self.layout_constructor_h_3.addLayout(grid, 0, 0, 0, 1)
+        # -------------------------------------------
         self.scroll_main_methods = QScrollArea(self)
         self.scroll_main_methods.setStyleSheet(".QScrollArea {"
                                                "background-color:transparent;"
                                                "}")
-        # self.scroll_main_methods.setFrameShape(QFrame.NoFrame)
+        self.scroll_main_methods.setFrameShape(QFrame.NoFrame)
         self.scroll_main_methods.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_main_methods.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_main_methods.resize(int(self.main_window.geometry.width() / 2),
-                                        int(self.main_window.geometry.height() / 1.1))
-        self.layout_constructor_h_3.addWidget(self.scroll_main_methods)
+        self.scroll_main_methods.resize(int(self.window().width() / 2),
+                                        int(self.window().height() / 1.1))
+        self.layout_constructor_h_3.addWidget(self.scroll_main_methods, 0, 1, 0, 4)
 
-        layout_3_constructor = QVBoxLayout(self)
+        layout_3_constructor = QVBoxLayout()
         # -------------------------------------------
-        layout_time_back_ok = QHBoxLayout(self)
-        self.time_lesson = QLabel(f"Время урока: {self.data_lesson['lesson_duration']} минут", self)
+        layout_time_back_ok = QHBoxLayout()
+        self.time_lesson = QLabel(f"Время урока: {self.data_lesson['lesson_duration']} минут")
         self.time_lesson.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.main_window.normal.normal_font(18)}px;"
-            "min-width: 20em;"
+            f"font: bold {self.main_window.normal.normal_font(20)}px;"
             "}")
         layout_time_back_ok.addWidget(self.time_lesson)
-        self.btn_back_constructor = QPushButton(self)
+
+        self.btn_back_constructor = QPushButton()
         self.btn_back_constructor.setStyleSheet(
             '.QPushButton {'
             f'border-image: url({PATH_BUTTON_BACK});'
@@ -700,8 +697,11 @@ class Constructor(QWidget):
             '.QPushButton:hover {'
             f'border-image: url({PATH_BUTTON_BACK_HOVER});'
             '}')
+        self.btn_back_constructor.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back_constructor.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
         layout_time_back_ok.addWidget(self.btn_back_constructor)
-        self.btn_ok_constructor = QPushButton(self)
+
+        self.btn_ok_constructor = QPushButton()
         self.btn_ok_constructor.setStyleSheet(
             '.QPushButton {'
             f'border-image: url({PATH_BUTTON_OK});'
@@ -709,18 +709,21 @@ class Constructor(QWidget):
             '.QPushButton:hover {'
             f'border-image: url({PATH_BUTTON_OK_HOVER});'
             '}')
+        self.btn_ok_constructor.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_ok_constructor.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
         layout_time_back_ok.addWidget(self.btn_ok_constructor)
+
         layout_3_constructor.addLayout(layout_time_back_ok)
         # -------------------------------------------
         self.scroll_my_methods = QScrollArea(self)
-        self.scroll_my_methods.setStyleSheet(".QScrollArea {background-color:transparent;"
-                                             "}")
+        self.scroll_my_methods.setStyleSheet(".QScrollArea {background-color:transparent;}")
+        self.scroll_my_methods.setFrameShape(QFrame.NoFrame)
         self.scroll_my_methods.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_my_methods.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         layout_3_constructor.addWidget(self.scroll_my_methods)
         # -------------------------------------------
-        layout_btn_save_open_del = QHBoxLayout(self)
-        self.btn_save_lesson = QPushButton("Сохранить урок", self)
+        layout_btn_save_open_del = QVBoxLayout(self)
+        self.btn_save_lesson = QPushButton("Сохранить урок")
         self.btn_save_lesson.setStyleSheet(
             ".QPushButton {"
             "background-color: #76b7c7;"
@@ -736,8 +739,9 @@ class Constructor(QWidget):
             "background-color: #548490;"
             "border-style: inset;"
             "}")
+
         layout_btn_save_open_del.addWidget(self.btn_save_lesson)
-        self.btn_open_lesson = QPushButton("Открыть урок", self)
+        self.btn_open_lesson = QPushButton("Открыть урок")
         self.btn_open_lesson.setStyleSheet(
             ".QPushButton {"
             "background-color: #76b7c7;"
@@ -753,8 +757,9 @@ class Constructor(QWidget):
             "background-color: #548490;"
             "border-style: inset;"
             "}")
+
         layout_btn_save_open_del.addWidget(self.btn_open_lesson)
-        self.btn_del_lesson = QPushButton("Удалить урок", self)
+        self.btn_del_lesson = QPushButton("Удалить урок")
         self.btn_del_lesson.setStyleSheet(
             ".QPushButton {"
             "background-color: #76b7c7;"
@@ -770,10 +775,11 @@ class Constructor(QWidget):
             "background-color: #548490;"
             "border-style: inset;"
             "}")
+
         layout_btn_save_open_del.addWidget(self.btn_del_lesson)
         layout_3_constructor.addLayout(layout_btn_save_open_del)
+        self.layout_constructor_h_3.addLayout(layout_3_constructor, 0, 5, 0, 2)
 
-        self.layout_constructor_h_3.addLayout(layout_3_constructor)
     def button_stage_flag(self, button):
         self.flag_stage = SESSION.query(Stage).filter(Stage.name_stage == button.text()).first().id
         self.show_methods_stage()
@@ -787,7 +793,7 @@ class Constructor(QWidget):
             del self.object_methods[i]
 
         # Список id выбранных мной методов
-        id_my_methods = [method.info_card.id for method in self.my_methods]
+        id_my_methods = [method.data.id for method in self.my_methods]
 
         # Удаляем все методы, входящие в список моих методов из общего списка
         # Чтобы повторно не отображать методы в панели
@@ -820,13 +826,95 @@ class Method(QWidget):
         self.background = QLabel(self)
         self.background.setStyleSheet('.QLabel {'
                                       f'min-height: {100}px;'
-                                      f'min-width: {int(self.parent.main_window.geometry.height() / 1.1)}px;'
-                                      'margin-right: 4px;'
-                                      'margin-left: 4px;'
+                                      f'min-width: {int(self.parent.scroll_main_methods.size().width() / 1.1)}px;'
                                       'margin-bottom: 16px;'
-                                      'background-color: #FFA25F'
+                                      'background-color: #FFA25F;'
+                                      'border-radius: 14px'
                                       '}')
-        self.layout = QHBoxLayout(self)
+        layout = QHBoxLayout(self)
+        self.label_lesson_topic = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:], self)
+        self.label_lesson_topic.setWordWrap(True)
+        self.label_lesson_topic.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.parent.main_window.normal.normal_font(24)}px;"
+            "margin-left: 4px"
+            "}")
+        layout.addWidget(self.label_lesson_topic)
+
+        self.btn_more_details = QPushButton(self)
+        self.btn_more_details.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_PADROBNEE});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_PADROBNEE_HOVER});'
+            '}')
+        self.btn_more_details.setMinimumSize(*self.parent.main_window.normal.normal_proportion(175, 60))
+        self.btn_more_details.setFixedWidth(self.parent.main_window.normal.normal_proportion(175, 0)[0])
+        layout.addWidget(self.btn_more_details)
+
+        self.btn_add = QPushButton(self)
+        self.btn_add.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_ADD});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_ADD_HOVER});'
+            '}')
+        self.btn_add.setMinimumSize(*self.parent.main_window.normal.normal_proportion(40, 40))
+        self.btn_add.setFixedWidth(self.parent.main_window.normal.normal_proportion(40, 0)[0])
+        layout.addWidget(self.btn_add)
+
+        self.btn_del = QPushButton(self)
+        self.btn_del.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_DEL});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_DEL_HOVER});'
+            '}')
+        self.btn_del.setMinimumSize(*self.parent.main_window.normal.normal_proportion(40, 40))
+        self.btn_del.setFixedWidth(self.parent.main_window.normal.normal_proportion(40, 0)[0])
+        layout.addWidget(self.btn_del)
+        self.btn_del.hide()
+
+        self.btn_add.clicked.connect(self.add_card)
+        self.btn_del.clicked.connect(self.del_card)
+
+    def add_card(self):
+        time_my_methods = [int(method.data.time) for method in self.parent.my_methods]
+        if sum(time_my_methods) + int(self.data.time) <= self.parent.data_lesson['lesson_duration'] + 20:
+            self.parent.my_methods.append(self)
+            self.show_my_methods()
+            self.btn_add.hide()
+            self.btn_del.show()
+            self.parent.show_methods_stage()
+            self.show_time_methods()
+
+        else:
+            QMessageBox.critical(self.parent, "Ошибка", "Превышен лимит времени", QMessageBox.Ok)
+            return
+
+    def del_card(self):
+        del self.parent.my_methods[self.parent.my_methods.index(self)]
+        self.show_my_methods()
+        self.parent.show_methods_stage()
+        self.show_time_methods()
+
+    def show_my_methods(self):
+        layout = QGridLayout()
+        for method in self.parent.my_methods:
+            layout.addWidget(method)
+
+        widget = QWidget()
+        widget.setLayout(layout)
+        widget.setStyleSheet(".QWidget {background-color:transparent;}")
+        self.parent.scroll_my_methods.setWidget(widget)
+
+    def show_time_methods(self):
+        sum_1 = sum([int(method.data.time) for method in self.parent.my_methods])
+        self.parent.time_lesson.setText(
+            "Время урока: " + str(self.parent.data_lesson['lesson_duration'] - sum_1) + " минут")
 
 
 if __name__ == '__main__':

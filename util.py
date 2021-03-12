@@ -13,4 +13,4 @@ class Normalize():
         return int(self.width_windows / self.init_width * x), int(self.width_windows / self.init_width * y)
 
     def normal_font(self, font):
-        return str(int(self.width_windows / self.init_width  * font))
+        return str(int(self.width_windows / self.init_width * font))

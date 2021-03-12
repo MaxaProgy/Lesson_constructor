@@ -15,6 +15,12 @@ PATH_BUTTON_OK = 'data/image/ok.png'
 PATH_BUTTON_OK_HOVER = 'data/image/ok2.png'
 PATH_BUTTON_BACK = 'data/image/back.png'
 PATH_BUTTON_BACK_HOVER = 'data/image/back2.png'
+PATH_BUTTON_PADROBNEE = 'data/image/Podtobnee.png'
+PATH_BUTTON_PADROBNEE_HOVER = 'data/image/Podtobnee2.png'
+PATH_BUTTON_ADD = 'data/image/add.png'
+PATH_BUTTON_ADD_HOVER = 'data/image/add2.png'
+PATH_BUTTON_DEL = 'data/image/del.png'
+PATH_BUTTON_DEL_HOVER = 'data/image/del2.png'
 
 LIST_LESSON_QUOTE = ["Учитель прикасается к вечности, никто не знает, где закончится его влияние..",
                      "Кто постигает новое, лелея старое, Тот может быть учителем.",
