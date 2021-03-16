@@ -718,7 +718,7 @@ class Constructor(QWidget):
         self.scroll_my_methods = QScrollArea(self)
         self.scroll_my_methods.setStyleSheet(".QScrollArea {background-color:transparent;}")
         self.scroll_my_methods.setFrameShape(QFrame.NoFrame)
-        self.scroll_my_methods.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll_my_methods.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_my_methods.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         layout_3_constructor.addWidget(self.scroll_my_methods)
         # -------------------------------------------
@@ -832,6 +832,14 @@ class Method(QWidget):
                                       'border-radius: 14px'
                                       '}')
         layout = QHBoxLayout(self)
+        self.method_time = QLabel(self.data.time + "'", self)
+        self.method_time.setStyleSheet('.QLabel {'
+                                       'font-family: "Impact";'
+                                       f"font: bold {self.parent.main_window.normal.normal_font(24)}px;"
+                                       '}')
+        self.method_time.setWordWrap(True)
+        layout.addWidget(self.method_time)
+
         self.label_lesson_topic = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:], self)
         self.label_lesson_topic.setWordWrap(True)
         self.label_lesson_topic.setStyleSheet(
@@ -885,6 +893,12 @@ class Method(QWidget):
         time_my_methods = [int(method.data.time) for method in self.parent.my_methods]
         if sum(time_my_methods) + int(self.data.time) <= self.parent.data_lesson['lesson_duration'] + 20:
             self.parent.my_methods.append(self)
+            self.background.setStyleSheet('.QLabel {'
+                                          f'min-height: {100}px;'
+                                          f'min-width: {int(self.parent.scroll_my_methods.size().width())}px;'
+                                          'margin-bottom: 16px;'
+                                          'background-color: #FFA25F;'
+                                          '}')
             self.show_my_methods()
             self.btn_add.hide()
             self.btn_del.show()
@@ -912,7 +926,23 @@ class Method(QWidget):
         self.parent.scroll_my_methods.setWidget(widget)
 
     def show_time_methods(self):
+        for method in self.parent.my_methods:
+            method.method_time.setText(method.data.time + "'")
+
         sum_1 = sum([int(method.data.time) for method in self.parent.my_methods])
+        if sum_1 > self.parent.data_lesson['lesson_duration']:
+            count = 0
+            k = self.parent.data_lesson['lesson_duration'] / sum_1
+            for method in self.parent.my_methods:
+                cur_time = int(round(int(method.method_time.text()[:-1]) * k, 0))
+                count += cur_time
+                method.method_time.setText(str(cur_time) + "'")
+
+            self.parent.my_methods[-1].method_time.setText(str(
+                int(self.parent.my_methods[-1].method_time.text()[:-1]) + self.parent.data_lesson[
+                    'lesson_duration'] - count) + "'")
+            sum_1 = sum([int(method.method_time.text()[:-1]) for method in self.parent.my_methods])
+
         self.parent.time_lesson.setText(
             "Время урока: " + str(self.parent.data_lesson['lesson_duration'] - sum_1) + " минут")
 
