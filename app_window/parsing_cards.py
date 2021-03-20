@@ -1,10 +1,10 @@
 import pandas as pd
 
-from data import db_session
-from data.cards import Cards
+from app_window.data import db_session
+from app_window.data.cards import Cards
 
-data = pd.read_csv('db/Карточки.csv')
-db_session.global_init("db/lesson_constructor_db.sqlite")
+data = pd.read_csv('app_window/db/Карточки.csv')
+db_session.global_init("app_window/db/lesson_constructor_db.sqlite")
 session = db_session.create_session()
 
 for card in zip(data['название'], data['время'], data['классы'], data['индивидуальная/ групповая'],
@@ -16,7 +16,7 @@ for card in zip(data['название'], data['время'], data['классы
         id_classes_number=card[2],
         id_type_method_card=card[3],
         id_stage_card=card[4],
-        creative_thinking=int(card[5]),
+        creative_thinking=card[5],
         critical_thinking=card[6],
         communication=card[7],
         cooperation=card[8],

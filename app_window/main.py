@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
     QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox, QVBoxLayout, \
-    QScrollArea, QFrame, QHBoxLayout
+    QScrollArea, QFrame, QHBoxLayout, QDialog
 from sqlalchemy import or_
 
 from app_window.const import *
@@ -457,26 +457,6 @@ class Constructor(QWidget):
         #                Кнопки
         # -----------------------------------------
 
-        """self.btn_back_valid = QPushButton(self)
-        self.btn_back_valid.setStyleSheet(
-            '.QPushButton {'
-            f'border-image: url({PATH_BUTTON_BACK});'
-            '}'
-            '.QPushButton:hover {'
-            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
-            '}')
-        self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_back_valid.move(15, 3)
-        self.btn_back_valid.clicked.connect(self.back_menu)
-        # -----------------------------------------
-        self.btn_ok_valid = QPushButton(self)
-        self.btn_ok_valid.setStyleSheet(
-            '.QPushButton {'
-            f'border-image: url({PATH_BUTTON_OK});'
-            '}'
-            '.QPushButton:hover {'
-            f'border-image: url({PATH_BUTTON_OK_HOVER});'
-            '}')"""
         # -----------------------------------------
         self.layout_constructor_h_3 = QGridLayout(self)
         self.layout_constructor_h_3.setContentsMargins(0, int(self.window().width() / 25.5), 0,
@@ -840,7 +820,7 @@ class Method(QWidget):
         self.method_time.setWordWrap(True)
         layout.addWidget(self.method_time)
 
-        self.label_lesson_topic = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:], self)
+        self.label_lesson_topic = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:].lower(), self)
         self.label_lesson_topic.setWordWrap(True)
         self.label_lesson_topic.setStyleSheet(
             ".QLabel {"
@@ -888,6 +868,7 @@ class Method(QWidget):
 
         self.btn_add.clicked.connect(self.add_card)
         self.btn_del.clicked.connect(self.del_card)
+        self.btn_more_details.clicked.connect(self.details)
 
     def add_card(self):
         time_my_methods = [int(method.data.time) for method in self.parent.my_methods]
@@ -945,6 +926,78 @@ class Method(QWidget):
 
         self.parent.time_lesson.setText(
             "Время урока: " + str(self.parent.data_lesson['lesson_duration'] - sum_1) + " минут")
+
+    def details(self):
+        self.card_info = MethodMoreDetails(self.data, self.parent)
+        self.card_info.show()
+
+
+class MethodMoreDetails(QDialog):
+    def __init__(self, data, parent):
+        super(QDialog, self).__init__()
+        self.setWindowIcon(QIcon(PATH_SPLASH_SCREEN))
+        self.setModal(True)
+        self.setWindowTitle(data.name_method[0].upper() + data.name_method[1:].lower())
+        self.setFixedSize(int(parent.main_window.geometry.width() / 2), int(parent.main_window.geometry.height() / 2))
+        self.parent = parent
+        self.data = data
+        self.initUI()
+
+    def initUI(self):
+        self.background = QLabel(self)
+        self.background.setStyleSheet('.QLabel {'
+                                      'background-color: #76b7c7;'
+                                      '}')
+        self.background.resize(int(self.parent.main_window.geometry.width() / 2),
+                               int(self.parent.main_window.geometry.height() / 2))
+
+        grid = QGridLayout(self)
+
+        self.title_method = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:].lower(), self)
+        self.title_method.setStyleSheet(".QLabel {"
+                                        f"font: bold {self.parent.main_window.normal.normal_font(42)}px;"
+                                        "}")
+        self.title_method.setWordWrap(True)
+        grid.addWidget(self.title_method, 0, 0, 1, 4)
+
+        self.time_and_сlass_method = QLabel("   " + self.data.time + "' минут;    " + SESSION.query(Classes).filter(
+            Classes.id == self.data.id_classes_number).first().name_class + " Класс   ", self)
+        self.time_and_сlass_method.setStyleSheet(".QLabel {"
+                                                 'background-color: #FFA25F;'
+                                                 f"font: bold {self.parent.main_window.normal.normal_font(32)}px;"
+                                                 "}")
+        grid.addWidget(self.time_and_сlass_method, 1, 1, 1, 4)
+
+        text = ''
+        if self.data.text:
+            for word in self.data.text.split():
+                if word[-1] == ")" and word[-2].isdigit():
+                    text += "\n"
+                text += word + " "
+        self.text_card = QLabel(text, self)
+        self.text_card.setStyleSheet(".QLabel {"
+                                     f"font: bold {self.parent.main_window.normal.normal_font(18)}px;"
+                                     "margin-bottom: 10%"
+                                     "}")
+        self.text_card.setWordWrap(True)
+        grid.addWidget(self.text_card, 2, 0)
+
+        list_compet = [(self.data.creative_thinking, "- Креативное мышление"),
+                       (self.data.critical_thinking, "- Критическое мышление"),
+                       (self.data.literacy, "- Грамотность"),
+                       (self.data.cooperation, "- Кооперация"),
+                       (self.data.cooperation, "- Коммуникация"),
+                       (self.data.metacognitive_skills, "- Метакогнитивные навыки")]
+        list_compet = [i[1] for i in list_compet if i[0]]
+        name_fgos = SESSION.query(Fgos).filter(Fgos.id == self.data.id_fgos).first().name_fgos
+        if name_fgos != "-":
+            list_compet.append("- " + name_fgos + " навыки ФГОС")
+        self.competence = QLabel("\n".join(list_compet), self)
+        self.competence.setStyleSheet(".QLabel {"
+                                      f"font: bold {self.parent.main_window.normal.normal_font(22)}px;"
+                                      "margin-right: 20%;"
+                                      "}")
+        grid.addWidget(self.competence, 2, 3)
 
 
 if __name__ == '__main__':

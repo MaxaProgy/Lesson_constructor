@@ -1,6 +1,9 @@
 from os import path
 
+import pandas as pd
+
 from app_window.data import db_session
+from app_window.data.cards import Cards
 from app_window.data.classes import Classes
 from app_window.data.fgos import Fgos
 from app_window.data.stage import Stage
@@ -39,7 +42,7 @@ TYPE_METHOD_VALUE_DB = ["Индивидуальная", "Групповая", "�
 CLASSES_VALUE_DB = ["1-4", "5-8", "9-11", "1-11", "1-8", "5-11"]
 FGOS_VALUE_DB = ["Предметные", "Личностные", "-"]
 STAGE_VALUE_DB = ["Знакомство", "Командообразование",
-                  "Новый материал", "Бодрилки", "Проверка понимания", "Закрепление материала",
+                  "Новый материал", "Бодрилки", "Проверка понимания", "Закрепление",
                   "Контроль усвоения", "Рефлексия", "Домашнее задание"]
 SUBJECT_VALUE_DB = ["Начальные классы", "География", "Биология", "Химия", "Физика",
                     "Математика ", "Алгебра", "Геометрия", "Иностранный язык",
@@ -50,8 +53,31 @@ CLASS_CHARACTERISTIC_VALUE_DB = ["Активные дети", "Пассивны�
 LESSON_TYPE_VALUE_DB = ["Новый материал", "Контроль усвоения",
                         "Проверка понимания", "Закрепление материала"]
 
+data = pd.read_csv('db/Карточки.csv')
 db_session.global_init("db/lesson_constructor_db.sqlite")
 SESSION = db_session.create_session()
+
+for card in zip(data['название'], data['время'], data['классы'], data['индивидуальная/ групповая'],
+                data['этап урока'], data['креативное мышление'], data['критическое мышление'], data['коммуникация'],
+                data['кооперация'], data['метакогнитивные навыки'], data['грамотность'], data['фгос'], data['текст']):
+    new_card = Cards(
+        name_method=card[0],
+        time=card[1],
+        id_classes_number=card[2],
+        id_type_method_card=card[3],
+        id_stage_card=card[4],
+        creative_thinking=card[5],
+        critical_thinking=card[6],
+        communication=card[7],
+        cooperation=card[8],
+        metacognitive_skills=card[9],
+        literacy=card[10],
+        id_fgos=card[11],
+        text=card[12],
+    )
+    SESSION.add(new_card)
+    SESSION.commit()
+
 
 if not [item.name_method for item in SESSION.query(TypeMethod).all()]:
     for value in TYPE_METHOD_VALUE_DB:
