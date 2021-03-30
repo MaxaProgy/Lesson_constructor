@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
     QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox, QVBoxLayout, \
-    QScrollArea, QFrame, QHBoxLayout, QDialog, QListWidget
+    QScrollArea, QFrame, QHBoxLayout, QDialog, QListWidget, QTextEdit
 from sqlalchemy import or_
 
 from app_window.const import *
@@ -87,7 +87,24 @@ class MainWindow(QMainWindow):
         self.constructor = Constructor(self, data)
         self.constructor.setAttribute(Qt.WA_DeleteOnClose)
         self.constructor.back_new_lesson_event.connect(self.close_constructor_on_new_lesson)
+        self.constructor.create_result_event.connect(self.close_constructor_on_result)
         self.constructor.show()
+
+    def run_result(self, data):
+        self.result = ResultLesson(self, data)
+        self.result.setAttribute(Qt.WA_DeleteOnClose)
+        self.result.back_constructor_event.connect(self.close_result_on_constructor)
+        self.result.show()
+
+    def close_result_on_constructor(self, data):
+        self.result.close()
+        self.result = None
+        self.run_constructor(data)
+
+    def close_constructor_on_result(self, data):
+        self.constructor.close()
+        self.constructor = None
+        self.run_result(data)
 
     def close_menu_on_new_lesson(self):
         self.menu.close()
@@ -448,7 +465,7 @@ class NewLesson(QWidget):
             self.create_constructor_event.emit(
                 {
                     "lesson_topic": self.edit_lesson_topic.text(),
-                    "subjects": self.combo_subjects.currentText(),
+                    "subject": self.combo_subjects.currentText(),
                     "lesson_type": self.combo_lesson_type.currentText(),
                     "class": self.combo_class.currentText(),
                     "class_characteristic": self.combo_class_characteristic.currentText(),
@@ -469,6 +486,7 @@ class NewLesson(QWidget):
 
 class Constructor(QWidget):
     back_new_lesson_event = pyqtSignal()
+    create_result_event = pyqtSignal(dict)
 
     def __init__(self, main_window, data):
         super().__init__(main_window)
@@ -744,6 +762,7 @@ class Constructor(QWidget):
         self.btn_ok_constructor.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
         self.btn_ok_constructor.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
         layout_time_back_ok.addWidget(self.btn_ok_constructor)
+        self.btn_ok_constructor.clicked.connect(self.volid_data_constructor)
 
         layout_3_constructor.addLayout(layout_time_back_ok)
         # -------------------------------------------
@@ -897,6 +916,30 @@ class Constructor(QWidget):
     def back_new_lesson(self):
         self.back_new_lesson_event.emit()
 
+    def volid_data_constructor(self):
+        if int(self.time_lesson.text().split()[2]) == 0:
+            self.create_result_event.emit(
+                {
+                    "methods": self.my_methods,
+                    "lesson_topic": self.data_lesson["lesson_topic"],
+                    "subject": self.data_lesson["subject"],
+                    "lesson_type": self.data_lesson["lesson_type"],
+                    "class": self.data_lesson["class"],
+                    "class_characteristic": self.data_lesson["class_characteristic"],
+                    "lesson_duration": self.data_lesson["lesson_duration"],
+                    "acquaintance": self.data_lesson["acquaintance"],
+                    "competence": {
+                        "creative_thinking": self.data_lesson["competence"]["creative_thinking"],
+                        "literacy": self.data_lesson["competence"]["literacy"],
+                        "communication": self.data_lesson["competence"]["communication"],
+                        "cooperation": self.data_lesson["competence"]["cooperation"],
+                        "critical_thinking": self.data_lesson["competence"]["critical_thinking"],
+                        "metacognitive_skills": self.data_lesson["competence"]["metacognitive_skills"]
+                    }
+                })
+        else:
+            QMessageBox.critical(self, "Ошибка", "Вы не использовали все время урока", QMessageBox.Ok)
+
     def show_methods_stage(self):
         # Забираем все методы в соответствии с выбранным нами этапом урока
         filter_stage_methods = self.filter_methods.filter(Cards.id_stage_card.like(self.flag_stage)).all()
@@ -1020,7 +1063,7 @@ class Method(QWidget):
             self.background.setStyleSheet(
                 '.QLabel {'
                 f'min-height: {100}px;'
-                f'min-width: {int(self.parent.scroll_my_methods.size().width())}px;'
+                f'min-width: {int(self.parent.scroll_my_methods.size().width() / 1.2)}px;'
                 'margin-bottom: 16px;'
                 'background-color: #FFA25F;'
                 '}'
@@ -1155,6 +1198,127 @@ class MethodMoreDetails(QDialog):
             "}"
         )
         grid.addWidget(self.competence, 2, 3)
+
+
+class ResultLesson(QWidget):
+    back_constructor_event = pyqtSignal(dict)
+
+    def __init__(self, main_window, data):
+        super().__init__(main_window)
+        self.data_constructor = data
+        self.main_window = main_window
+        self.setGeometry(0, 0, self.main_window.geometry.width(), self.main_window.geometry.height())
+
+        self.initUI()
+
+    def initUI(self):
+        layout_result = QGridLayout(self)
+        layout_result.setContentsMargins(int(self.window().width() / 25.5), int(self.window().width() / 25.5),
+                                         int(self.window().width() / 25.5), int(self.window().width() / 25.5))
+
+        layout_v_btn_result = QGridLayout(self)
+        layout_v_btn_result.setContentsMargins(0, 0, int(self.window().width() / 25.5), 10)
+
+        self.btn_back_result = QPushButton()
+        self.btn_back_result.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_BACK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
+            '}'
+        )
+        self.btn_back_result.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back_result.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
+        self.btn_back_result.clicked.connect(self.back_constructor)
+        layout_v_btn_result.addWidget(self.btn_back_result, 0, 0, 1, 1)
+
+        self.btn_ok_result = QPushButton()
+        self.btn_ok_result.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_OK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_OK_HOVER});'
+            '}'
+        )
+        self.btn_ok_result.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_ok_result.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
+        layout_v_btn_result.addWidget(self.btn_ok_result, 0, 1, 1, 1)
+
+        self.btn_save_lesson = QPushButton("Сохранить", self)
+        self.btn_save_lesson.setStyleSheet(
+            '.QPushButton {'
+            f'min-height: {self.main_window.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.main_window.normal.normal_xy(200, 0)[0]}px;'
+            'background-color: #76b7c7;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'font: bold ' + self.main_window.normal.normal_font(17) + 'px;'
+                                                                      'min-width: 10em;'
+                                                                      'padding: 6px;'
+                                                                      '}'
+                                                                      '.QPushButton:hover {'
+                                                                      'background-color: #548490;'
+                                                                      'border-style: inset;'
+                                                                      '}'
+        )
+        layout_v_btn_result.addWidget(self.btn_save_lesson, 1, 0, 1, 3)
+
+        self.btn_print_lesson = QPushButton("Печать", self)
+        self.btn_print_lesson.setStyleSheet(
+            '.QPushButton {'
+            f'min-height: {self.main_window.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.main_window.normal.normal_xy(200, 0)[0]}px;'
+            'background-color: #76b7c7;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'font: bold ' + self.main_window.normal.normal_font(17) + 'px;'
+                                                                      'min-width: 10em;'
+                                                                      'padding: 6px;'
+                                                                      '}'
+                                                                      '.QPushButton:hover {'
+                                                                      'background-color: #548490;'
+                                                                      'border-style: inset;'
+                                                                      '}'
+        )
+        layout_v_btn_result.addWidget(self.btn_print_lesson, 2, 0, 1, 3)
+
+        widget_btn_result = QWidget(self)
+        widget_btn_result.setLayout(layout_v_btn_result)
+        widget_btn_result.setStyleSheet(
+            ".QWidget {background-color:transparent;}"
+        )
+        layout_result.addWidget(widget_btn_result, 0, 0, 1, 2)
+
+        self.document_result = QTextEdit(self)
+        layout_result.addWidget(self.document_result, 0, 2, 3, 5)
+
+        self.setLayout(layout_result)
+
+    def back_constructor(self):
+        self.back_constructor_event.emit(
+            {
+                "lesson_topic": self.data_constructor["lesson_topic"],
+                "subject": self.data_constructor["subject"],
+                "lesson_type": self.data_constructor["lesson_type"],
+                "class": self.data_constructor["class"],
+                "class_characteristic": self.data_constructor["class_characteristic"],
+                "lesson_duration": self.data_constructor["lesson_duration"],
+                "acquaintance": self.data_constructor["acquaintance"],
+                "competence": {
+                    "creative_thinking": self.data_constructor["competence"]["creative_thinking"],
+                    "literacy": self.data_constructor["competence"]["literacy"],
+                    "communication": self.data_constructor["competence"]["communication"],
+                    "cooperation": self.data_constructor["competence"]["cooperation"],
+                    "critical_thinking": self.data_constructor["competence"]["critical_thinking"],
+                    "metacognitive_skills": self.data_constructor["competence"]["metacognitive_skills"]
+                }
+            })
 
 
 if __name__ == '__main__':
