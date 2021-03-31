@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
     QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox, QVBoxLayout, \
-    QScrollArea, QFrame, QHBoxLayout, QDialog, QListWidget, QTextEdit
+    QScrollArea, QFrame, QHBoxLayout, QDialog, QListWidget, QTextEdit, QSpinBox
 from sqlalchemy import or_
 
 from app_window.const import *
@@ -74,6 +74,7 @@ class MainWindow(QMainWindow):
         self.menu = Menu(self)
         self.menu.setAttribute(Qt.WA_DeleteOnClose)
         self.menu.create_new_lesson_event.connect(self.close_menu_on_new_lesson)
+        self.menu.create_new_method_event.connect(self.close_menu_on_new_method)
         self.menu.show()
 
     def run_new_lesson(self):
@@ -95,6 +96,22 @@ class MainWindow(QMainWindow):
         self.result.setAttribute(Qt.WA_DeleteOnClose)
         self.result.back_constructor_event.connect(self.close_result_on_constructor)
         self.result.show()
+
+    def run_new_method(self):
+        self.new_method = NewMethod(self)
+        self.new_method.setAttribute(Qt.WA_DeleteOnClose)
+        self.new_method.back_menu_event.connect(self.close_new_method_on_menu)
+        self.new_method.show()
+
+    def close_new_method_on_menu(self):
+        self.new_method.close()
+        self.new_method = None
+        self.run_menu()
+
+    def close_menu_on_new_method(self):
+        self.menu.close()
+        self.menu = None
+        self.run_new_method()
 
     def close_result_on_constructor(self, data):
         self.result.close()
@@ -129,6 +146,7 @@ class MainWindow(QMainWindow):
 
 class Menu(QWidget):
     create_new_lesson_event = pyqtSignal()
+    create_new_method_event = pyqtSignal()
 
     def __init__(self, main_window):
         super().__init__(main_window)
@@ -145,12 +163,20 @@ class Menu(QWidget):
         # --------------------------
 
         # Кнопка создания нового урока
+        layout_menu = QGridLayout()
+        layout_menu.setContentsMargins(int(self.window().width() / 25.5), int(self.window().width() / 15.5),
+                                       int(self.window().width() / 6.5), int(self.window().width() / 13.5))
+
+        layout_btn_menu = QGridLayout()
+        layout_btn_menu.setContentsMargins(int(self.window().width() / 20.5), int(self.window().width() / 14.5),
+                                           int(self.window().width() / 6.5), int(self.window().width() / 3.5))
+
         self.btn_new_lesson = QPushButton("Новый урок", self)
-        self.btn_new_lesson.resize(*self.normal.normal_xy(200, 50))
-        self.btn_new_lesson.move(*self.normal.normal_xy(175, 200))
         # 548490 - темный голубой  76b7c7 - светлый голубой
         self.btn_new_lesson.setStyleSheet(
             '.QPushButton {'
+            f'min-height: {self.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.normal.normal_xy(200, 0)[0]}px;'
             'background-color: #76b7c7;'
             'border-style: outset;'
             'border-width: 2px;'
@@ -165,20 +191,53 @@ class Menu(QWidget):
                                                           'border-style: inset;'
                                                           '}'
         )
+        layout_btn_menu.addWidget(self.btn_new_lesson, 0, 0)
         self.btn_new_lesson.clicked.connect(self.create_new_lesson)
+
+        self.btn_new_method = QPushButton("Создать методику", self)
+        self.btn_new_method.setStyleSheet(
+            '.QPushButton {'
+            f'min-height: {self.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.normal.normal_xy(200, 0)[0]}px;'
+            'background-color: #76b7c7;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'font: bold ' + self.normal.normal_font(17) + 'px;'
+                                                          'min-width: 10em;'
+                                                          'padding: 6px;'
+                                                          '}'
+                                                          '.QPushButton:hover {'
+                                                          'background-color: #548490;'
+                                                          'border-style: inset;'
+                                                          '}'
+        )
+        layout_btn_menu.addWidget(self.btn_new_method, 1, 0)
+        self.btn_new_method.clicked.connect(self.create_new_method)
+
+        widget_btn = QWidget()
+        widget_btn.setStyleSheet(
+            ".QWidget {background-color:transparent;}"
+        )
+        widget_btn.setLayout(layout_btn_menu)
+        layout_menu.addWidget(widget_btn, 0, 0, 0, 3)
 
         # Цитата в главном меню
         self.quote = QLabel(random.choice(LIST_LESSON_QUOTE), self)
-        self.quote.move(int(self.main_window.geometry.width() / 2.6), int(self.main_window.geometry.height() / 3))
         self.quote.setWordWrap(True)
         self.quote.setStyleSheet(
             '.QLabel {font-family: "Impact";'
             'font: ' + self.normal.normal_font(55) + 'px}'
         )
-        self.quote.setMinimumSize(self.main_window.geometry.width() // 2, self.main_window.geometry.height() // 4)
+        layout_menu.addWidget(self.quote, 0, 3, 3, 5)
+        self.setLayout(layout_menu)
 
     def create_new_lesson(self):
         self.create_new_lesson_event.emit()
+
+    def create_new_method(self):
+        self.create_new_method_event.emit()
 
 
 class NewLesson(QWidget):
@@ -319,9 +378,10 @@ class NewLesson(QWidget):
             "}"
         )
         # -----------------------------------------
-        self.edit_lesson_duration = QLineEdit("40")
+        self.edit_lesson_duration = QSpinBox()
+        self.edit_lesson_duration.setValue(40)
         self.edit_lesson_duration.setStyleSheet(
-            ".QLineEdit {"
+            ".QSpinBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "}"
         )
@@ -395,7 +455,7 @@ class NewLesson(QWidget):
             '}'
         )
         self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_back_valid.move(15, 3)
+        self.btn_back_valid.move(15, 5)
         self.btn_back_valid.clicked.connect(self.back_menu)
         # -----------------------------------------
         self.btn_ok_valid = QPushButton(self)
@@ -408,53 +468,55 @@ class NewLesson(QWidget):
             '}'
         )
         self.btn_ok_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_ok_valid.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 3)
+        self.btn_ok_valid.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 5)
         self.btn_ok_valid.clicked.connect(self.valid_options_new_lesson)
+
         # -----------------------------------------
 
-        grid = QGridLayout()
-        grid.setContentsMargins(15, self.main_window.normal.normal_proportion(75, 0)[0], 15, 15)
-        grid.addWidget(self.text_lesson_topic, 1, 0)
-        grid.addWidget(self.edit_lesson_topic, 1, 1)
+        layout = QGridLayout()
+        layout.setContentsMargins(int(self.window().width() / 25.5), int(self.window().width() / 20.5),
+                                  int(self.window().width() / 25.5), int(self.window().width() / 50.5))
+        layout.addWidget(self.text_lesson_topic, 1, 0)
+        layout.addWidget(self.edit_lesson_topic, 1, 1)
 
-        grid.addWidget(self.text_subjects, 2, 0)
-        grid.addWidget(self.combo_subjects, 2, 1)
+        layout.addWidget(self.text_subjects, 2, 0)
+        layout.addWidget(self.combo_subjects, 2, 1)
 
-        grid.addWidget(self.text_lesson_type, 3, 0)
-        grid.addWidget(self.combo_lesson_type, 3, 1)
+        layout.addWidget(self.text_lesson_type, 3, 0)
+        layout.addWidget(self.combo_lesson_type, 3, 1)
 
-        grid.addWidget(self.text_class, 4, 0)
-        grid.addWidget(self.combo_class, 4, 1)
+        layout.addWidget(self.text_class, 4, 0)
+        layout.addWidget(self.combo_class, 4, 1)
 
-        grid.addWidget(self.text_class_characteristic, 5, 0)
-        grid.addWidget(self.combo_class_characteristic, 5, 1)
+        layout.addWidget(self.text_class_characteristic, 5, 0)
+        layout.addWidget(self.combo_class_characteristic, 5, 1)
 
-        grid.addWidget(self.text_lesson_duration, 6, 0)
-        grid.addWidget(self.edit_lesson_duration, 6, 1)
+        layout.addWidget(self.text_lesson_duration, 6, 0)
+        layout.addWidget(self.edit_lesson_duration, 6, 1)
 
-        grid.addWidget(self.text_acquaintance, 7, 0)
-        grid_acquaintance = QGridLayout()
-        grid_acquaintance.addWidget(self.radio_btn_yes, 1, 0)
-        grid_acquaintance.addWidget(self.radio_btn_no, 1, 1)
-        grid.addLayout(grid_acquaintance, 7, 1)
+        layout.addWidget(self.text_acquaintance, 7, 0)
+        layout_acquaintance = QGridLayout()
+        layout_acquaintance.addWidget(self.radio_btn_yes, 1, 0)
+        layout_acquaintance.addWidget(self.radio_btn_no, 1, 1)
+        layout.addLayout(layout_acquaintance, 7, 1)
 
-        grid.addWidget(self.text_competence, 8, 0)
-        grid_competence = QGridLayout()
-        grid_competence.addWidget(self.check_communication, 1, 0)
-        grid_competence.addWidget(self.check_literacy, 2, 0)
-        grid_competence.addWidget(self.check_cooperation, 3, 0)
-        grid_competence.addWidget(self.check_creative_thinking, 1, 1)
-        grid_competence.addWidget(self.check_critical_thinking, 2, 1)
-        grid_competence.addWidget(self.check_metacognitive_skills, 3, 1)
-        grid.addLayout(grid_competence, 8, 1)
-        self.setLayout(grid)
+        layout.addWidget(self.text_competence, 8, 0)
+        layout_competence = QGridLayout()
+        layout_competence.addWidget(self.check_communication, 1, 0)
+        layout_competence.addWidget(self.check_literacy, 2, 0)
+        layout_competence.addWidget(self.check_cooperation, 3, 0)
+        layout_competence.addWidget(self.check_creative_thinking, 1, 1)
+        layout_competence.addWidget(self.check_critical_thinking, 2, 1)
+        layout_competence.addWidget(self.check_metacognitive_skills, 3, 1)
+        layout.addLayout(layout_competence, 8, 1)
+        self.setLayout(layout)
 
     def back_menu(self):
         self.back_menu_event.emit()
 
     def valid_options_new_lesson(self):
         if self.edit_lesson_topic.text() != "" and \
-                int(self.edit_lesson_duration.text()) >= 20 and \
+                self.edit_lesson_duration.value() >= 20 and \
                 (self.check_creative_thinking.isChecked() or
                  self.check_literacy.isChecked() or
                  self.check_communication.isChecked() or
@@ -469,7 +531,7 @@ class NewLesson(QWidget):
                     "lesson_type": self.combo_lesson_type.currentText(),
                     "class": self.combo_class.currentText(),
                     "class_characteristic": self.combo_class_characteristic.currentText(),
-                    "lesson_duration": int(self.edit_lesson_duration.text()),
+                    "lesson_duration": self.edit_lesson_duration.value(),
                     "acquaintance": self.radio_btn_yes.isChecked(),
                     "competence": {
                         "creative_thinking": self.check_creative_thinking.isChecked(),
@@ -694,23 +756,23 @@ class Constructor(QWidget):
         self.group_button_stage.addButton(self.btn_homework)
         self.group_button_stage.buttonClicked.connect(self.button_stage_flag)
 
-        grid = QVBoxLayout(self)
-        grid.setContentsMargins(25, int(self.window().width() / 18.5), 10, int(self.window().width() / 12.5))
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(25, int(self.window().width() / 18.5), 10, int(self.window().width() / 12.5))
         if self.data_lesson['acquaintance']:
-            grid.addWidget(self.btn_stage_acquaintance)
-        grid.addWidget(self.btn_team_building)
-        grid.addWidget(self.btn_new_material)
-        grid.addWidget(self.btn_refreshments)
-        grid.addWidget(self.btn_test_of_understanding)
-        grid.addWidget(self.btn_material_fixing)
-        grid.addWidget(self.btn_assimilation_control)
-        grid.addWidget(self.btn_reflection)
-        grid.addWidget(self.btn_homework)
+            layout.addWidget(self.btn_stage_acquaintance)
+        layout.addWidget(self.btn_team_building)
+        layout.addWidget(self.btn_new_material)
+        layout.addWidget(self.btn_refreshments)
+        layout.addWidget(self.btn_test_of_understanding)
+        layout.addWidget(self.btn_material_fixing)
+        layout.addWidget(self.btn_assimilation_control)
+        layout.addWidget(self.btn_reflection)
+        layout.addWidget(self.btn_homework)
 
-        grid.addStretch(int(self.window().width() / 23.5))
-        grid.setSpacing(int(self.window().width() / 23.5))
+        layout.addStretch(int(self.window().width() / 23.5))
+        layout.setSpacing(int(self.window().width() / 23.5))
 
-        self.layout_constructor_h_3.addLayout(grid, 0, 0, 0, 1)
+        self.layout_constructor_h_3.addLayout(layout, 0, 0, 0, 1)
         # -------------------------------------------
         self.scroll_main_methods = QScrollArea(self)
         self.scroll_main_methods.setStyleSheet(
@@ -1007,7 +1069,6 @@ class Method(QWidget):
         self.label_lesson_topic.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.parent.main_window.normal.normal_font(24)}px;"
-            "margin-left: 4px"
             "}"
         )
         layout.addWidget(self.label_lesson_topic)
@@ -1143,7 +1204,7 @@ class MethodMoreDetails(QDialog):
         self.background.resize(int(self.parent.main_window.geometry.width() / 2),
                                int(self.parent.main_window.geometry.height() / 2))
 
-        grid = QGridLayout(self)
+        layout = QGridLayout(self)
 
         self.title_method = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:].lower(), self)
         self.title_method.setStyleSheet(
@@ -1152,7 +1213,7 @@ class MethodMoreDetails(QDialog):
             "}"
         )
         self.title_method.setWordWrap(True)
-        grid.addWidget(self.title_method, 0, 0, 1, 4)
+        layout.addWidget(self.title_method, 0, 0, 1, 4)
 
         self.time_and_сlass_method = QLabel("   " + self.data.time + "' минут;    " + SESSION.query(Classes).filter(
             Classes.id == self.data.id_classes_number).first().name_class + " Класс   ", self)
@@ -1162,7 +1223,7 @@ class MethodMoreDetails(QDialog):
             f"font: bold {self.parent.main_window.normal.normal_font(32)}px;"
             "}"
         )
-        grid.addWidget(self.time_and_сlass_method, 1, 1, 1, 4)
+        layout.addWidget(self.time_and_сlass_method, 1, 1, 1, 4)
 
         text = ''
         if self.data.text:
@@ -1178,7 +1239,7 @@ class MethodMoreDetails(QDialog):
             "}"
         )
         self.text_card.setWordWrap(True)
-        grid.addWidget(self.text_card, 2, 0)
+        layout.addWidget(self.text_card, 2, 0)
 
         list_compet = [(self.data.creative_thinking, "- Креативное мышление"),
                        (self.data.critical_thinking, "- Критическое мышление"),
@@ -1197,7 +1258,7 @@ class MethodMoreDetails(QDialog):
             "margin-right: 20%;"
             "}"
         )
-        grid.addWidget(self.competence, 2, 3)
+        layout.addWidget(self.competence, 2, 3)
 
 
 class ResultLesson(QWidget):
@@ -1319,6 +1380,297 @@ class ResultLesson(QWidget):
                     "metacognitive_skills": self.data_constructor["competence"]["metacognitive_skills"]
                 }
             })
+
+
+class NewMethod(QWidget):
+    back_menu_event = pyqtSignal()
+
+    def __init__(self, main_window):
+        super().__init__(main_window)
+        self.main_window = main_window
+        self.setGeometry(int(self.main_window.geometry.width() / 6), int(self.main_window.geometry.height() / 6),
+                         int(self.main_window.geometry.width() / 1.5), int(self.main_window.geometry.height() / 1.5))
+        self.initUI()
+
+    def initUI(self):
+        self.background_form_options_new_method = QLabel(self)
+        self.background_form_options_new_method.setStyleSheet(
+            '.QLabel {'
+            'background-color: #76b7c7;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'min-width: 10em;'
+            'padding: 6px;'
+            '}'
+        )
+        self.background_form_options_new_method.resize(self.geometry().width(), self.geometry().height())
+
+        self.text_method_topic = QLabel("Название")
+        self.text_method_topic.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_method_duration = QLabel("Длительность")
+        self.text_method_duration.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_class_method = QLabel("Классы")
+        self.text_class_method.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_method_type = QLabel("Тип")
+        self.text_method_type.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_stage_method = QLabel("Этап урока")
+        self.text_stage_method.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_fgos_method = QLabel("Фгос")
+        self.text_fgos_method.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_competence_method = QLabel("Компетенции")
+        self.text_competence_method.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_method_text = QLabel("Содержание")
+        self.text_method_text.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # Поля ввода значений
+        # -----------------------------------------
+        self.edit_method_topic = QLineEdit()
+        self.edit_method_topic.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.edit_method_duration = QSpinBox()
+        self.edit_method_duration.setStyleSheet(
+            ".QSpinBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.combo_class_method = QComboBox()
+        self.combo_class_method.addItems([item.name_class for item in SESSION.query(Classes).all()])
+        self.combo_class_method.setStyleSheet(
+            ".QComboBox {"
+            f"font: {self.main_window.normal.normal_font(18)}px;"
+            "background-color: white;"
+            "}"
+        )
+        # -----------------------------------------
+        self.combo_method_type = QComboBox()
+        self.combo_method_type.addItems([item.name_method for item in SESSION.query(TypeMethod).all()])
+        self.combo_method_type.setStyleSheet(
+            ".QComboBox {"
+            f"font: {self.main_window.normal.normal_font(18)}px;"
+            "background-color: white;"
+            "}"
+        )
+        # -----------------------------------------
+        self.combo_stage_method = QComboBox()
+        self.combo_stage_method.addItems([item.name_stage for item in SESSION.query(Stage).all()])
+        self.combo_stage_method.setStyleSheet(
+            ".QComboBox {"
+            f"font: {self.main_window.normal.normal_font(18)}px;"
+            "background-color: white;"
+            "}"
+        )
+        # -----------------------------------------
+        self.combo_fgos_method = QComboBox()
+        self.combo_fgos_method.addItems([item.name_fgos for item in SESSION.query(Fgos).all()])
+        self.combo_fgos_method.setStyleSheet(
+            ".QComboBox {"
+            f"font: {self.main_window.normal.normal_font(18)}px;"
+            "background-color: white;"
+            "}"
+        )
+        # -----------------------------------------
+        self.check_communication = QCheckBox('Коммуникация')
+        self.check_communication.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.check_literacy = QCheckBox('Грамотность')
+        self.check_literacy.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.check_cooperation = QCheckBox('Кооперация')
+        self.check_cooperation.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.check_creative_thinking = QCheckBox('Креативное мышление')
+        self.check_creative_thinking.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.check_critical_thinking = QCheckBox('Критическое мышление')
+        self.check_critical_thinking.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.check_metacognitive_skills = QCheckBox('Метакогнитивные навыки')
+        self.check_metacognitive_skills.setStyleSheet(
+            ".QCheckBox {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_method = QTextEdit()
+        self.text_method.setStyleSheet(
+            ".QTextEdit {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+
+        # -----------------------------------------
+        self.btn_back_valid = QPushButton(self)
+        self.btn_back_valid.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_BACK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
+            '}'
+        )
+        self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back_valid.move(15, 5)
+        self.btn_back_valid.clicked.connect(self.back_menu)
+        # -----------------------------------------
+        self.btn_ok_valid = QPushButton(self)
+        self.btn_ok_valid.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_OK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_OK_HOVER});'
+            '}'
+        )
+        self.btn_ok_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_ok_valid.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 5)
+        self.btn_ok_valid.clicked.connect(self.valid_options_new_method)
+        # -----------------------------------------
+
+        layout_new_method = QGridLayout()
+        layout_new_method.setContentsMargins(int(self.window().width() / 25.5), int(self.window().width() / 20.5),
+                                             int(self.window().width() / 25.5), int(self.window().width() / 50.5))
+        layout_new_method.addWidget(self.text_method_topic, 0, 0)
+        layout_new_method.addWidget(self.edit_method_topic, 0, 1)
+
+        layout_new_method.addWidget(self.text_method_duration, 1, 0)
+        layout_new_method.addWidget(self.edit_method_duration, 1, 1)
+
+        layout_new_method.addWidget(self.text_class_method, 2, 0)
+        layout_new_method.addWidget(self.combo_class_method, 2, 1)
+
+        layout_new_method.addWidget(self.text_method_type, 3, 0)
+        layout_new_method.addWidget(self.combo_method_type, 3, 1)
+
+        layout_new_method.addWidget(self.text_stage_method, 4, 0)
+        layout_new_method.addWidget(self.combo_stage_method, 4, 1)
+
+        layout_new_method.addWidget(self.text_fgos_method, 5, 0)
+        layout_new_method.addWidget(self.combo_fgos_method, 5, 1)
+
+        layout_new_method.addWidget(self.text_competence_method, 6, 0)
+
+        layout_competence = QGridLayout()
+        layout_competence.addWidget(self.check_communication, 1, 0)
+        layout_competence.addWidget(self.check_literacy, 2, 0)
+        layout_competence.addWidget(self.check_cooperation, 3, 0)
+        layout_competence.addWidget(self.check_creative_thinking, 1, 1)
+        layout_competence.addWidget(self.check_critical_thinking, 2, 1)
+        layout_competence.addWidget(self.check_metacognitive_skills, 3, 1)
+
+        widget_competence = QWidget()
+        widget_competence.setLayout(layout_competence)
+        widget_competence.setStyleSheet(
+            ".QWidget {background-color:transparent;}"
+        )
+        layout_new_method.addWidget(widget_competence, 6, 1)
+
+        layout_new_method.addWidget(self.text_method_text, 7, 0)
+        layout_new_method.addWidget(self.text_method, 7, 1)
+
+        self.setLayout(layout_new_method)
+
+    def back_menu(self):
+        self.back_menu_event.emit()
+
+    def valid_options_new_method(self):
+        if self.edit_method_topic.text() != "" and self.text_method.toPlainText() != "":
+            new_method = Cards(
+                name_method=self.edit_method_topic.text(),
+                time=self.edit_method_duration.value(),
+                id_classes_number=SESSION.query(Classes).filter(
+                    Classes.name_class == self.combo_class_method.currentText()).first().id,
+                id_type_method_card=SESSION.query(TypeMethod).filter(
+                    TypeMethod.name_method == self.combo_method_type.currentText()).first().id,
+                id_stage_card=SESSION.query(Stage).filter(
+                    Stage.name_stage == self.combo_stage_method.currentText()).first().id,
+                creative_thinking=self.check_creative_thinking.isChecked(),
+                critical_thinking=self.check_critical_thinking.isChecked(),
+                communication=self.check_communication.isChecked(),
+                cooperation=self.check_cooperation.isChecked(),
+                metacognitive_skills=self.check_metacognitive_skills.isChecked(),
+                literacy=self.check_literacy.isChecked(),
+                id_fgos=SESSION.query(Fgos).filter(Fgos.name_fgos == self.combo_fgos_method.currentText()).first().id,
+                text=self.text_method.toPlainText(),
+            )
+            SESSION.add(new_method)
+            SESSION.commit()
+            QMessageBox.information(self, "Ок", "Метод Добавлен", QMessageBox.Ok)
+            self.back_menu()
+        else:
+            QMessageBox.critical(self, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
 
 
 if __name__ == '__main__':
