@@ -74,7 +74,7 @@ class MainWindow(QMainWindow):
         self.menu = Menu(self)
         self.menu.setAttribute(Qt.WA_DeleteOnClose)
         self.menu.create_new_lesson_event.connect(self.close_menu_on_new_lesson)
-        self.menu.create_new_method_event.connect(self.close_menu_on_new_method)
+        self.menu.create_my_methods_event.connect(self.close_menu_on_my_method)
         self.menu.show()
 
     def run_new_lesson(self):
@@ -100,18 +100,35 @@ class MainWindow(QMainWindow):
     def run_new_method(self):
         self.new_method = NewMethod(self)
         self.new_method.setAttribute(Qt.WA_DeleteOnClose)
-        self.new_method.back_menu_event.connect(self.close_new_method_on_menu)
+        self.new_method.back_menu_event.connect(self.close_new_method_on_my_method)
         self.new_method.show()
 
-    def close_new_method_on_menu(self):
-        self.new_method.close()
-        self.new_method = None
+    def run_my_method_menu(self):
+        self.my_method_menu = MyMethodMenu(self)
+        self.my_method_menu.setAttribute(Qt.WA_DeleteOnClose)
+        self.my_method_menu.create_new_methods_event.connect(self.close_my_method_on_new_method)
+        self.my_method_menu.back_menu_event.connect(self.close_my_method_on_menu)
+        self.my_method_menu.show()
+
+    def close_my_method_on_menu(self):
+        self.my_method_menu.close()
+        self.my_method_menu = None
         self.run_menu()
 
-    def close_menu_on_new_method(self):
+    def close_my_method_on_new_method(self):
+        self.my_method_menu.close()
+        self.my_method_menu = None
+        self.run_new_method()
+
+    def close_new_method_on_my_method(self):
+        self.new_method.close()
+        self.new_method = None
+        self.run_my_method_menu()
+
+    def close_menu_on_my_method(self):
         self.menu.close()
         self.menu = None
-        self.run_new_method()
+        self.run_my_method_menu()
 
     def close_result_on_constructor(self, data):
         self.result.close()
@@ -146,7 +163,7 @@ class MainWindow(QMainWindow):
 
 class Menu(QWidget):
     create_new_lesson_event = pyqtSignal()
-    create_new_method_event = pyqtSignal()
+    create_my_methods_event = pyqtSignal()
 
     def __init__(self, main_window):
         super().__init__(main_window)
@@ -194,8 +211,8 @@ class Menu(QWidget):
         layout_btn_menu.addWidget(self.btn_new_lesson, 0, 0)
         self.btn_new_lesson.clicked.connect(self.create_new_lesson)
 
-        self.btn_new_method = QPushButton("Создать методику", self)
-        self.btn_new_method.setStyleSheet(
+        self.btn_my_methods = QPushButton("Мои методики", self)
+        self.btn_my_methods.setStyleSheet(
             '.QPushButton {'
             f'min-height: {self.normal.normal_xy(50, 0)[0]}px;'
             f'min-width: {self.normal.normal_xy(200, 0)[0]}px;'
@@ -213,12 +230,14 @@ class Menu(QWidget):
                                                           'border-style: inset;'
                                                           '}'
         )
-        layout_btn_menu.addWidget(self.btn_new_method, 1, 0)
-        self.btn_new_method.clicked.connect(self.create_new_method)
+        layout_btn_menu.addWidget(self.btn_my_methods, 1, 0)
+        self.btn_my_methods.clicked.connect(self.create_my_methods)
 
         widget_btn = QWidget()
         widget_btn.setStyleSheet(
-            ".QWidget {background-color:transparent;}"
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
         )
         widget_btn.setLayout(layout_btn_menu)
         layout_menu.addWidget(widget_btn, 0, 0, 0, 3)
@@ -236,8 +255,8 @@ class Menu(QWidget):
     def create_new_lesson(self):
         self.create_new_lesson_event.emit()
 
-    def create_new_method(self):
-        self.create_new_method_event.emit()
+    def create_my_methods(self):
+        self.create_my_methods_event.emit()
 
 
 class NewLesson(QWidget):
@@ -830,7 +849,9 @@ class Constructor(QWidget):
         # -------------------------------------------
         self.scroll_my_methods = QScrollArea(self)
         self.scroll_my_methods.setStyleSheet(
-            ".QScrollArea {background-color:transparent;}"
+            ".QScrollArea {"
+            "background-color:transparent;"
+            "}"
         )
         self.scroll_my_methods.setFrameShape(QFrame.NoFrame)
         self.scroll_my_methods.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -1029,7 +1050,9 @@ class Constructor(QWidget):
         widget.setGeometry(0, 0, int(self.main_window.geometry.height() / 1.1), 116 * len(filter_stage_methods))
         widget.setLayout(layout)
         widget.setStyleSheet(
-            ".QWidget {background-color:transparent;}"
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
         )
         self.scroll_main_methods.setWidget(widget)
         self.scroll_main_methods.show()
@@ -1153,7 +1176,9 @@ class Method(QWidget):
         widget = QWidget()
         widget.setLayout(layout)
         widget.setStyleSheet(
-            ".QWidget {background-color:transparent;}"
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
         )
         self.parent.scroll_my_methods.setWidget(widget)
 
@@ -1352,7 +1377,9 @@ class ResultLesson(QWidget):
         widget_btn_result = QWidget(self)
         widget_btn_result.setLayout(layout_v_btn_result)
         widget_btn_result.setStyleSheet(
-            ".QWidget {background-color:transparent;}"
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
         )
         layout_result.addWidget(widget_btn_result, 0, 0, 1, 2)
 
@@ -1380,6 +1407,221 @@ class ResultLesson(QWidget):
                     "metacognitive_skills": self.data_constructor["competence"]["metacognitive_skills"]
                 }
             })
+
+
+class MyMethodMenu(QWidget):
+    create_new_methods_event = pyqtSignal()
+    back_menu_event = pyqtSignal()
+
+    def __init__(self, main_window):
+        super().__init__(main_window)
+        self.main_window = main_window
+        self.setGeometry(0, 0,
+                         int(self.main_window.geometry.width()), int(self.main_window.geometry.height()))
+        self.initUI()
+
+    def initUI(self):
+        layout_my_method_menu = QGridLayout()
+        layout_my_method_menu.setContentsMargins(int(self.window().width() / 10.5), int(self.window().width() / 35.5),
+                                            int(self.window().width() / 10.5), int(self.window().width() / 25.5))
+        # -----------------------------------------
+
+        # -----------------------------------------
+        layout_my_method_menu_head = QHBoxLayout()
+        self.btn_back = QPushButton()
+        self.btn_back.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_BACK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
+            '}'
+        )
+        self.btn_back.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
+        layout_my_method_menu_head.addWidget(self.btn_back)
+        self.btn_back.clicked.connect(self.back)
+        # -----------------------------------------
+        layout_found = QHBoxLayout()
+
+        self.line_edit_found_method = QLineEdit()
+        self.line_edit_found_method.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(22)}px;"
+            "}"
+        )
+        self.line_edit_found_method.setFixedHeight(int(self.window().width() / 30.5))
+        layout_found.addWidget(self.line_edit_found_method)
+
+        self.btn_found = QPushButton()
+        self.btn_found.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_FOUND});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_FOUND_HOVER});'
+            '}'
+        )
+        self.btn_found.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_found.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
+        layout_found.addWidget(self.btn_found)
+
+        widget_found = QWidget()
+        widget_found.setLayout(layout_found)
+        widget_found.setStyleSheet(
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
+        )
+
+        layout_my_method_menu_head.addWidget(widget_found)
+        # -----------------------------------------
+        self.btn_new_method = QPushButton("Новый метод", self)
+        self.btn_new_method.setStyleSheet(
+            ".QPushButton {"
+            "background-color: #76b7c7;"
+            "border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: beige;"
+            f'min-height: {self.main_window.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.main_window.normal.normal_xy(200, 0)[0]}px;'
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 10em;"
+            "padding: 6px;"
+            "}"
+            ".QPushButton:hover {"
+            "background-color: #548490;"
+            "border-style: inset;"
+            "}"
+        )
+        layout_my_method_menu_head.addWidget(self.btn_new_method)
+        self.btn_new_method.clicked.connect(self.create_new_method)
+
+        widget_my_method_menu_head = QWidget()
+        widget_my_method_menu_head.setLayout(layout_my_method_menu_head)
+        widget_my_method_menu_head.setStyleSheet(
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
+        )
+
+        layout_my_method_menu.addWidget(widget_my_method_menu_head, 0, 0)
+        # -----------------------------------------
+
+        # -----------------------------------------
+
+        self.scroll_my_method_menu = QScrollArea(self)
+        self.scroll_my_method_menu.setStyleSheet(
+            ".QScrollArea {"
+            "background-color:transparent;"
+            "}"
+        )
+        self.scroll_my_method_menu.setFrameShape(QFrame.NoFrame)
+        self.scroll_my_method_menu.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_my_method_menu.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        layout_my_method_menu.addWidget(self.scroll_my_method_menu, 1, 0)
+
+        self.setLayout(layout_my_method_menu)
+        self.show_methods_stage()
+
+    def show_methods_stage(self):
+        object_methods = []
+        filter_my_method_menu = SESSION.query(Cards).filter(Cards.id_author.like(2)).all()
+
+        layout = QVBoxLayout()
+        for i in range(len(filter_my_method_menu)):
+            object_methods.append(MyMethod(self, filter_my_method_menu[i]))
+            layout.addWidget(object_methods[i])
+
+        self.widget_list_methods = QWidget(self)
+        self.widget_list_methods.setGeometry(0, 0, int(self.window().width() / 1.25), 116 * len(filter_my_method_menu))
+        self.widget_list_methods.setLayout(layout)
+        self.widget_list_methods.setStyleSheet(
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
+        )
+        self.scroll_my_method_menu.setWidget(self.widget_list_methods)
+        self.scroll_my_method_menu.show()
+
+    def create_new_method(self):
+        self.create_new_methods_event.emit()
+
+    def back(self):
+        self.back_menu_event.emit()
+
+
+class MyMethod(QWidget):
+    def __init__(self, parent, data):
+        super(MyMethod, self).__init__(parent.main_window)
+        self.parent = parent
+        self.data = data
+        self.initUI()
+
+    def initUI(self):
+        self.background = QLabel(self)
+        self.background.setStyleSheet(
+            '.QLabel {'
+            f'min-height: {100}px;'
+            f'min-width: {int(self.parent.window().width() / 1.29)}px;'
+            'margin-bottom: 16px;'
+            'background-color: #FFA25F;'
+            'border-radius: 14px'
+            '}'
+        )
+        layout = QHBoxLayout(self)
+
+        self.label_lesson_topic = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:].lower(), self)
+        self.label_lesson_topic.setWordWrap(True)
+        self.label_lesson_topic.setStyleSheet(
+            ".QLabel {"
+            f"margin-left: {int(self.parent.window().width() / 25.5)};"
+            f"font: bold {self.parent.main_window.normal.normal_font(24)}px;"
+            "}"
+        )
+        layout.addWidget(self.label_lesson_topic)
+
+        self.btn_edit = QPushButton(self)
+        self.btn_edit.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_EDIT});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_EDIT_HOVER});'
+            '}'
+        )
+        self.btn_edit.setMinimumSize(*self.parent.main_window.normal.normal_proportion(175, 60))
+        self.btn_edit.setFixedWidth(self.parent.main_window.normal.normal_proportion(175, 0)[0])
+        layout.addWidget(self.btn_edit)
+
+        self.btn_del = QPushButton(self)
+        self.btn_del.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_DEL});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_DEL_HOVER});'
+            '}'
+        )
+        self.btn_del.setMinimumSize(*self.parent.main_window.normal.normal_proportion(40, 40))
+        self.btn_del.setFixedWidth(self.parent.main_window.normal.normal_proportion(40, 0)[0])
+        layout.addWidget(self.btn_del)
+
+        self.btn_del.clicked.connect(self.del_method)
+        self.btn_edit.clicked.connect(self.edit)
+
+    def del_method(self):
+        pass
+        """del self.parent.my_methods[self.parent.my_methods.index(self)]
+        self.show_my_methods()
+        self.parent.show_methods_stage()
+        self.show_time_methods()"""
+
+    def edit(self):
+        pass
+        """self.card_info = MethodMoreDetails(self.data, self.parent)
+        self.card_info.show()"""
 
 
 class NewMethod(QWidget):
@@ -1633,7 +1875,9 @@ class NewMethod(QWidget):
         widget_competence = QWidget()
         widget_competence.setLayout(layout_competence)
         widget_competence.setStyleSheet(
-            ".QWidget {background-color:transparent;}"
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
         )
         layout_new_method.addWidget(widget_competence, 6, 1)
 
@@ -1650,6 +1894,7 @@ class NewMethod(QWidget):
             new_method = Cards(
                 name_method=self.edit_method_topic.text(),
                 time=self.edit_method_duration.value(),
+                id_author=2,
                 id_classes_number=SESSION.query(Classes).filter(
                     Classes.name_class == self.combo_class_method.currentText()).first().id,
                 id_type_method_card=SESSION.query(TypeMethod).filter(

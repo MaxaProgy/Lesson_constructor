@@ -12,6 +12,7 @@ class Cards(SqlAlchemyBase, SerializerMixin):
     name_method = sqlalchemy.Column(sqlalchemy.String)
     time = sqlalchemy.Column(sqlalchemy.String)
 
+    id_author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("author.id"))
     id_classes_number = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("classes.id"))
     id_type_method_card = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("type_method.id"))
     id_stage_card = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("stage.id"))
@@ -25,6 +26,7 @@ class Cards(SqlAlchemyBase, SerializerMixin):
     id_fgos = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("fgos.id"))
     text = sqlalchemy.Column(sqlalchemy.Text)
 
+    author = orm.relation('Author')
     classes = orm.relation('Classes')
     type_method = orm.relation('TypeMethod')
     stage = orm.relation('Stage')
