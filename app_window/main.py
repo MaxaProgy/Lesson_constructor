@@ -97,8 +97,8 @@ class MainWindow(QMainWindow):
         self.result.back_constructor_event.connect(self.close_result_on_constructor)
         self.result.show()
 
-    def run_new_method(self):
-        self.new_method = NewMethod(self)
+    def run_new_method(self, data):
+        self.new_method = NewMethod(self, data)
         self.new_method.setAttribute(Qt.WA_DeleteOnClose)
         self.new_method.back_menu_event.connect(self.close_new_method_on_my_method)
         self.new_method.show()
@@ -115,10 +115,10 @@ class MainWindow(QMainWindow):
         self.my_method_menu = None
         self.run_menu()
 
-    def close_my_method_on_new_method(self):
+    def close_my_method_on_new_method(self, data):
         self.my_method_menu.close()
         self.my_method_menu = None
-        self.run_new_method()
+        self.run_new_method(data)
 
     def close_new_method_on_my_method(self):
         self.new_method.close()
@@ -1410,7 +1410,7 @@ class ResultLesson(QWidget):
 
 
 class MyMethodMenu(QWidget):
-    create_new_methods_event = pyqtSignal()
+    create_new_methods_event = pyqtSignal(dict)
     back_menu_event = pyqtSignal()
 
     def __init__(self, main_window):
@@ -1423,7 +1423,7 @@ class MyMethodMenu(QWidget):
     def initUI(self):
         layout_my_method_menu = QGridLayout()
         layout_my_method_menu.setContentsMargins(int(self.window().width() / 10.5), int(self.window().width() / 35.5),
-                                            int(self.window().width() / 10.5), int(self.window().width() / 25.5))
+                                                 int(self.window().width() / 10.5), int(self.window().width() / 25.5))
         # -----------------------------------------
 
         # -----------------------------------------
@@ -1464,6 +1464,7 @@ class MyMethodMenu(QWidget):
         )
         self.btn_found.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
         self.btn_found.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
+        self.btn_found.clicked.connect(self.found)
         layout_found.addWidget(self.btn_found)
 
         widget_found = QWidget()
@@ -1546,10 +1547,33 @@ class MyMethodMenu(QWidget):
         self.scroll_my_method_menu.show()
 
     def create_new_method(self):
-        self.create_new_methods_event.emit()
+        self.create_new_methods_event.emit(
+            {
+                "name_method": "",
+                "time": 0,
+                "id_classes_number": 1,
+                "id_type_method_card": 1,
+                "id_stage_card": 1,
+                "id_fgos": 1,
+                "competence": {
+                    "communication": False,
+                    "literacy": False,
+                    "cooperation": False,
+                    "creative_thinking": False,
+                    "critical_thinking": False,
+                    "metacognitive_skills": False,
+
+                },
+                "text": "",
+
+            }
+        )
 
     def back(self):
         self.back_menu_event.emit()
+
+    def found(self):
+        pass
 
 
 class MyMethod(QWidget):
@@ -1612,24 +1636,45 @@ class MyMethod(QWidget):
         self.btn_edit.clicked.connect(self.edit)
 
     def del_method(self):
-        pass
-        """del self.parent.my_methods[self.parent.my_methods.index(self)]
-        self.show_my_methods()
+        method = SESSION.query(Cards).filter(Cards.id == self.data.id).first()
+        SESSION.delete(method)
+        SESSION.commit()
+        QMessageBox.information(self, "Ок", "Метод удален", QMessageBox.Ok)
         self.parent.show_methods_stage()
-        self.show_time_methods()"""
 
     def edit(self):
-        pass
-        """self.card_info = MethodMoreDetails(self.data, self.parent)
-        self.card_info.show()"""
+        method = SESSION.query(Cards).filter(Cards.id == self.data.id).first()
+        SESSION.delete(method)
+        SESSION.commit()
+        self.parent.create_new_methods_event.emit(
+            {
+                "name_method": self.data.name_method,
+                "time": int(self.data.time),
+                "id_classes_number": self.data.id_classes_number,
+                "id_type_method_card": self.data.id_type_method_card,
+                "id_stage_card": self.data.id_stage_card,
+                "id_fgos": self.data.id_fgos,
+                "competence": {
+                    "communication": self.data.communication,
+                    "literacy": self.data.literacy,
+                    "cooperation": self.data.cooperation,
+                    "creative_thinking": self.data.creative_thinking,
+                    "critical_thinking": self.data.critical_thinking,
+                    "metacognitive_skills": self.data.metacognitive_skills,
+
+                },
+                "text": method.text,
+            }
+        )
 
 
 class NewMethod(QWidget):
     back_menu_event = pyqtSignal()
 
-    def __init__(self, main_window):
+    def __init__(self, main_window, data):
         super().__init__(main_window)
         self.main_window = main_window
+        self.data = data
         self.setGeometry(int(self.main_window.geometry.width() / 6), int(self.main_window.geometry.height() / 6),
                          int(self.main_window.geometry.width() / 1.5), int(self.main_window.geometry.height() / 1.5))
         self.initUI()
@@ -1714,7 +1759,7 @@ class NewMethod(QWidget):
         )
         # Поля ввода значений
         # -----------------------------------------
-        self.edit_method_topic = QLineEdit()
+        self.edit_method_topic = QLineEdit(self.data["name_method"])
         self.edit_method_topic.setStyleSheet(
             ".QLineEdit {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -1722,6 +1767,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.edit_method_duration = QSpinBox()
+        self.edit_method_duration.setValue(self.data["time"])
         self.edit_method_duration.setStyleSheet(
             ".QSpinBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -1729,6 +1775,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.combo_class_method = QComboBox()
+        self.combo_class_method.setCurrentIndex(self.data["id_classes_number"])
         self.combo_class_method.addItems([item.name_class for item in SESSION.query(Classes).all()])
         self.combo_class_method.setStyleSheet(
             ".QComboBox {"
@@ -1738,6 +1785,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.combo_method_type = QComboBox()
+        self.combo_method_type.setCurrentIndex(self.data["id_type_method_card"])
         self.combo_method_type.addItems([item.name_method for item in SESSION.query(TypeMethod).all()])
         self.combo_method_type.setStyleSheet(
             ".QComboBox {"
@@ -1747,6 +1795,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.combo_stage_method = QComboBox()
+        self.combo_stage_method.setCurrentIndex(self.data["id_stage_card"])
         self.combo_stage_method.addItems([item.name_stage for item in SESSION.query(Stage).all()])
         self.combo_stage_method.setStyleSheet(
             ".QComboBox {"
@@ -1756,6 +1805,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.combo_fgos_method = QComboBox()
+        self.combo_fgos_method.setCurrentIndex(self.data["id_fgos"])
         self.combo_fgos_method.addItems([item.name_fgos for item in SESSION.query(Fgos).all()])
         self.combo_fgos_method.setStyleSheet(
             ".QComboBox {"
@@ -1765,6 +1815,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.check_communication = QCheckBox('Коммуникация')
+        self.check_communication.setChecked(self.data["competence"]["communication"])
         self.check_communication.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -1772,6 +1823,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.check_literacy = QCheckBox('Грамотность')
+        self.check_literacy.setChecked(self.data["competence"]["literacy"])
         self.check_literacy.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -1779,6 +1831,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.check_cooperation = QCheckBox('Кооперация')
+        self.check_cooperation.setChecked(self.data["competence"]["cooperation"])
         self.check_cooperation.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -1786,6 +1839,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.check_creative_thinking = QCheckBox('Креативное мышление')
+        self.check_creative_thinking.setChecked(self.data["competence"]["creative_thinking"])
         self.check_creative_thinking.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -1793,6 +1847,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.check_critical_thinking = QCheckBox('Критическое мышление')
+        self.check_critical_thinking.setChecked(self.data["competence"]["critical_thinking"])
         self.check_critical_thinking.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -1800,6 +1855,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.check_metacognitive_skills = QCheckBox('Метакогнитивные навыки')
+        self.check_metacognitive_skills.setChecked(self.data["competence"]["metacognitive_skills"])
         self.check_metacognitive_skills.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -1807,6 +1863,7 @@ class NewMethod(QWidget):
         )
         # -----------------------------------------
         self.text_method = QTextEdit()
+        self.text_method.setText(self.data["text"])
         self.text_method.setStyleSheet(
             ".QTextEdit {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
