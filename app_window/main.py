@@ -6,7 +6,7 @@ import random
 
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap, QTextDocument
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
     QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox, QVBoxLayout, \
     QScrollArea, QFrame, QHBoxLayout, QDialog, QListWidget, QTextEdit, QSpinBox
@@ -15,6 +15,7 @@ from sqlalchemy import or_
 from app_window.const import *
 from app_window.data.cards import Cards
 from app_window.data.save_lesson import SaveLesson
+from app_window.document_file import get_document_result
 
 
 class Normalize:
@@ -97,16 +98,9 @@ class MainWindow(QMainWindow):
         self.result.back_constructor_event.connect(self.close_result_on_constructor)
         self.result.show()
 
-    def run_new_method(self, data):
-        self.new_method = NewMethod(self, data)
-        self.new_method.setAttribute(Qt.WA_DeleteOnClose)
-        self.new_method.back_menu_event.connect(self.close_new_method_on_my_method)
-        self.new_method.show()
-
     def run_my_method_menu(self):
         self.my_method_menu = MyMethodMenu(self)
         self.my_method_menu.setAttribute(Qt.WA_DeleteOnClose)
-        self.my_method_menu.create_new_methods_event.connect(self.close_my_method_on_new_method)
         self.my_method_menu.back_menu_event.connect(self.close_my_method_on_menu)
         self.my_method_menu.show()
 
@@ -114,11 +108,6 @@ class MainWindow(QMainWindow):
         self.my_method_menu.close()
         self.my_method_menu = None
         self.run_menu()
-
-    def close_my_method_on_new_method(self, data):
-        self.my_method_menu.close()
-        self.my_method_menu = None
-        self.run_new_method(data)
 
     def close_new_method_on_my_method(self):
         self.new_method.close()
@@ -793,7 +782,36 @@ class Constructor(QWidget):
 
         self.layout_constructor_h_3.addLayout(layout, 0, 0, 0, 1)
         # -------------------------------------------
+        layout_2 = QVBoxLayout()
+        layout_found = QHBoxLayout()
+
+        self.line_edit_found_method = QLineEdit()
+        self.line_edit_found_method.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(22)}px;"
+            "}"
+        )
+        self.line_edit_found_method.setFixedHeight(int(self.window().width() / 30.5))
+        layout_found.addWidget(self.line_edit_found_method)
+
+        self.btn_found = QPushButton()
+        self.btn_found.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_FOUND});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_FOUND_HOVER});'
+            '}'
+        )
+        self.btn_found.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_found.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
+        # self.btn_found.clicked.connect(self.found)
+        layout_found.addWidget(self.btn_found)
+
+        layout_2.addLayout(layout_found)
+
         self.scroll_main_methods = QScrollArea(self)
+
         self.scroll_main_methods.setStyleSheet(
             ".QScrollArea {"
             "background-color:transparent;"
@@ -804,7 +822,16 @@ class Constructor(QWidget):
         self.scroll_main_methods.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_main_methods.resize(int(self.window().width() / 2),
                                         int(self.window().height() / 1.1))
-        self.layout_constructor_h_3.addWidget(self.scroll_main_methods, 0, 1, 0, 4)
+        layout_2.addWidget(self.scroll_main_methods)
+
+        widget_2 = QWidget()
+        widget_2.setLayout(layout_2)
+        widget_2.setStyleSheet(
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
+        )
+        self.layout_constructor_h_3.addWidget(widget_2, 0, 1, 0, 4)
 
         layout_3_constructor = QVBoxLayout()
         # -------------------------------------------
@@ -843,7 +870,7 @@ class Constructor(QWidget):
         self.btn_ok_constructor.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
         self.btn_ok_constructor.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
         layout_time_back_ok.addWidget(self.btn_ok_constructor)
-        self.btn_ok_constructor.clicked.connect(self.volid_data_constructor)
+        self.btn_ok_constructor.clicked.connect(self.volid_data)
 
         layout_3_constructor.addLayout(layout_time_back_ok)
         # -------------------------------------------
@@ -969,7 +996,7 @@ class Constructor(QWidget):
             self.my_methods[-1].background.setStyleSheet(
                 '.QLabel {'
                 f'min-height: {100}px;'
-                f'min-width: {int(self.my_methods[-1].parent.scroll_my_methods.size().width())}px;'
+                f'min-width: {int(self.my_methods[-1].main_window.scroll_my_methods.size().width())}px;'
                 'margin-bottom: 16px;'
                 'background-color: #FFA25F;'
                 '}'
@@ -999,7 +1026,7 @@ class Constructor(QWidget):
     def back_new_lesson(self):
         self.back_new_lesson_event.emit()
 
-    def volid_data_constructor(self):
+    def volid_data(self):
         if int(self.time_lesson.text().split()[2]) == 0:
             self.create_result_event.emit(
                 {
@@ -1059,9 +1086,9 @@ class Constructor(QWidget):
 
 
 class Method(QWidget):
-    def __init__(self, parent, data):
-        super(Method, self).__init__(parent.main_window)
-        self.parent = parent
+    def __init__(self, main_window, data):
+        super(Method, self).__init__(main_window.main_window)
+        self.main_window = main_window
         self.data = data
         self.initUI()
 
@@ -1070,7 +1097,7 @@ class Method(QWidget):
         self.background.setStyleSheet(
             '.QLabel {'
             f'min-height: {100}px;'
-            f'min-width: {int(self.parent.scroll_main_methods.size().width() / 1.1)}px;'
+            f'min-width: {int(self.main_window.scroll_main_methods.size().width() / 1.1)}px;'
             'margin-bottom: 16px;'
             'background-color: #FFA25F;'
             'border-radius: 14px'
@@ -1081,7 +1108,7 @@ class Method(QWidget):
         self.method_time.setStyleSheet(
             '.QLabel {'
             'font-family: "Impact";'
-            f"font: bold {self.parent.main_window.normal.normal_font(24)}px;"
+            f"font: bold {self.main_window.main_window.normal.normal_font(24)}px;"
             '}'
         )
         self.method_time.setWordWrap(True)
@@ -1091,7 +1118,7 @@ class Method(QWidget):
         self.label_lesson_topic.setWordWrap(True)
         self.label_lesson_topic.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.parent.main_window.normal.normal_font(24)}px;"
+            f"font: bold {self.main_window.main_window.normal.normal_font(24)}px;"
             "}"
         )
         layout.addWidget(self.label_lesson_topic)
@@ -1105,8 +1132,8 @@ class Method(QWidget):
             f'border-image: url({PATH_BUTTON_PADROBNEE_HOVER});'
             '}'
         )
-        self.btn_more_details.setMinimumSize(*self.parent.main_window.normal.normal_proportion(175, 60))
-        self.btn_more_details.setFixedWidth(self.parent.main_window.normal.normal_proportion(175, 0)[0])
+        self.btn_more_details.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(175, 60))
+        self.btn_more_details.setFixedWidth(self.main_window.main_window.normal.normal_proportion(175, 0)[0])
         layout.addWidget(self.btn_more_details)
 
         self.btn_add = QPushButton(self)
@@ -1118,8 +1145,8 @@ class Method(QWidget):
             f'border-image: url({PATH_BUTTON_ADD_HOVER});'
             '}'
         )
-        self.btn_add.setMinimumSize(*self.parent.main_window.normal.normal_proportion(40, 40))
-        self.btn_add.setFixedWidth(self.parent.main_window.normal.normal_proportion(40, 0)[0])
+        self.btn_add.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(40, 40))
+        self.btn_add.setFixedWidth(self.main_window.main_window.normal.normal_proportion(40, 0)[0])
         layout.addWidget(self.btn_add)
 
         self.btn_del = QPushButton(self)
@@ -1131,8 +1158,8 @@ class Method(QWidget):
             f'border-image: url({PATH_BUTTON_DEL_HOVER});'
             '}'
         )
-        self.btn_del.setMinimumSize(*self.parent.main_window.normal.normal_proportion(40, 40))
-        self.btn_del.setFixedWidth(self.parent.main_window.normal.normal_proportion(40, 0)[0])
+        self.btn_del.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(40, 40))
+        self.btn_del.setFixedWidth(self.main_window.main_window.normal.normal_proportion(40, 0)[0])
         layout.addWidget(self.btn_del)
         self.btn_del.hide()
 
@@ -1141,13 +1168,13 @@ class Method(QWidget):
         self.btn_more_details.clicked.connect(self.details)
 
     def add_card(self):
-        time_my_methods = [int(method.data.time) for method in self.parent.my_methods]
-        if sum(time_my_methods) + int(self.data.time) <= self.parent.data_lesson['lesson_duration'] + 20:
-            self.parent.my_methods.append(self)
+        time_my_methods = [int(method.data.time) for method in self.main_window.my_methods]
+        if sum(time_my_methods) + int(self.data.time) <= self.main_window.data_lesson['lesson_duration'] + 20:
+            self.main_window.my_methods.append(self)
             self.background.setStyleSheet(
                 '.QLabel {'
                 f'min-height: {100}px;'
-                f'min-width: {int(self.parent.scroll_my_methods.size().width() / 1.2)}px;'
+                f'min-width: {int(self.main_window.scroll_my_methods.size().width() / 1.2)}px;'
                 'margin-bottom: 16px;'
                 'background-color: #FFA25F;'
                 '}'
@@ -1155,22 +1182,22 @@ class Method(QWidget):
             self.show_my_methods()
             self.btn_add.hide()
             self.btn_del.show()
-            self.parent.show_methods_stage()
+            self.main_window.show_methods_stage()
             self.show_time_methods()
 
         else:
-            QMessageBox.critical(self.parent, "Ошибка", "Превышен лимит времени", QMessageBox.Ok)
+            QMessageBox.critical(self.main_window, "Ошибка", "Превышен лимит времени", QMessageBox.Ok)
             return
 
     def del_card(self):
-        del self.parent.my_methods[self.parent.my_methods.index(self)]
+        del self.main_window.my_methods[self.main_window.my_methods.index(self)]
         self.show_my_methods()
-        self.parent.show_methods_stage()
+        self.main_window.show_methods_stage()
         self.show_time_methods()
 
     def show_my_methods(self):
         layout = QGridLayout()
-        for method in self.parent.my_methods:
+        for method in self.main_window.my_methods:
             layout.addWidget(method)
 
         widget = QWidget()
@@ -1180,42 +1207,43 @@ class Method(QWidget):
             "background-color:transparent;"
             "}"
         )
-        self.parent.scroll_my_methods.setWidget(widget)
+        self.main_window.scroll_my_methods.setWidget(widget)
 
     def show_time_methods(self):
-        for method in self.parent.my_methods:
+        for method in self.main_window.my_methods:
             method.method_time.setText(method.data.time + "'")
 
-        sum_1 = sum([int(method.data.time) for method in self.parent.my_methods])
-        if sum_1 > self.parent.data_lesson['lesson_duration']:
+        sum_1 = sum([int(method.data.time) for method in self.main_window.my_methods])
+        if sum_1 > self.main_window.data_lesson['lesson_duration']:
             count = 0
-            k = self.parent.data_lesson['lesson_duration'] / sum_1
-            for method in self.parent.my_methods:
+            k = self.main_window.data_lesson['lesson_duration'] / sum_1
+            for method in self.main_window.my_methods:
                 cur_time = int(round(int(method.method_time.text()[:-1]) * k, 0))
                 count += cur_time
                 method.method_time.setText(str(cur_time) + "'")
 
-            self.parent.my_methods[-1].method_time.setText(str(
-                int(self.parent.my_methods[-1].method_time.text()[:-1]) + self.parent.data_lesson[
+            self.main_window.my_methods[-1].method_time.setText(str(
+                int(self.main_window.my_methods[-1].method_time.text()[:-1]) + self.main_window.data_lesson[
                     'lesson_duration'] - count) + "'")
-            sum_1 = sum([int(method.method_time.text()[:-1]) for method in self.parent.my_methods])
+            sum_1 = sum([int(method.method_time.text()[:-1]) for method in self.main_window.my_methods])
 
-        self.parent.time_lesson.setText(
-            "Время урока: " + str(self.parent.data_lesson['lesson_duration'] - sum_1) + " минут")
+        self.main_window.time_lesson.setText(
+            "Время урока: " + str(self.main_window.data_lesson['lesson_duration'] - sum_1) + " минут")
 
     def details(self):
-        self.card_info = MethodMoreDetails(self.data, self.parent)
+        self.card_info = MethodMoreDetails(self.data, self.main_window)
         self.card_info.show()
 
 
 class MethodMoreDetails(QDialog):
-    def __init__(self, data, parent):
+    def __init__(self, data, main_window):
         super(QDialog, self).__init__()
         self.setWindowIcon(QIcon(PATH_SPLASH_SCREEN))
         self.setModal(True)
         self.setWindowTitle(data.name_method[0].upper() + data.name_method[1:].lower())
-        self.setFixedSize(int(parent.main_window.geometry.width() / 2), int(parent.main_window.geometry.height() / 2))
-        self.parent = parent
+        self.setFixedSize(int(main_window.main_window.geometry.width() / 2),
+                          int(main_window.main_window.geometry.height() / 2))
+        self.main_window = main_window
         self.data = data
         self.initUI()
 
@@ -1226,15 +1254,15 @@ class MethodMoreDetails(QDialog):
             'background-color: #76b7c7;'
             '}'
         )
-        self.background.resize(int(self.parent.main_window.geometry.width() / 2),
-                               int(self.parent.main_window.geometry.height() / 2))
+        self.background.resize(int(self.main_window.main_window.geometry.width() / 2),
+                               int(self.main_window.main_window.geometry.height() / 2))
 
         layout = QGridLayout(self)
 
         self.title_method = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:].lower(), self)
         self.title_method.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.parent.main_window.normal.normal_font(42)}px;"
+            f"font: bold {self.main_window.main_window.normal.normal_font(42)}px;"
             "}"
         )
         self.title_method.setWordWrap(True)
@@ -1245,7 +1273,7 @@ class MethodMoreDetails(QDialog):
         self.time_and_сlass_method.setStyleSheet(
             ".QLabel {"
             'background-color: #FFA25F;'
-            f"font: bold {self.parent.main_window.normal.normal_font(32)}px;"
+            f"font: bold {self.main_window.main_window.normal.normal_font(32)}px;"
             "}"
         )
         layout.addWidget(self.time_and_сlass_method, 1, 1, 1, 4)
@@ -1259,7 +1287,7 @@ class MethodMoreDetails(QDialog):
         self.text_card = QLabel(text, self)
         self.text_card.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.parent.main_window.normal.normal_font(18)}px;"
+            f"font: bold {self.main_window.main_window.normal.normal_font(18)}px;"
             "margin-bottom: 10%"
             "}"
         )
@@ -1279,7 +1307,7 @@ class MethodMoreDetails(QDialog):
         self.competence = QLabel("\n".join(list_compet), self)
         self.competence.setStyleSheet(
             ".QLabel {"
-            f"font: bold {self.parent.main_window.normal.normal_font(22)}px;"
+            f"font: bold {self.main_window.main_window.normal.normal_font(22)}px;"
             "margin-right: 20%;"
             "}"
         )
@@ -1291,7 +1319,7 @@ class ResultLesson(QWidget):
 
     def __init__(self, main_window, data):
         super().__init__(main_window)
-        self.data_constructor = data
+        self.data = data
         self.main_window = main_window
         self.setGeometry(0, 0, self.main_window.geometry.width(), self.main_window.geometry.height())
 
@@ -1384,6 +1412,36 @@ class ResultLesson(QWidget):
         layout_result.addWidget(widget_btn_result, 0, 0, 1, 2)
 
         self.document_result = QTextEdit(self)
+
+        document = QTextDocument()
+        competence = [(self.data["competence"]["creative_thinking"], "Креативное мышление"),
+                      (self.data["competence"]["critical_thinking"], "Критическое мышление"),
+                      (self.data["competence"]["literacy"], "Грамотность"),
+                      (self.data["competence"]["cooperation"], "Кооперация"),
+                      (self.data["competence"]["communication"], "Коммуникация"),
+                      (self.data["competence"]["metacognitive_skills"], "Метакогнитивные навыки")]
+        competence = [i[1] for i in competence if i[0]]
+
+        methods = []
+        for method in self.data["methods"]:
+            methods.append(
+                [SESSION.query(TypeMethod).filter(TypeMethod.id == method.data.id_type_method_card).first().name_method,
+                 method.data.name_method, method.data.text, method.data.time])
+
+        html_document = get_document_result(self.data["lesson_topic"], self.data["subject"],
+                                            self.data["class"], self.data["lesson_duration"],
+                                            competence, methods)
+        document.setHtml(html_document)
+        self.document_result.setDocument(document)
+
+        f = open('text.html', 'w')
+        f.write(html_document)
+        f.close()
+        from htmldocx import HtmlToDocx
+
+        new_parser = HtmlToDocx()
+        new_parser.parse_html_file("app_window/text.html")
+
         layout_result.addWidget(self.document_result, 0, 2, 3, 5)
 
         self.setLayout(layout_result)
@@ -1391,26 +1449,25 @@ class ResultLesson(QWidget):
     def back_constructor(self):
         self.back_constructor_event.emit(
             {
-                "lesson_topic": self.data_constructor["lesson_topic"],
-                "subject": self.data_constructor["subject"],
-                "lesson_type": self.data_constructor["lesson_type"],
-                "class": self.data_constructor["class"],
-                "class_characteristic": self.data_constructor["class_characteristic"],
-                "lesson_duration": self.data_constructor["lesson_duration"],
-                "acquaintance": self.data_constructor["acquaintance"],
+                "lesson_topic": self.data["lesson_topic"],
+                "subject": self.data["subject"],
+                "lesson_type": self.data["lesson_type"],
+                "class": self.data["class"],
+                "class_characteristic": self.data["class_characteristic"],
+                "lesson_duration": self.data["lesson_duration"],
+                "acquaintance": self.data["acquaintance"],
                 "competence": {
-                    "creative_thinking": self.data_constructor["competence"]["creative_thinking"],
-                    "literacy": self.data_constructor["competence"]["literacy"],
-                    "communication": self.data_constructor["competence"]["communication"],
-                    "cooperation": self.data_constructor["competence"]["cooperation"],
-                    "critical_thinking": self.data_constructor["competence"]["critical_thinking"],
-                    "metacognitive_skills": self.data_constructor["competence"]["metacognitive_skills"]
+                    "creative_thinking": self.data["competence"]["creative_thinking"],
+                    "literacy": self.data["competence"]["literacy"],
+                    "communication": self.data["competence"]["communication"],
+                    "cooperation": self.data["competence"]["cooperation"],
+                    "critical_thinking": self.data["competence"]["critical_thinking"],
+                    "metacognitive_skills": self.data["competence"]["metacognitive_skills"]
                 }
             })
 
 
 class MyMethodMenu(QWidget):
-    create_new_methods_event = pyqtSignal(dict)
     back_menu_event = pyqtSignal()
 
     def __init__(self, main_window):
@@ -1547,8 +1604,124 @@ class MyMethodMenu(QWidget):
         self.scroll_my_method_menu.show()
 
     def create_new_method(self):
-        self.create_new_methods_event.emit(
-            {
+        self.setDisabled(True)
+        self.new_method = NewMethod(self)
+        if self.new_method.exec_() == QDialog.Accepted:
+            SESSION.add(self.new_method.data)
+            SESSION.commit()
+            self.show_methods_stage()
+        self.setDisabled(False)
+
+    def back(self):
+        self.back_menu_event.emit()
+
+    def found(self):
+        pass
+
+
+class MyMethod(QWidget):
+    def __init__(self, main_window, data):
+        super(MyMethod, self).__init__(main_window.main_window)
+        self.main_window = main_window
+        self.data = data
+        self.initUI()
+
+    def initUI(self):
+        self.background = QLabel(self)
+        self.background.setStyleSheet(
+            '.QLabel {'
+            f'min-height: {100}px;'
+            f'min-width: {int(self.main_window.window().width() / 1.29)}px;'
+            'margin-bottom: 16px;'
+            'background-color: #FFA25F;'
+            'border-radius: 14px'
+            '}'
+        )
+        layout = QHBoxLayout(self)
+
+        self.label_lesson_topic = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:].lower(), self)
+        self.label_lesson_topic.setWordWrap(True)
+        self.label_lesson_topic.setStyleSheet(
+            ".QLabel {"
+            f"margin-left: {int(self.main_window.window().width() / 25.5)};"
+            f"font: bold {self.main_window.main_window.normal.normal_font(24)}px;"
+            "}"
+        )
+        layout.addWidget(self.label_lesson_topic)
+
+        self.btn_edit = QPushButton(self)
+        self.btn_edit.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_EDIT});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_EDIT_HOVER});'
+            '}'
+        )
+        self.btn_edit.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(175, 60))
+        self.btn_edit.setFixedWidth(self.main_window.main_window.normal.normal_proportion(175, 0)[0])
+        layout.addWidget(self.btn_edit)
+
+        self.btn_del = QPushButton(self)
+        self.btn_del.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_DEL});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_DEL_HOVER});'
+            '}'
+        )
+        self.btn_del.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(40, 40))
+        self.btn_del.setFixedWidth(self.main_window.main_window.normal.normal_proportion(40, 0)[0])
+        layout.addWidget(self.btn_del)
+
+        self.btn_del.clicked.connect(self.del_method)
+        self.btn_edit.clicked.connect(self.edit)
+
+    def del_method(self):
+        method = SESSION.query(Cards).filter(Cards.id == self.data.id).first()
+        SESSION.delete(method)
+        SESSION.commit()
+        self.main_window.show_methods_stage()
+
+    def edit(self):
+        self.main_window.setDisabled(True)
+        data = {
+            "name_method": self.data.name_method,
+            "time": int(self.data.time),
+            "id_classes_number": self.data.id_classes_number,
+            "id_type_method_card": self.data.id_type_method_card,
+            "id_stage_card": self.data.id_stage_card,
+            "id_fgos": self.data.id_fgos,
+            "competence": {
+                "communication": self.data.communication,
+                "literacy": self.data.literacy,
+                "cooperation": self.data.cooperation,
+                "creative_thinking": self.data.creative_thinking,
+                "critical_thinking": self.data.critical_thinking,
+                "metacognitive_skills": self.data.metacognitive_skills,
+
+            },
+            "text": self.data.text,
+        }
+        self.new_method = NewMethod(self.main_window, data)
+        if self.new_method.exec_() == QDialog.Accepted:
+            method = SESSION.query(Cards).filter(Cards.id == self.data.id).first()
+            SESSION.delete(method)
+            SESSION.add(self.new_method.data)
+            SESSION.commit()
+            self.main_window.show_methods_stage()
+        self.main_window.setDisabled(False)
+
+
+class NewMethod(QDialog):
+    def __init__(self, main_window, data=None):
+        QDialog.__init__(self)
+        self.main_window = main_window.main_window
+        if data is None:
+            data = {}
+        if not data:
+            data = {
                 "name_method": "",
                 "time": 0,
                 "id_classes_number": 1,
@@ -1565,116 +1738,9 @@ class MyMethodMenu(QWidget):
 
                 },
                 "text": "",
-
             }
-        )
-
-    def back(self):
-        self.back_menu_event.emit()
-
-    def found(self):
-        pass
-
-
-class MyMethod(QWidget):
-    def __init__(self, parent, data):
-        super(MyMethod, self).__init__(parent.main_window)
-        self.parent = parent
         self.data = data
-        self.initUI()
-
-    def initUI(self):
-        self.background = QLabel(self)
-        self.background.setStyleSheet(
-            '.QLabel {'
-            f'min-height: {100}px;'
-            f'min-width: {int(self.parent.window().width() / 1.29)}px;'
-            'margin-bottom: 16px;'
-            'background-color: #FFA25F;'
-            'border-radius: 14px'
-            '}'
-        )
-        layout = QHBoxLayout(self)
-
-        self.label_lesson_topic = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:].lower(), self)
-        self.label_lesson_topic.setWordWrap(True)
-        self.label_lesson_topic.setStyleSheet(
-            ".QLabel {"
-            f"margin-left: {int(self.parent.window().width() / 25.5)};"
-            f"font: bold {self.parent.main_window.normal.normal_font(24)}px;"
-            "}"
-        )
-        layout.addWidget(self.label_lesson_topic)
-
-        self.btn_edit = QPushButton(self)
-        self.btn_edit.setStyleSheet(
-            '.QPushButton {'
-            f'border-image: url({PATH_BUTTON_EDIT});'
-            '}'
-            '.QPushButton:hover {'
-            f'border-image: url({PATH_BUTTON_EDIT_HOVER});'
-            '}'
-        )
-        self.btn_edit.setMinimumSize(*self.parent.main_window.normal.normal_proportion(175, 60))
-        self.btn_edit.setFixedWidth(self.parent.main_window.normal.normal_proportion(175, 0)[0])
-        layout.addWidget(self.btn_edit)
-
-        self.btn_del = QPushButton(self)
-        self.btn_del.setStyleSheet(
-            '.QPushButton {'
-            f'border-image: url({PATH_BUTTON_DEL});'
-            '}'
-            '.QPushButton:hover {'
-            f'border-image: url({PATH_BUTTON_DEL_HOVER});'
-            '}'
-        )
-        self.btn_del.setMinimumSize(*self.parent.main_window.normal.normal_proportion(40, 40))
-        self.btn_del.setFixedWidth(self.parent.main_window.normal.normal_proportion(40, 0)[0])
-        layout.addWidget(self.btn_del)
-
-        self.btn_del.clicked.connect(self.del_method)
-        self.btn_edit.clicked.connect(self.edit)
-
-    def del_method(self):
-        method = SESSION.query(Cards).filter(Cards.id == self.data.id).first()
-        SESSION.delete(method)
-        SESSION.commit()
-        QMessageBox.information(self, "Ок", "Метод удален", QMessageBox.Ok)
-        self.parent.show_methods_stage()
-
-    def edit(self):
-        method = SESSION.query(Cards).filter(Cards.id == self.data.id).first()
-        SESSION.delete(method)
-        SESSION.commit()
-        self.parent.create_new_methods_event.emit(
-            {
-                "name_method": self.data.name_method,
-                "time": int(self.data.time),
-                "id_classes_number": self.data.id_classes_number,
-                "id_type_method_card": self.data.id_type_method_card,
-                "id_stage_card": self.data.id_stage_card,
-                "id_fgos": self.data.id_fgos,
-                "competence": {
-                    "communication": self.data.communication,
-                    "literacy": self.data.literacy,
-                    "cooperation": self.data.cooperation,
-                    "creative_thinking": self.data.creative_thinking,
-                    "critical_thinking": self.data.critical_thinking,
-                    "metacognitive_skills": self.data.metacognitive_skills,
-
-                },
-                "text": method.text,
-            }
-        )
-
-
-class NewMethod(QWidget):
-    back_menu_event = pyqtSignal()
-
-    def __init__(self, main_window, data):
-        super().__init__(main_window)
-        self.main_window = main_window
-        self.data = data
+        self.setParent(self.main_window)
         self.setGeometry(int(self.main_window.geometry.width() / 6), int(self.main_window.geometry.height() / 6),
                          int(self.main_window.geometry.width() / 1.5), int(self.main_window.geometry.height() / 1.5))
         self.initUI()
@@ -1944,11 +2010,11 @@ class NewMethod(QWidget):
         self.setLayout(layout_new_method)
 
     def back_menu(self):
-        self.back_menu_event.emit()
+        self.reject()
 
     def valid_options_new_method(self):
         if self.edit_method_topic.text() != "" and self.text_method.toPlainText() != "":
-            new_method = Cards(
+            self.data = Cards(
                 name_method=self.edit_method_topic.text(),
                 time=self.edit_method_duration.value(),
                 id_author=2,
@@ -1967,10 +2033,7 @@ class NewMethod(QWidget):
                 id_fgos=SESSION.query(Fgos).filter(Fgos.name_fgos == self.combo_fgos_method.currentText()).first().id,
                 text=self.text_method.toPlainText(),
             )
-            SESSION.add(new_method)
-            SESSION.commit()
-            QMessageBox.information(self, "Ок", "Метод Добавлен", QMessageBox.Ok)
-            self.back_menu()
+            self.accept()
         else:
             QMessageBox.critical(self, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
 
