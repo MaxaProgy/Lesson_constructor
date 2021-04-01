@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 from app_window.data import db_session
-from app_window.data.cards import Cards
+from app_window.data.methods import Methods
 from app_window.data.classes import Classes
 from app_window.data.fgos import Fgos
 from app_window.data.stage import Stage
@@ -12,7 +12,6 @@ from app_window.data.class_characteristic import ClassCharacteristic
 from app_window.data.lesson_type import LessonType
 from app_window.data.subject import Subject
 from app_window.data.author import Author
-
 
 PATH_SPLASH_SCREEN = os.path.join('data', 'image', 'background', 'заставка.png')
 PATH_MAIN_MENU = os.path.join('data', 'image', 'background', 'main_background_app.jpg')
@@ -63,27 +62,27 @@ if not os.path.isfile("db/lesson_constructor_db.sqlite"):
     db_session.global_init("db/lesson_constructor_db.sqlite")
     SESSION = db_session.create_session()
     data = pd.read_csv('db/Карточки.csv')
-    for card in zip(data['название'], data['время'], data['автор'], data['классы'], data['индивидуальная/ групповая'],
-                    data['этап урока'], data['креативное мышление'], data['критическое мышление'], data['коммуникация'],
-                    data['кооперация'], data['метакогнитивные навыки'], data['грамотность'], data['фгос'],
-                    data['текст']):
-        new_card = Cards(
-            name_method=card[0],
-            time=card[1],
-            id_author=card[2],
-            id_classes_number=card[3],
-            id_type_method_card=card[4],
-            id_stage_card=card[5],
-            creative_thinking=card[6],
-            critical_thinking=card[7],
-            communication=card[8],
-            cooperation=card[9],
-            metacognitive_skills=card[10],
-            literacy=card[11],
-            id_fgos=card[12],
-            text=card[13],
+    for method in zip(data['название'], data['время'], data['автор'], data['классы'], data['индивидуальная/ групповая'],
+                      data['этап урока'], data['креативное мышление'], data['критическое мышление'],
+                      data['коммуникация'], data['кооперация'], data['метакогнитивные навыки'],
+                      data['грамотность'], data['фгос'], data['текст']):
+        new_method = Methods(
+            name_method=method[0],
+            time=method[1],
+            id_author=method[2],
+            id_classes_number=method[3],
+            id_type_method=method[4],
+            id_stage_method=method[5],
+            creative_thinking=method[6],
+            critical_thinking=method[7],
+            communication=method[8],
+            cooperation=method[9],
+            metacognitive_skills=method[10],
+            literacy=method[11],
+            id_fgos=method[12],
+            text=method[13],
         )
-        SESSION.add(new_card)
+        SESSION.add(new_method)
         SESSION.commit()
 else:
     db_session.global_init("db/lesson_constructor_db.sqlite")

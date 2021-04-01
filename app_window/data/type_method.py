@@ -10,4 +10,4 @@ class TypeMethod(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name_method = sqlalchemy.Column(sqlalchemy.String)
 
-    cards = orm.relation("Cards", back_populates='type_method')
+    methods = orm.relation("Methods", back_populates='type_method')

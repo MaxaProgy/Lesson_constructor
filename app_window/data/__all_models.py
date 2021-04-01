@@ -1,4 +1,4 @@
-from .cards import Cards
+from .methods import Methods
 from .classes import Classes
 from .fgos import Fgos
 from .stage import Stage

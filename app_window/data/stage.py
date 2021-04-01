@@ -10,4 +10,4 @@ class Stage(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name_stage = sqlalchemy.Column(sqlalchemy.String)
 
-    cards = orm.relation("Cards", back_populates='stage')
+    methods = orm.relation("Methods", back_populates='stage')

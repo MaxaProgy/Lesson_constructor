@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWi
 from sqlalchemy import or_
 
 from app_window.const import *
-from app_window.data.cards import Cards
+from app_window.data.methods import Methods
 from app_window.data.save_lesson import SaveLesson
 from app_window.document_file import get_document_result
 
@@ -74,21 +74,14 @@ class MainWindow(QMainWindow):
     def run_menu(self):
         self.menu = Menu(self)
         self.menu.setAttribute(Qt.WA_DeleteOnClose)
-        self.menu.create_new_lesson_event.connect(self.close_menu_on_new_lesson)
         self.menu.create_my_methods_event.connect(self.close_menu_on_my_method)
+        self.menu.create_my_constructor_event.connect(self.close_menu_on_constructor)
         self.menu.show()
-
-    def run_new_lesson(self):
-        self.new_lesson = NewLesson(self)
-        self.new_lesson.setAttribute(Qt.WA_DeleteOnClose)
-        self.new_lesson.back_menu_event.connect(self.close_new_lesson_on_menu)
-        self.new_lesson.create_constructor_event.connect(self.close_new_lesson_on_constructor)
-        self.new_lesson.show()
 
     def run_constructor(self, data):
         self.constructor = Constructor(self, data)
         self.constructor.setAttribute(Qt.WA_DeleteOnClose)
-        self.constructor.back_new_lesson_event.connect(self.close_constructor_on_new_lesson)
+        self.constructor.back_menu_event.connect(self.close_constructor_on_menu)
         self.constructor.create_result_event.connect(self.close_constructor_on_result)
         self.constructor.show()
 
@@ -103,6 +96,11 @@ class MainWindow(QMainWindow):
         self.my_method_menu.setAttribute(Qt.WA_DeleteOnClose)
         self.my_method_menu.back_menu_event.connect(self.close_my_method_on_menu)
         self.my_method_menu.show()
+
+    def close_menu_on_constructor(self, data):
+        self.menu.close()
+        self.menu = None
+        self.run_constructor(data)
 
     def close_my_method_on_menu(self):
         self.my_method_menu.close()
@@ -129,30 +127,15 @@ class MainWindow(QMainWindow):
         self.constructor = None
         self.run_result(data)
 
-    def close_menu_on_new_lesson(self):
-        self.menu.close()
-        self.menu = None
-        self.run_new_lesson()
-
-    def close_constructor_on_new_lesson(self):
+    def close_constructor_on_menu(self):
         self.constructor.close()
         self.constructor = None
-        self.run_new_lesson()
-
-    def close_new_lesson_on_menu(self):
-        self.new_lesson.close()
-        self.new_lesson = None
         self.run_menu()
-
-    def close_new_lesson_on_constructor(self, data):
-        self.new_lesson.close()
-        self.new_lesson = None
-        self.run_constructor(data)
 
 
 class Menu(QWidget):
-    create_new_lesson_event = pyqtSignal()
     create_my_methods_event = pyqtSignal()
+    create_my_constructor_event = pyqtSignal(dict)
 
     def __init__(self, main_window):
         super().__init__(main_window)
@@ -242,19 +225,22 @@ class Menu(QWidget):
         self.setLayout(layout_menu)
 
     def create_new_lesson(self):
-        self.create_new_lesson_event.emit()
+        self.hide()
+        self.new_lesson = NewLesson(self.main_window)
+        if self.new_lesson.exec_() == QDialog.Accepted:
+            self.create_my_constructor_event.emit(self.new_lesson.data)
+        else:
+            self.show()
 
     def create_my_methods(self):
         self.create_my_methods_event.emit()
 
 
-class NewLesson(QWidget):
-    back_menu_event = pyqtSignal()
-    create_constructor_event = pyqtSignal(dict)
-
+class NewLesson(QDialog):
     def __init__(self, main_window):
-        super().__init__(main_window)
+        QDialog.__init__(self)
         self.main_window = main_window
+        self.setParent(self.main_window)
         self.setGeometry(self.main_window.geometry.width() // 4, self.main_window.geometry.height() // 4,
                          self.main_window.geometry.width() // 2, self.main_window.geometry.height() // 2)
         self.initUI()
@@ -520,7 +506,7 @@ class NewLesson(QWidget):
         self.setLayout(layout)
 
     def back_menu(self):
-        self.back_menu_event.emit()
+        self.reject()
 
     def valid_options_new_lesson(self):
         if self.edit_lesson_topic.text() != "" and \
@@ -532,30 +518,30 @@ class NewLesson(QWidget):
                  self.check_critical_thinking.isChecked() or
                  self.check_metacognitive_skills.isChecked()):
 
-            self.create_constructor_event.emit(
-                {
-                    "lesson_topic": self.edit_lesson_topic.text(),
-                    "subject": self.combo_subjects.currentText(),
-                    "lesson_type": self.combo_lesson_type.currentText(),
-                    "class": self.combo_class.currentText(),
-                    "class_characteristic": self.combo_class_characteristic.currentText(),
-                    "lesson_duration": self.edit_lesson_duration.value(),
-                    "acquaintance": self.radio_btn_yes.isChecked(),
-                    "competence": {
-                        "creative_thinking": self.check_creative_thinking.isChecked(),
-                        "literacy": self.check_literacy.isChecked(),
-                        "communication": self.check_communication.isChecked(),
-                        "cooperation": self.check_cooperation.isChecked(),
-                        "critical_thinking": self.check_critical_thinking.isChecked(),
-                        "metacognitive_skills": self.check_metacognitive_skills.isChecked()
-                    }
-                })
+            self.data = {
+                "lesson_topic": self.edit_lesson_topic.text(),
+                "subject": self.combo_subjects.currentText(),
+                "lesson_type": self.combo_lesson_type.currentText(),
+                "class": self.combo_class.currentText(),
+                "class_characteristic": self.combo_class_characteristic.currentText(),
+                "lesson_duration": self.edit_lesson_duration.value(),
+                "acquaintance": self.radio_btn_yes.isChecked(),
+                "competence": {
+                    "creative_thinking": self.check_creative_thinking.isChecked(),
+                    "literacy": self.check_literacy.isChecked(),
+                    "communication": self.check_communication.isChecked(),
+                    "cooperation": self.check_cooperation.isChecked(),
+                    "critical_thinking": self.check_critical_thinking.isChecked(),
+                    "metacognitive_skills": self.check_metacognitive_skills.isChecked()
+                }
+            }
+            self.accept()
         else:
             QMessageBox.critical(self, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
 
 
 class Constructor(QWidget):
-    back_new_lesson_event = pyqtSignal()
+    back_menu_event = pyqtSignal()
     create_result_event = pyqtSignal(dict)
 
     def __init__(self, main_window, data):
@@ -564,13 +550,13 @@ class Constructor(QWidget):
         self.main_window = main_window
         self.setGeometry(0, 0, self.main_window.geometry.width(), self.main_window.geometry.height())
 
-        self.filter_methods = SESSION.query(Cards).filter(
-            or_(Cards.creative_thinking == data['competence']['creative_thinking'],
-                Cards.critical_thinking == data['competence']['critical_thinking'],
-                Cards.communication == data['competence']['communication'],
-                Cards.cooperation == data['competence']['cooperation'],
-                Cards.metacognitive_skills == data['competence']['metacognitive_skills'],
-                Cards.literacy == data['competence']['literacy'])
+        self.filter_methods = SESSION.query(Methods).filter(
+            or_(Methods.creative_thinking == data['competence']['creative_thinking'],
+                Methods.critical_thinking == data['competence']['critical_thinking'],
+                Methods.communication == data['competence']['communication'],
+                Methods.cooperation == data['competence']['cooperation'],
+                Methods.metacognitive_skills == data['competence']['metacognitive_skills'],
+                Methods.literacy == data['competence']['literacy'])
         )
         self.flag_stage = 0  # id Командообразования
         self.object_methods = []
@@ -988,9 +974,9 @@ class Constructor(QWidget):
     def open_select_lesson(self):
         self.open.close()
         self.my_methods = []
-        for id_card in SESSION.query(SaveLesson).filter(SaveLesson.name ==
-                                                        self.list_view.currentItem().text()).first().ids.split(";"):
-            self.my_methods.append(Method(self, SESSION.query(Cards).filter(Cards.id == id_card).first()))
+        for id_method in SESSION.query(SaveLesson).filter(SaveLesson.name ==
+                                                          self.list_view.currentItem().text()).first().ids.split(";"):
+            self.my_methods.append(Method(self, SESSION.query(Methods).filter(Methods.id == id_method).first()))
             self.my_methods[-1].btn_add.hide()
             self.my_methods[-1].btn_del.show()
             self.my_methods[-1].background.setStyleSheet(
@@ -1024,7 +1010,7 @@ class Constructor(QWidget):
             SESSION.commit()
 
     def back_new_lesson(self):
-        self.back_new_lesson_event.emit()
+        self.back_menu_event.emit()
 
     def volid_data(self):
         if int(self.time_lesson.text().split()[2]) == 0:
@@ -1052,7 +1038,7 @@ class Constructor(QWidget):
 
     def show_methods_stage(self):
         # Забираем все методы в соответствии с выбранным нами этапом урока
-        filter_stage_methods = self.filter_methods.filter(Cards.id_stage_card.like(self.flag_stage)).all()
+        filter_stage_methods = self.filter_methods.filter(Methods.id_stage_method.like(self.flag_stage)).all()
 
         # Удаление всех элементов из прошлого списка обектов методов
         for i in reversed(range(len(self.object_methods))):
@@ -1163,11 +1149,11 @@ class Method(QWidget):
         layout.addWidget(self.btn_del)
         self.btn_del.hide()
 
-        self.btn_add.clicked.connect(self.add_card)
-        self.btn_del.clicked.connect(self.del_card)
+        self.btn_add.clicked.connect(self.add_method)
+        self.btn_del.clicked.connect(self.del_method)
         self.btn_more_details.clicked.connect(self.details)
 
-    def add_card(self):
+    def add_method(self):
         time_my_methods = [int(method.data.time) for method in self.main_window.my_methods]
         if sum(time_my_methods) + int(self.data.time) <= self.main_window.data_lesson['lesson_duration'] + 20:
             self.main_window.my_methods.append(self)
@@ -1189,7 +1175,7 @@ class Method(QWidget):
             QMessageBox.critical(self.main_window, "Ошибка", "Превышен лимит времени", QMessageBox.Ok)
             return
 
-    def del_card(self):
+    def del_method(self):
         del self.main_window.my_methods[self.main_window.my_methods.index(self)]
         self.show_my_methods()
         self.main_window.show_methods_stage()
@@ -1231,8 +1217,8 @@ class Method(QWidget):
             "Время урока: " + str(self.main_window.data_lesson['lesson_duration'] - sum_1) + " минут")
 
     def details(self):
-        self.card_info = MethodMoreDetails(self.data, self.main_window)
-        self.card_info.show()
+        self.method_info = MethodMoreDetails(self.data, self.main_window)
+        self.method_info.show()
 
 
 class MethodMoreDetails(QDialog):
@@ -1284,15 +1270,15 @@ class MethodMoreDetails(QDialog):
                 if word[-1] == ")" and word[-2].isdigit():
                     text += "\n"
                 text += word + " "
-        self.text_card = QLabel(text, self)
-        self.text_card.setStyleSheet(
+        self.text_method = QLabel(text, self)
+        self.text_method.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.main_window.normal.normal_font(18)}px;"
             "margin-bottom: 10%"
             "}"
         )
-        self.text_card.setWordWrap(True)
-        layout.addWidget(self.text_card, 2, 0)
+        self.text_method.setWordWrap(True)
+        layout.addWidget(self.text_method, 2, 0)
 
         list_compet = [(self.data.creative_thinking, "- Креативное мышление"),
                        (self.data.critical_thinking, "- Критическое мышление"),
@@ -1327,11 +1313,11 @@ class ResultLesson(QWidget):
 
     def initUI(self):
         layout_result = QGridLayout(self)
-        layout_result.setContentsMargins(int(self.window().width() / 25.5), int(self.window().width() / 25.5),
-                                         int(self.window().width() / 25.5), int(self.window().width() / 25.5))
+        layout_result.setContentsMargins(int(self.window().width() / 10.5), int(self.window().width() / 25.5),
+                                         int(self.window().width() / 15.5), int(self.window().width() / 25.5))
 
         layout_v_btn_result = QGridLayout(self)
-        layout_v_btn_result.setContentsMargins(0, 0, int(self.window().width() / 25.5), 10)
+        layout_v_btn_result.setContentsMargins(0, 0, int(self.window().width() / 15.5), 10)
 
         self.btn_back_result = QPushButton()
         self.btn_back_result.setStyleSheet(
@@ -1425,7 +1411,8 @@ class ResultLesson(QWidget):
         methods = []
         for method in self.data["methods"]:
             methods.append(
-                [SESSION.query(TypeMethod).filter(TypeMethod.id == method.data.id_type_method_card).first().name_method,
+                [SESSION.query(TypeMethod).filter(
+                    TypeMethod.id == method.data.id_type_method).first().name_method,
                  method.data.name_method, method.data.text, method.data.time])
 
         html_document = get_document_result(self.data["lesson_topic"], self.data["subject"],
@@ -1433,14 +1420,6 @@ class ResultLesson(QWidget):
                                             competence, methods)
         document.setHtml(html_document)
         self.document_result.setDocument(document)
-
-        f = open('text.html', 'w')
-        f.write(html_document)
-        f.close()
-        from htmldocx import HtmlToDocx
-
-        new_parser = HtmlToDocx()
-        new_parser.parse_html_file("app_window/text.html")
 
         layout_result.addWidget(self.document_result, 0, 2, 3, 5)
 
@@ -1585,7 +1564,7 @@ class MyMethodMenu(QWidget):
 
     def show_methods_stage(self):
         object_methods = []
-        filter_my_method_menu = SESSION.query(Cards).filter(Cards.id_author.like(2)).all()
+        filter_my_method_menu = SESSION.query(Methods).filter(Methods.id_author.like(2)).all()
 
         layout = QVBoxLayout()
         for i in range(len(filter_my_method_menu)):
@@ -1679,7 +1658,7 @@ class MyMethod(QWidget):
         self.btn_edit.clicked.connect(self.edit)
 
     def del_method(self):
-        method = SESSION.query(Cards).filter(Cards.id == self.data.id).first()
+        method = SESSION.query(Methods).filter(Methods.id == self.data.id).first()
         SESSION.delete(method)
         SESSION.commit()
         self.main_window.show_methods_stage()
@@ -1690,8 +1669,8 @@ class MyMethod(QWidget):
             "name_method": self.data.name_method,
             "time": int(self.data.time),
             "id_classes_number": self.data.id_classes_number,
-            "id_type_method_card": self.data.id_type_method_card,
-            "id_stage_card": self.data.id_stage_card,
+            "id_type_method": self.data.id_type_method,
+            "id_stage_method": self.data.id_stage_method,
             "id_fgos": self.data.id_fgos,
             "competence": {
                 "communication": self.data.communication,
@@ -1706,7 +1685,7 @@ class MyMethod(QWidget):
         }
         self.new_method = NewMethod(self.main_window, data)
         if self.new_method.exec_() == QDialog.Accepted:
-            method = SESSION.query(Cards).filter(Cards.id == self.data.id).first()
+            method = SESSION.query(Methods).filter(Methods.id == self.data.id).first()
             SESSION.delete(method)
             SESSION.add(self.new_method.data)
             SESSION.commit()
@@ -1725,8 +1704,8 @@ class NewMethod(QDialog):
                 "name_method": "",
                 "time": 0,
                 "id_classes_number": 1,
-                "id_type_method_card": 1,
-                "id_stage_card": 1,
+                "id_type_method": 1,
+                "id_stage_method": 1,
                 "id_fgos": 1,
                 "competence": {
                     "communication": False,
@@ -1851,7 +1830,7 @@ class NewMethod(QDialog):
         )
         # -----------------------------------------
         self.combo_method_type = QComboBox()
-        self.combo_method_type.setCurrentIndex(self.data["id_type_method_card"])
+        self.combo_method_type.setCurrentIndex(self.data["id_type_method"])
         self.combo_method_type.addItems([item.name_method for item in SESSION.query(TypeMethod).all()])
         self.combo_method_type.setStyleSheet(
             ".QComboBox {"
@@ -1861,7 +1840,7 @@ class NewMethod(QDialog):
         )
         # -----------------------------------------
         self.combo_stage_method = QComboBox()
-        self.combo_stage_method.setCurrentIndex(self.data["id_stage_card"])
+        self.combo_stage_method.setCurrentIndex(self.data["id_stage_method"])
         self.combo_stage_method.addItems([item.name_stage for item in SESSION.query(Stage).all()])
         self.combo_stage_method.setStyleSheet(
             ".QComboBox {"
@@ -2014,15 +1993,15 @@ class NewMethod(QDialog):
 
     def valid_options_new_method(self):
         if self.edit_method_topic.text() != "" and self.text_method.toPlainText() != "":
-            self.data = Cards(
+            self.data = Methods(
                 name_method=self.edit_method_topic.text(),
                 time=self.edit_method_duration.value(),
                 id_author=2,
                 id_classes_number=SESSION.query(Classes).filter(
                     Classes.name_class == self.combo_class_method.currentText()).first().id,
-                id_type_method_card=SESSION.query(TypeMethod).filter(
+                id_type_method=SESSION.query(TypeMethod).filter(
                     TypeMethod.name_method == self.combo_method_type.currentText()).first().id,
-                id_stage_card=SESSION.query(Stage).filter(
+                id_stage_method=SESSION.query(Stage).filter(
                     Stage.name_stage == self.combo_stage_method.currentText()).first().id,
                 creative_thinking=self.check_creative_thinking.isChecked(),
                 critical_thinking=self.check_critical_thinking.isChecked(),

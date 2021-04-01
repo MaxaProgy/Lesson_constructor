@@ -4,8 +4,8 @@ from sqlalchemy_serializer import SerializerMixin
 from .db_session import SqlAlchemyBase
 
 
-class Cards(SqlAlchemyBase, SerializerMixin):
-    __tablename__ = 'cards'
+class Methods(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'methods'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
 
@@ -14,8 +14,8 @@ class Cards(SqlAlchemyBase, SerializerMixin):
 
     id_author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("author.id"))
     id_classes_number = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("classes.id"))
-    id_type_method_card = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("type_method.id"))
-    id_stage_card = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("stage.id"))
+    id_type_method = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("type_method.id"))
+    id_stage_method = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("stage.id"))
     creative_thinking = sqlalchemy.Column(sqlalchemy.Boolean)
     critical_thinking = sqlalchemy.Column(sqlalchemy.Boolean)
     communication = sqlalchemy.Column(sqlalchemy.Boolean)

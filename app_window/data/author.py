@@ -10,4 +10,4 @@ class Author(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name_author = sqlalchemy.Column(sqlalchemy.String)
 
-    cards = orm.relation("Cards", back_populates='author')
+    methods = orm.relation("Methods", back_populates='author')

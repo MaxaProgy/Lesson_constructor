@@ -1,6 +1,4 @@
 html_document = ['<!DOCTYPE html><html><head><title>be1.ru</title></head><body>'
-                 '<p style="text-align:center">&nbsp;</p>'
-                 '<p style="text-align:center">&nbsp;</p>'
                  '<p style="text-align:center">&nbsp;</p><p style="text-align:center">',
 
                  '<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif">'
