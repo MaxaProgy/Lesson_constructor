@@ -7,3 +7,4 @@ from .class_characteristic import ClassCharacteristic
 from .subject import Subject
 from .lesson_type import LessonType
 from .save_lesson import SaveLesson
+from .user import User

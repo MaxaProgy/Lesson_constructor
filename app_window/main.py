@@ -323,7 +323,7 @@ class Menu(QWidget):
             self.btn_my_methods.show()
 
             global id_current_user
-            id_current_user = self.login.id_author
+            id_current_user = self.login.id_user
         self.show()
 
     def exit_user(self):
@@ -412,7 +412,8 @@ class Login(QDialog):
                                                                       '}'
         )
         self.btn_registration.resize(*self.main_window.normal.normal_proportion(50, 50))
-        self.btn_registration.move(self.geometry().width() - self.main_window.normal.normal_proportion(200, 0)[0] - 50, 20)
+        self.btn_registration.move(self.geometry().width() - self.main_window.normal.normal_proportion(200, 0)[0] - 50,
+                                   20)
         self.btn_registration.clicked.connect(self.registration_user)
 
         # -----------------------------------------
@@ -469,10 +470,10 @@ class Login(QDialog):
 
     def valid_options(self):
         if self.edit_login.text() != "" and self.edit_password.text() != "":
-            author = SESSION.query(Author).filter(Author.login == self.edit_login.text()).first()
-            if author:
-                if author.check_password(self.edit_password.text()):
-                    self.id_author = author.id
+            user = SESSION.query(User).filter(User.login == self.edit_login.text()).first()
+            if not user is None:
+                if user.check_password(self.edit_password.text()):
+                    self.id_user = user.id
                     self.accept()
                 else:
                     QMessageBox.critical(self, "Ошибка", "Неверный пароль", QMessageBox.Ok)
@@ -485,8 +486,10 @@ class Login(QDialog):
         self.hide()
         self.registration = Registration(self.main_window)
         if self.registration.exec_() == QDialog.Accepted:
-            pass
-        self.back_menu()
+            self.id_user = self.registration.id_user
+            self.accept()
+        else:
+            self.back_menu()
 
 
 class Registration(QDialog):
@@ -513,8 +516,8 @@ class Registration(QDialog):
         )
         self.background_form.resize(self.geometry().width(), self.geometry().height())
 
-        self.text_fio = QLabel("ФИО")
-        self.text_fio.setStyleSheet(
+        self.text_name = QLabel("ФИО")
+        self.text_name.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "min-width: 12em;"
@@ -548,9 +551,9 @@ class Registration(QDialog):
         # -----------------------------------------
         # Поля ввода значений
         # -----------------------------------------
-        self.edit_fio = QLineEdit()
-        self.edit_fio.setFixedHeight(int(self.window().width() / 35.5))
-        self.edit_fio.setStyleSheet(
+        self.edit_name = QLineEdit()
+        self.edit_name.setFixedHeight(int(self.window().width() / 35.5))
+        self.edit_name.setStyleSheet(
             ".QLineEdit {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "}"
@@ -612,8 +615,8 @@ class Registration(QDialog):
         layout_new_method = QGridLayout()
         layout_new_method.setContentsMargins(int(self.window().width() / 25.5), int(self.window().width() / 20.5),
                                              int(self.window().width() / 25.5), int(self.window().width() / 50.5))
-        layout_new_method.addWidget(self.text_fio, 0, 0)
-        layout_new_method.addWidget(self.edit_fio, 0, 1)
+        layout_new_method.addWidget(self.text_name, 0, 0)
+        layout_new_method.addWidget(self.edit_name, 0, 1)
 
         layout_new_method.addWidget(self.text_login, 1, 0)
         layout_new_method.addWidget(self.edit_login, 1, 1)
@@ -630,13 +633,29 @@ class Registration(QDialog):
         self.reject()
 
     def valid_options(self):
-        if self.edit_login.text() != "" and self.edit_fio.text() != "" \
+        if self.edit_login.text() != "" and self.edit_name.text() != "" \
                 and self.edit_repeat_password.text() != "" \
                 and self.edit_password.text() != "":
-            if self.edit_password.text() == self.edit_repeat_password.text():
-                self.accept()
+
+            if not SESSION.query(User).filter(User.login == self.edit_login.text()).first():
+                if self.edit_password.text() == self.edit_repeat_password.text():
+                    if len(self.edit_password.text()) >= 6:
+                        user = User(
+                            name_user=' '.join(
+                                [name[0].upper() + name[1:].lower() for name in self.edit_name.text().split()]),
+                            login=self.edit_login.text(),
+                        )
+                        user.set_password(self.edit_password.text())
+                        SESSION.add(user)
+                        SESSION.commit()
+                        self.id_user = user.id
+                        self.accept()
+                    else:
+                        QMessageBox.critical(self, "Ошибка", "Пароль слишком короткий", QMessageBox.Ok)
+                else:
+                    QMessageBox.critical(self, "Ошибка", "Пароли не совпадают", QMessageBox.Ok)
             else:
-                QMessageBox.critical(self, "Ошибка", "Пароли не совпадают", QMessageBox.Ok)
+                QMessageBox.critical(self, "Ошибка", "Учитель с таким логином уже существует", QMessageBox.Ok)
         else:
             QMessageBox.critical(self, "Ошибка", "Вы заполнили не все поля", QMessageBox.Ok)
 
@@ -1348,21 +1367,21 @@ class Constructor(QWidget):
         if not id_current_user is None:
             if int(self.time_lesson.text().split()[2]) == 0:
                 if self.data_lesson["lesson_topic"] in [item.name for item in SESSION.query(SaveLesson).filter(
-                        SaveLesson.id_author == id_current_user).all()]:
+                        SaveLesson.id_user == id_current_user).all()]:
                     reply = QMessageBox.question(self, "Предупреждение",
                                                  "Урок с таким названием уже сущестует. Вы хотите перезаписать?",
                                                  QMessageBox.Yes | QMessageBox.No)
                     if reply == QMessageBox.Yes:
                         lesson = SESSION.query(SaveLesson).filter(
                             SaveLesson.name == self.data_lesson["lesson_topic"],
-                            SaveLesson.id_author == id_current_user).first()
+                            SaveLesson.id_user == id_current_user).first()
                         SESSION.delete(lesson)
                         SESSION.commit()
 
                 save_lesson = SaveLesson(
                     name=self.data_lesson["lesson_topic"],
                     ids=';'.join([str(method.data.id) for method in self.my_methods]),
-                    id_author=id_current_user,
+                    id_user=id_current_user,
                 )
                 SESSION.add(save_lesson)
                 SESSION.commit()
@@ -1380,7 +1399,7 @@ class Constructor(QWidget):
             self.list_view = QListWidget(self.open)
             self.list_view.resize(*self.main_window.normal.normal_proportion(300, 150))
             self.list_view.addItems([item.name for item in SESSION.query(SaveLesson).filter(
-                SaveLesson.id_author == id_current_user).all()])
+                SaveLesson.id_user == id_current_user).all()])
             self.list_view.doubleClicked.connect(self.open_select_lesson)
             self.open.exec()
         else:
@@ -1394,7 +1413,7 @@ class Constructor(QWidget):
             self.my_methods = []
             for id_method in SESSION.query(SaveLesson).filter(
                     SaveLesson.name == self.list_view.currentItem().text(),
-                    SaveLesson.id_author == id_current_user).first().ids.split(";"):
+                    SaveLesson.id_user == id_current_user).first().ids.split(";"):
                 self.my_methods.append(Method(self, SESSION.query(Methods).filter(Methods.id == id_method).first()))
                 self.my_methods[-1].btn_add.hide()
                 self.my_methods[-1].btn_del.show()
@@ -1418,7 +1437,7 @@ class Constructor(QWidget):
             self.list_view = QListWidget(self.delete)
             self.list_view.resize(*self.main_window.normal.normal_proportion(300, 150))
             self.list_view.addItems([item.name for item in SESSION.query(SaveLesson).filter(
-                SaveLesson.id_author == id_current_user).all()])
+                SaveLesson.id_user == id_current_user).all()])
             self.list_view.doubleClicked.connect(self.del_select_lesson)
             self.delete.exec()
         else:
@@ -1430,7 +1449,7 @@ class Constructor(QWidget):
         if reply == QMessageBox.Yes:
             lesson = SESSION.query(SaveLesson).filter(
                 SaveLesson.name == self.list_view.currentItem().text(),
-                SaveLesson.id_author == id_current_user).first()
+                SaveLesson.id_user == id_current_user).first()
             SESSION.delete(lesson)
             SESSION.commit()
 
@@ -1871,12 +1890,12 @@ class ResultLesson(QWidget):
     def save_lesson(self):
         file, _ = QFileDialog.getSaveFileName(self, "Сохранение файла", './', "Text files (*.docx *doc)")
         if file != "":
-            """documents_lesson = SESSION.query(Author).filter(Author.id == 2).first().documents_lesson
-            author = Author(
+            """documents_lesson = SESSION.query(user).filter(user.id == 2).first().documents_lesson
+            user = user(
                 id=2,
                 documents_lesson=,
             )
-            SESSION.add(author)
+            SESSION.add(user)
             SESSION.commit()"""
             self.document.save(f'{file.split("/")[-1]}')
 
@@ -1999,7 +2018,7 @@ class MyMethodMenu(QWidget):
 
     def show_methods_stage(self):
         object_methods = []
-        filter_my_method_menu = SESSION.query(Methods).filter(Methods.id_author.like(id_current_user)).all()
+        filter_my_method_menu = SESSION.query(Methods).filter(Methods.id_user.like(id_current_user)).all()
 
         layout = QVBoxLayout()
         for i in range(len(filter_my_method_menu)):
@@ -2431,7 +2450,7 @@ class NewMethod(QDialog):
             self.data = Methods(
                 name_method=self.edit_method_topic.text(),
                 time=self.edit_method_duration.value(),
-                id_author=id_current_user,
+                id_user=id_current_user,
                 id_classes_number=SESSION.query(Classes).filter(
                     Classes.name_class == self.combo_class_method.currentText()).first().id,
                 id_type_method=SESSION.query(TypeMethod).filter(

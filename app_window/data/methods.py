@@ -12,7 +12,7 @@ class Methods(SqlAlchemyBase, SerializerMixin):
     name_method = sqlalchemy.Column(sqlalchemy.String)
     time = sqlalchemy.Column(sqlalchemy.String)
 
-    id_author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("author.id"))
+    id_user = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"))
     id_classes_number = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("classes.id"))
     id_type_method = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("type_method.id"))
     id_stage_method = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("stage.id"))
@@ -26,7 +26,7 @@ class Methods(SqlAlchemyBase, SerializerMixin):
     id_fgos = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("fgos.id"))
     text = sqlalchemy.Column(sqlalchemy.Text)
 
-    author = orm.relation('Author')
+    user = orm.relation('User')
     classes = orm.relation('Classes')
     type_method = orm.relation('TypeMethod')
     stage = orm.relation('Stage')

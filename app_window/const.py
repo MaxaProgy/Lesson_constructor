@@ -11,7 +11,7 @@ from app_window.data.type_method import TypeMethod
 from app_window.data.class_characteristic import ClassCharacteristic
 from app_window.data.lesson_type import LessonType
 from app_window.data.subject import Subject
-from app_window.data.author import Author
+from app_window.data.user import User
 
 PATH_SPLASH_SCREEN = os.path.join('data', 'image', 'background', 'заставка.png')
 PATH_MAIN_MENU = os.path.join('data', 'image', 'background', 'main_background_app.jpg')
@@ -69,7 +69,7 @@ if not os.path.isfile("db/lesson_constructor_db.sqlite"):
         new_method = Methods(
             name_method=method[0],
             time=method[1],
-            id_author=method[2],
+            id_user=method[2],
             id_classes_number=method[3],
             id_type_method=method[4],
             id_stage_method=method[5],
@@ -88,16 +88,16 @@ else:
     db_session.global_init("db/lesson_constructor_db.sqlite")
     SESSION = db_session.create_session()
 
-if not [item.name_author for item in SESSION.query(Author).all()]:
-    author_value = Author(
-        name_author="Lesson Constructor",
+if not [item.name_user for item in SESSION.query(User).all()]:
+    user_value = User(
+        name_user="Lesson Constructor",
     )
-    SESSION.add(author_value)
+    SESSION.add(user_value)
     SESSION.commit()
-    author_value = Author(
-        name_author="я",
+    user_value = User(
+        name_user="я",
     )
-    SESSION.add(author_value)
+    SESSION.add(user_value)
     SESSION.commit()
 
 if not [item.name_method for item in SESSION.query(TypeMethod).all()]:
