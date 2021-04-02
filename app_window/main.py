@@ -6,16 +6,18 @@ import random
 
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap, QTextDocument
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
     QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox, QVBoxLayout, \
-    QScrollArea, QFrame, QHBoxLayout, QDialog, QListWidget, QTextEdit, QSpinBox
+    QScrollArea, QFrame, QHBoxLayout, QDialog, QListWidget, QTextEdit, QSpinBox, QFileDialog
 from sqlalchemy import or_
 
 from app_window.const import *
 from app_window.data.methods import Methods
 from app_window.data.save_lesson import SaveLesson
-from app_window.document_file import get_document_result
+from app_window.document_file import get_document_result_word
+
+id_current_user = None
 
 
 class Normalize:
@@ -157,8 +159,52 @@ class Menu(QWidget):
                                        int(self.window().width() / 6.5), int(self.window().width() / 13.5))
 
         layout_btn_menu = QGridLayout()
-        layout_btn_menu.setContentsMargins(int(self.window().width() / 20.5), int(self.window().width() / 14.5),
-                                           int(self.window().width() / 6.5), int(self.window().width() / 3.5))
+        layout_btn_menu.setContentsMargins(int(self.window().width() / 20.5), int(self.window().width() / 18.5),
+                                           int(self.window().width() / 6.5), int(self.window().width() / 6.5))
+
+        self.btn_profile_login = QPushButton("Войти", self)
+        self.btn_profile_login.setStyleSheet(
+            '.QPushButton {'
+            f'min-height: {self.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.normal.normal_xy(200, 0)[0]}px;'
+            'background-color: #FFA25F;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'font: bold ' + self.normal.normal_font(17) + 'px;'
+                                                          'min-width: 10em;'
+                                                          'padding: 6px;'
+                                                          '}'
+                                                          '.QPushButton:hover {'
+                                                          'background-color: #548490;'
+                                                          'border-style: inset;'
+                                                          '}'
+        )
+        layout_btn_menu.addWidget(self.btn_profile_login, 0, 0)
+        self.btn_profile_login.clicked.connect(self.login_user)
+
+        self.btn_profile_exit = QPushButton("Выйти", self)
+        self.btn_profile_exit.setStyleSheet(
+            '.QPushButton {'
+            f'min-height: {self.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.normal.normal_xy(200, 0)[0]}px;'
+            'background-color: #FFA25F;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'font: bold ' + self.normal.normal_font(17) + 'px;'
+                                                          'min-width: 10em;'
+                                                          'padding: 6px;'
+                                                          '}'
+                                                          '.QPushButton:hover {'
+                                                          'background-color: #548490;'
+                                                          'border-style: inset;'
+                                                          '}'
+        )
+        layout_btn_menu.addWidget(self.btn_profile_exit, 0, 0)
+        self.btn_profile_exit.clicked.connect(self.exit_user)
 
         self.btn_new_lesson = QPushButton("Новый урок", self)
         # 548490 - темный голубой  76b7c7 - светлый голубой
@@ -180,7 +226,7 @@ class Menu(QWidget):
                                                           'border-style: inset;'
                                                           '}'
         )
-        layout_btn_menu.addWidget(self.btn_new_lesson, 0, 0)
+        layout_btn_menu.addWidget(self.btn_new_lesson, 1, 0)
         self.btn_new_lesson.clicked.connect(self.create_new_lesson)
 
         self.btn_my_methods = QPushButton("Мои методики", self)
@@ -202,8 +248,36 @@ class Menu(QWidget):
                                                           'border-style: inset;'
                                                           '}'
         )
-        layout_btn_menu.addWidget(self.btn_my_methods, 1, 0)
+        layout_btn_menu.addWidget(self.btn_my_methods, 2, 0)
         self.btn_my_methods.clicked.connect(self.create_my_methods)
+
+        self.btn_my_lessons = QPushButton("Мои уроки", self)
+        self.btn_my_lessons.setStyleSheet(
+            '.QPushButton {'
+            f'min-height: {self.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.normal.normal_xy(200, 0)[0]}px;'
+            'background-color: #76b7c7;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'font: bold ' + self.normal.normal_font(17) + 'px;'
+                                                          'min-width: 10em;'
+                                                          'padding: 6px;'
+                                                          '}'
+                                                          '.QPushButton:hover {'
+                                                          'background-color: #548490;'
+                                                          'border-style: inset;'
+                                                          '}'
+        )
+        layout_btn_menu.addWidget(self.btn_my_lessons, 3, 0)
+        self.btn_my_lessons.clicked.connect(self.create_my_lessons)
+
+        if id_current_user is None:
+            self.btn_my_lessons.hide()
+            self.btn_my_methods.hide()
+            self.btn_profile_exit.hide()
+            self.btn_profile_login.show()
 
         widget_btn = QWidget()
         widget_btn.setStyleSheet(
@@ -234,6 +308,337 @@ class Menu(QWidget):
 
     def create_my_methods(self):
         self.create_my_methods_event.emit()
+
+    def create_my_lessons(self):
+        pass
+
+    def login_user(self):
+        self.hide()
+        self.login = Login(self.main_window)
+        if self.login.exec_() == QDialog.Accepted:
+            self.btn_profile_login.hide()
+            self.btn_profile_exit.show()
+
+            self.btn_my_lessons.show()
+            self.btn_my_methods.show()
+
+            global id_current_user
+            id_current_user = self.login.id_author
+        self.show()
+
+    def exit_user(self):
+        global id_current_user
+        id_current_user = None
+        self.btn_my_lessons.hide()
+        self.btn_my_methods.hide()
+        self.btn_profile_exit.hide()
+        self.btn_profile_login.show()
+
+
+class Login(QDialog):
+    def __init__(self, main_window):
+        QDialog.__init__(self)
+        self.main_window = main_window
+        self.setParent(self.main_window)
+        self.setGeometry(self.main_window.geometry.width() // 3.5, self.main_window.geometry.height() // 3.5,
+                         self.main_window.geometry.width() // 2.5, self.main_window.geometry.height() // 2.5)
+        self.initUI()
+
+    def initUI(self):
+        self.background_form = QLabel(self)
+        self.background_form.setStyleSheet(
+            '.QLabel {'
+            'background-color: #76b7c7;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'min-width: 10em;'
+            'padding: 6px;'
+            '}'
+        )
+        self.background_form.resize(self.geometry().width(), self.geometry().height())
+
+        self.text_login = QLabel("Логин")
+        self.text_login.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_password = QLabel("Пароль")
+        self.text_password.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+
+        # Поля ввода значений
+        # -----------------------------------------
+        self.edit_login = QLineEdit()
+        self.edit_login.setFixedHeight(int(self.window().width() / 35.5))
+        self.edit_login.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+
+        self.edit_password = QLineEdit()
+        self.edit_password.setFixedHeight(int(self.window().width() / 35.5))
+        self.edit_password.setEchoMode(QLineEdit.Password)
+        self.edit_password.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+
+        self.btn_registration = QPushButton("Регистрация", self)
+        self.btn_registration.setStyleSheet(
+            '.QPushButton {'
+            'background-color: #FFA25F;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'font: bold ' + self.main_window.normal.normal_font(17) + 'px;'
+                                                                      'min-width: 10em;'
+                                                                      'padding: 6px;'
+                                                                      '}'
+                                                                      '.QPushButton:hover {'
+                                                                      'background-color: #548490;'
+                                                                      'border-style: inset;'
+                                                                      '}'
+        )
+        self.btn_registration.resize(*self.main_window.normal.normal_proportion(50, 50))
+        self.btn_registration.move(self.geometry().width() - self.main_window.normal.normal_proportion(200, 0)[0] - 50, 20)
+        self.btn_registration.clicked.connect(self.registration_user)
+
+        # -----------------------------------------
+        self.btn_back_valid = QPushButton(self)
+        self.btn_back_valid.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_BACK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
+            '}'
+        )
+        self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back_valid.move(15, 5)
+        self.btn_back_valid.clicked.connect(self.back_menu)
+        # -----------------------------------------
+        self.btn_ok_valid = QPushButton("Войти")
+        self.btn_ok_valid.setStyleSheet(
+            '.QPushButton {'
+            f'min-height: {self.main_window.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.main_window.normal.normal_xy(200, 0)[0]}px;'
+            'background-color: #30B713;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'font: bold ' + self.main_window.normal.normal_font(17) + 'px;'
+                                                                      'min-width: 10em;'
+                                                                      'padding: 6px;'
+                                                                      '}'
+                                                                      '.QPushButton:hover {'
+                                                                      'background-color: #26960B;'
+                                                                      'border-style: inset;'
+                                                                      '}'
+        )
+        self.btn_ok_valid.clicked.connect(self.valid_options)
+        # -----------------------------------------
+
+        layout_new_method = QGridLayout()
+        layout_new_method.setContentsMargins(int(self.window().width() / 25.5), int(self.window().width() / 25.5),
+                                             int(self.window().width() / 25.5), int(self.window().width() / 15.5))
+        layout_new_method.addWidget(self.text_login, 0, 0)
+        layout_new_method.addWidget(self.edit_login, 0, 1)
+
+        layout_new_method.addWidget(self.text_password, 1, 0)
+        layout_new_method.addWidget(self.edit_password, 1, 1)
+
+        layout_new_method.addWidget(self.btn_ok_valid, 2, 0, 0, 2)
+
+        self.setLayout(layout_new_method)
+
+    def back_menu(self):
+        self.reject()
+
+    def valid_options(self):
+        if self.edit_login.text() != "" and self.edit_password.text() != "":
+            author = SESSION.query(Author).filter(Author.login == self.edit_login.text()).first()
+            if author:
+                if author.check_password(self.edit_password.text()):
+                    self.id_author = author.id
+                    self.accept()
+                else:
+                    QMessageBox.critical(self, "Ошибка", "Неверный пароль", QMessageBox.Ok)
+            else:
+                QMessageBox.critical(self, "Ошибка", "Учителя с таким логинам не существует", QMessageBox.Ok)
+        else:
+            QMessageBox.critical(self, "Ошибка", "Вы заполнили не все поля", QMessageBox.Ok)
+
+    def registration_user(self):
+        self.hide()
+        self.registration = Registration(self.main_window)
+        if self.registration.exec_() == QDialog.Accepted:
+            pass
+        self.back_menu()
+
+
+class Registration(QDialog):
+    def __init__(self, main_window):
+        QDialog.__init__(self)
+        self.main_window = main_window
+        self.setParent(self.main_window)
+        self.setGeometry(self.main_window.geometry.width() // 4, self.main_window.geometry.height() // 4,
+                         self.main_window.geometry.width() // 2, self.main_window.geometry.height() // 2)
+        self.initUI()
+
+    def initUI(self):
+        self.background_form = QLabel(self)
+        self.background_form.setStyleSheet(
+            '.QLabel {'
+            'background-color: #76b7c7;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'min-width: 10em;'
+            'padding: 6px;'
+            '}'
+        )
+        self.background_form.resize(self.geometry().width(), self.geometry().height())
+
+        self.text_fio = QLabel("ФИО")
+        self.text_fio.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_login = QLabel("Логин")
+        self.text_login.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_password = QLabel("Пароль")
+        self.text_password.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        # -----------------------------------------
+        self.text_repeat_password = QLabel("Повторите пароль")
+        self.text_repeat_password.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+
+        # -----------------------------------------
+        # Поля ввода значений
+        # -----------------------------------------
+        self.edit_fio = QLineEdit()
+        self.edit_fio.setFixedHeight(int(self.window().width() / 35.5))
+        self.edit_fio.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.edit_login = QLineEdit()
+        self.edit_login.setFixedHeight(int(self.window().width() / 35.5))
+        self.edit_login.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.edit_password = QLineEdit()
+        self.edit_password.setFixedHeight(int(self.window().width() / 35.5))
+        self.edit_password.setEchoMode(QLineEdit.Password)
+        self.edit_password.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.edit_repeat_password = QLineEdit()
+        self.edit_repeat_password.setFixedHeight(int(self.window().width() / 35.5))
+        self.edit_repeat_password.setEchoMode(QLineEdit.Password)
+        self.edit_repeat_password.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        # -----------------------------------------
+        self.btn_back_valid = QPushButton(self)
+        self.btn_back_valid.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_BACK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
+            '}'
+        )
+        self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back_valid.move(15, 5)
+        self.btn_back_valid.clicked.connect(self.back_menu)
+        # -----------------------------------------
+        self.btn_ok_valid = QPushButton(self)
+        self.btn_ok_valid.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_OK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_OK_HOVER});'
+            '}'
+        )
+        self.btn_ok_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_ok_valid.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 5)
+        self.btn_ok_valid.clicked.connect(self.valid_options)
+        # -----------------------------------------
+
+        layout_new_method = QGridLayout()
+        layout_new_method.setContentsMargins(int(self.window().width() / 25.5), int(self.window().width() / 20.5),
+                                             int(self.window().width() / 25.5), int(self.window().width() / 50.5))
+        layout_new_method.addWidget(self.text_fio, 0, 0)
+        layout_new_method.addWidget(self.edit_fio, 0, 1)
+
+        layout_new_method.addWidget(self.text_login, 1, 0)
+        layout_new_method.addWidget(self.edit_login, 1, 1)
+
+        layout_new_method.addWidget(self.text_password, 2, 0)
+        layout_new_method.addWidget(self.edit_password, 2, 1)
+
+        layout_new_method.addWidget(self.text_repeat_password, 3, 0)
+        layout_new_method.addWidget(self.edit_repeat_password, 3, 1)
+
+        self.setLayout(layout_new_method)
+
+    def back_menu(self):
+        self.reject()
+
+    def valid_options(self):
+        if self.edit_login.text() != "" and self.edit_fio.text() != "" \
+                and self.edit_repeat_password.text() != "" \
+                and self.edit_password.text() != "":
+            if self.edit_password.text() == self.edit_repeat_password.text():
+                self.accept()
+            else:
+                QMessageBox.critical(self, "Ошибка", "Пароли не совпадают", QMessageBox.Ok)
+        else:
+            QMessageBox.critical(self, "Ошибка", "Вы заполнили не все поля", QMessageBox.Ok)
 
 
 class NewLesson(QDialog):
@@ -537,7 +942,7 @@ class NewLesson(QDialog):
             }
             self.accept()
         else:
-            QMessageBox.critical(self, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
+            QMessageBox.critical(self, "Ошибка", "Вы заполнили не все поля", QMessageBox.Ok)
 
 
 class Constructor(QWidget):
@@ -940,72 +1345,92 @@ class Constructor(QWidget):
         self.show_methods_stage()
 
     def save_lesson(self):
-        if int(self.time_lesson.text().split()[2]) == 0:
-            if self.data_lesson["lesson_topic"] in [item.name for item in SESSION.query(SaveLesson).all()]:
-                reply = QMessageBox.question(self, "Предупреждение",
-                                             "Урок с таким названием уже сущестует. Вы хотите перезаписать?",
-                                             QMessageBox.Yes | QMessageBox.No)
-                if reply == QMessageBox.Yes:
-                    lesson = SESSION.query(SaveLesson).filter(
-                        SaveLesson.name == self.data_lesson["lesson_topic"]).first()
-                    SESSION.delete(lesson)
-                    SESSION.commit()
+        if not id_current_user is None:
+            if int(self.time_lesson.text().split()[2]) == 0:
+                if self.data_lesson["lesson_topic"] in [item.name for item in SESSION.query(SaveLesson).filter(
+                        SaveLesson.id_author == id_current_user).all()]:
+                    reply = QMessageBox.question(self, "Предупреждение",
+                                                 "Урок с таким названием уже сущестует. Вы хотите перезаписать?",
+                                                 QMessageBox.Yes | QMessageBox.No)
+                    if reply == QMessageBox.Yes:
+                        lesson = SESSION.query(SaveLesson).filter(
+                            SaveLesson.name == self.data_lesson["lesson_topic"],
+                            SaveLesson.id_author == id_current_user).first()
+                        SESSION.delete(lesson)
+                        SESSION.commit()
 
-            save_lesson = SaveLesson(
-                name=self.data_lesson["lesson_topic"],
-                ids=';'.join([str(method.data.id) for method in self.my_methods]),
-            )
-            SESSION.add(save_lesson)
-            SESSION.commit()
-            QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
+                save_lesson = SaveLesson(
+                    name=self.data_lesson["lesson_topic"],
+                    ids=';'.join([str(method.data.id) for method in self.my_methods]),
+                    id_author=id_current_user,
+                )
+                SESSION.add(save_lesson)
+                SESSION.commit()
+                QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
+            else:
+                QMessageBox.critical(self, "Ошибка", "Вы не использовали все время урока", QMessageBox.Ok)
         else:
-            QMessageBox.critical(self, "Ошибка", "Вы не использовали все время урока", QMessageBox.Ok)
+            QMessageBox.critical(self, "Ошибка", "Вы не авторизированы", QMessageBox.Ok)
 
     def open_lesson(self):
-        self.open = QDialog()
-        self.open.setWindowTitle("Открыть")
-        self.open.resize(*self.main_window.normal.normal_proportion(300, 150))
-        self.list_view = QListWidget(self.open)
-        self.list_view.resize(*self.main_window.normal.normal_proportion(300, 150))
-        self.list_view.addItems([item.name for item in SESSION.query(SaveLesson).all()])
-        self.list_view.doubleClicked.connect(self.open_select_lesson)
-        self.open.exec()
+        if not id_current_user is None:
+            self.open = QDialog()
+            self.open.setWindowTitle("Открыть")
+            self.open.resize(*self.main_window.normal.normal_proportion(300, 150))
+            self.list_view = QListWidget(self.open)
+            self.list_view.resize(*self.main_window.normal.normal_proportion(300, 150))
+            self.list_view.addItems([item.name for item in SESSION.query(SaveLesson).filter(
+                SaveLesson.id_author == id_current_user).all()])
+            self.list_view.doubleClicked.connect(self.open_select_lesson)
+            self.open.exec()
+        else:
+            QMessageBox.critical(self, "Ошибка", "Вы не авторизированы", QMessageBox.Ok)
 
     def open_select_lesson(self):
         self.open.close()
-        self.my_methods = []
-        for id_method in SESSION.query(SaveLesson).filter(SaveLesson.name ==
-                                                          self.list_view.currentItem().text()).first().ids.split(";"):
-            self.my_methods.append(Method(self, SESSION.query(Methods).filter(Methods.id == id_method).first()))
-            self.my_methods[-1].btn_add.hide()
-            self.my_methods[-1].btn_del.show()
-            self.my_methods[-1].background.setStyleSheet(
-                '.QLabel {'
-                f'min-height: {100}px;'
-                f'min-width: {int(self.my_methods[-1].main_window.scroll_my_methods.size().width())}px;'
-                'margin-bottom: 16px;'
-                'background-color: #FFA25F;'
-                '}'
-            )
-        self.my_methods[0].show_my_methods()
-        self.my_methods[0].show_time_methods()
-        self.show_methods_stage()
+        reply = QMessageBox.question(self, "Открытие", "Данный урок может содержать не выбранные вами компетенции. "
+                                                       "Открыть урок?", QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.my_methods = []
+            for id_method in SESSION.query(SaveLesson).filter(
+                    SaveLesson.name == self.list_view.currentItem().text(),
+                    SaveLesson.id_author == id_current_user).first().ids.split(";"):
+                self.my_methods.append(Method(self, SESSION.query(Methods).filter(Methods.id == id_method).first()))
+                self.my_methods[-1].btn_add.hide()
+                self.my_methods[-1].btn_del.show()
+                self.my_methods[-1].background.setStyleSheet(
+                    '.QLabel {'
+                    f'min-height: {100}px;'
+                    f'min-width: {int(self.my_methods[-1].main_window.scroll_my_methods.size().width())}px;'
+                    'margin-bottom: 16px;'
+                    'background-color: #FFA25F;'
+                    '}'
+                )
+            self.my_methods[0].show_my_methods()
+            self.my_methods[0].show_time_methods()
+            self.show_methods_stage()
 
     def del_lesson(self):
-        self.delete = QDialog()
-        self.delete.setWindowTitle("Удалить")
-        self.delete.resize(*self.main_window.normal.normal_proportion(300, 150))
-        self.list_view = QListWidget(self.delete)
-        self.list_view.resize(*self.main_window.normal.normal_proportion(300, 150))
-        self.list_view.addItems([item.name for item in SESSION.query(SaveLesson).all()])
-        self.list_view.doubleClicked.connect(self.del_select_lesson)
-        self.delete.exec()
+        if not id_current_user is None:
+            self.delete = QDialog()
+            self.delete.setWindowTitle("Удалить")
+            self.delete.resize(*self.main_window.normal.normal_proportion(300, 150))
+            self.list_view = QListWidget(self.delete)
+            self.list_view.resize(*self.main_window.normal.normal_proportion(300, 150))
+            self.list_view.addItems([item.name for item in SESSION.query(SaveLesson).filter(
+                SaveLesson.id_author == id_current_user).all()])
+            self.list_view.doubleClicked.connect(self.del_select_lesson)
+            self.delete.exec()
+        else:
+            QMessageBox.critical(self, "Ошибка", "Вы не авторизированы", QMessageBox.Ok)
 
     def del_select_lesson(self):
         self.delete.close()
         reply = QMessageBox.question(self, "Удаление", "Вы хотите удалить урок?", QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
-            lesson = SESSION.query(SaveLesson).filter(SaveLesson.name == self.list_view.currentItem().text()).first()
+            lesson = SESSION.query(SaveLesson).filter(
+                SaveLesson.name == self.list_view.currentItem().text(),
+                SaveLesson.id_author == id_current_user).first()
             SESSION.delete(lesson)
             SESSION.commit()
 
@@ -1365,6 +1790,7 @@ class ResultLesson(QWidget):
                                                                       'border-style: inset;'
                                                                       '}'
         )
+        self.btn_save_lesson.clicked.connect(self.save_lesson)
         layout_v_btn_result.addWidget(self.btn_save_lesson, 1, 0, 1, 3)
 
         self.btn_print_lesson = QPushButton("Печать", self)
@@ -1399,7 +1825,6 @@ class ResultLesson(QWidget):
 
         self.document_result = QTextEdit(self)
 
-        document = QTextDocument()
         competence = [(self.data["competence"]["creative_thinking"], "Креативное мышление"),
                       (self.data["competence"]["critical_thinking"], "Критическое мышление"),
                       (self.data["competence"]["literacy"], "Грамотность"),
@@ -1415,11 +1840,9 @@ class ResultLesson(QWidget):
                     TypeMethod.id == method.data.id_type_method).first().name_method,
                  method.data.name_method, method.data.text, method.data.time])
 
-        html_document = get_document_result(self.data["lesson_topic"], self.data["subject"],
-                                            self.data["class"], self.data["lesson_duration"],
-                                            competence, methods)
-        document.setHtml(html_document)
-        self.document_result.setDocument(document)
+        self.document = get_document_result_word(self.data["lesson_topic"], self.data["subject"], self.data["class"],
+                                                 self.data["lesson_duration"], competence, methods)
+        self.document_result.setHtml("fdf")
 
         layout_result.addWidget(self.document_result, 0, 2, 3, 5)
 
@@ -1444,6 +1867,18 @@ class ResultLesson(QWidget):
                     "metacognitive_skills": self.data["competence"]["metacognitive_skills"]
                 }
             })
+
+    def save_lesson(self):
+        file, _ = QFileDialog.getSaveFileName(self, "Сохранение файла", './', "Text files (*.docx *doc)")
+        if file != "":
+            """documents_lesson = SESSION.query(Author).filter(Author.id == 2).first().documents_lesson
+            author = Author(
+                id=2,
+                documents_lesson=,
+            )
+            SESSION.add(author)
+            SESSION.commit()"""
+            self.document.save(f'{file.split("/")[-1]}')
 
 
 class MyMethodMenu(QWidget):
@@ -1564,7 +1999,7 @@ class MyMethodMenu(QWidget):
 
     def show_methods_stage(self):
         object_methods = []
-        filter_my_method_menu = SESSION.query(Methods).filter(Methods.id_author.like(2)).all()
+        filter_my_method_menu = SESSION.query(Methods).filter(Methods.id_author.like(id_current_user)).all()
 
         layout = QVBoxLayout()
         for i in range(len(filter_my_method_menu)):
@@ -1996,7 +2431,7 @@ class NewMethod(QDialog):
             self.data = Methods(
                 name_method=self.edit_method_topic.text(),
                 time=self.edit_method_duration.value(),
-                id_author=2,
+                id_author=id_current_user,
                 id_classes_number=SESSION.query(Classes).filter(
                     Classes.name_class == self.combo_class_method.currentText()).first().id,
                 id_type_method=SESSION.query(TypeMethod).filter(
@@ -2014,7 +2449,7 @@ class NewMethod(QDialog):
             )
             self.accept()
         else:
-            QMessageBox.critical(self, "Ошибка", "Вы заполните все поля", QMessageBox.Ok)
+            QMessageBox.critical(self, "Ошибка", "Вы заполнили не все поля", QMessageBox.Ok)
 
 
 if __name__ == '__main__':

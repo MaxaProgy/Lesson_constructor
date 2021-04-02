@@ -10,3 +10,6 @@ class SaveLesson(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String)
     ids = sqlalchemy.Column(sqlalchemy.String)
+    id_author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("author.id"))
+
+    author = orm.relation('Author')
