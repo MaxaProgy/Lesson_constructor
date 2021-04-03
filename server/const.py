@@ -2,35 +2,18 @@ import os
 
 import pandas as pd
 
-from app_window.data import db_session
-from app_window.data.methods import Methods
-from app_window.data.classes import Classes
-from app_window.data.quote import Quote
-from app_window.data.fgos import Fgos
-from app_window.data.stage import Stage
-from app_window.data.type_method import TypeMethod
-from app_window.data.class_characteristic import ClassCharacteristic
-from app_window.data.lesson_type import LessonType
-from app_window.data.subject import Subject
-from app_window.data.user import User
+from server.data import db_session
+from server.data.methods import Methods
+from server.data.classes import Classes
+from server.data.quote import Quote
+from server.data.fgos import Fgos
+from server.data.stage import Stage
+from server.data.type_method import TypeMethod
+from server.data.class_characteristic import ClassCharacteristic
+from server.data.lesson_type import LessonType
+from server.data.subject import Subject
+from server.data.user import User
 
-
-PATH_SPLASH_SCREEN = os.path.join('data', 'image', 'background', 'заставка.png')
-PATH_MAIN_MENU = os.path.join('data', 'image', 'background', 'main_background_app.jpg')
-PATH_BUTTON_OK = 'data/image/ok.png'
-PATH_BUTTON_OK_HOVER = 'data/image/ok2.png'
-PATH_BUTTON_BACK = 'data/image/back.png'
-PATH_BUTTON_BACK_HOVER = 'data/image/back2.png'
-PATH_BUTTON_PADROBNEE = 'data/image/Podtobnee.png'
-PATH_BUTTON_PADROBNEE_HOVER = 'data/image/Podtobnee2.png'
-PATH_BUTTON_ADD = 'data/image/add.png'
-PATH_BUTTON_ADD_HOVER = 'data/image/add2.png'
-PATH_BUTTON_DEL = 'data/image/del.png'
-PATH_BUTTON_DEL_HOVER = 'data/image/del2.png'
-PATH_BUTTON_FOUND = 'data/image/found.png'
-PATH_BUTTON_FOUND_HOVER = 'data/image/found2.png'
-PATH_BUTTON_EDIT = 'data/image/edit.png'
-PATH_BUTTON_EDIT_HOVER = 'data/image/edit2.png'
 
 LIST_LESSON_QUOTE = ["Учитель прикасается к вечности, никто не знает, где закончится его влияние..",
                      "Кто постигает новое, лелея старое, Тот может быть учителем.",
@@ -60,10 +43,10 @@ CLASS_CHARACTERISTIC_VALUE_DB = ["Активные дети", "Пассивны�
 LESSON_TYPE_VALUE_DB = ["Новый материал", "Контроль усвоения",
                         "Проверка понимания", "Закрепление материала"]
 
-if not os.path.isfile("../app_window/db/lesson_constructor_client_db.sqlite"):
-    db_session.global_init("../app_window/db/lesson_constructor_client_db.sqlite")
+if not os.path.isfile("../server/db/lesson_constructor_server_db.sqlite"):
+    db_session.global_init("../server/db/lesson_constructor_server_db.sqlite")
     SESSION = db_session.create_session()
-    data = pd.read_csv('../app_window/db/Карточки.csv')
+    data = pd.read_csv('../server/db/Карточки.csv')
     for method in zip(data['название'], data['время'], data['автор'], data['классы'], data['индивидуальная/ групповая'],
                       data['этап урока'], data['креативное мышление'], data['критическое мышление'],
                       data['коммуникация'], data['кооперация'], data['метакогнитивные навыки'],
@@ -87,7 +70,7 @@ if not os.path.isfile("../app_window/db/lesson_constructor_client_db.sqlite"):
         SESSION.add(new_method)
         SESSION.commit()
 else:
-    db_session.global_init("../app_window/db/lesson_constructor_client_db.sqlite")
+    db_session.global_init("../server/db/lesson_constructor_server_db.sqlite")
     SESSION = db_session.create_session()
 
 if not [item.name_user for item in SESSION.query(User).all()]:

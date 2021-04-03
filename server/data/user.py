@@ -1,5 +1,3 @@
-import re
-
 import sqlalchemy
 from sqlalchemy import orm
 from sqlalchemy_serializer import SerializerMixin
@@ -26,7 +24,3 @@ class User(SqlAlchemyBase, SerializerMixin):
 
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
-
-    @staticmethod
-    def validation_email(email):
-        return re.search(r'[\w.-]+@[\w.-]+\.?[\w]+?', email) is None

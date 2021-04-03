@@ -1,10 +1,10 @@
 import pandas as pd
 
-from app_window.data import db_session
-from app_window.data.methods import Methods
+from server.data import db_session
+from server.data.methods import Methods
 
-data = pd.read_csv('app_window/db/Карточки.csv')
-db_session.global_init("app_window/db/lesson_constructor_db.sqlite")
+data = pd.read_csv('server/db/Карточки.csv')
+db_session.global_init("server/db/lesson_constructor_db.sqlite")
 session = db_session.create_session()
 
 for method in zip(data['название'], data['время'], data['классы'], data['индивидуальная/ групповая'],
