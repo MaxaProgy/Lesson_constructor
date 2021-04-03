@@ -1,10 +1,12 @@
-def get_document_result_word(topic_lesson, subject, lesson_class, duration, competence, methods):
+def get_document_result_word(topic_lesson, teacher, subject, lesson_class, duration, competence, methods):
     from docx import Document
 
     document = Document()
 
     document.add_heading(f'Урок по теме "{topic_lesson}"', 0)
 
+    p = document.add_paragraph('Учитель: ')
+    p.add_run(f'{", ".join(teacher)}').bold = True
     p = document.add_paragraph('Предмет: ')
     p.add_run(f'{subject}').bold = True
     p = document.add_paragraph('Класс: ')

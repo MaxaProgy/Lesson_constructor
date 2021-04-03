@@ -91,6 +91,7 @@ class MainWindow(QMainWindow):
         self.result = ResultLesson(self, data)
         self.result.setAttribute(Qt.WA_DeleteOnClose)
         self.result.back_constructor_event.connect(self.close_result_on_constructor)
+        self.result.back_menu_event.connect(self.close_result_on_menu)
         self.result.show()
 
     def run_my_method_menu(self):
@@ -132,6 +133,11 @@ class MainWindow(QMainWindow):
     def close_constructor_on_menu(self):
         self.constructor.close()
         self.constructor = None
+        self.run_menu()
+
+    def close_result_on_menu(self):
+        self.result.close()
+        self.result = None
         self.run_menu()
 
 
@@ -636,13 +642,11 @@ class Registration(QDialog):
         if self.edit_login.text() != "" and self.edit_name.text() != "" \
                 and self.edit_repeat_password.text() != "" \
                 and self.edit_password.text() != "":
-
             if not SESSION.query(User).filter(User.login == self.edit_login.text()).first():
                 if self.edit_password.text() == self.edit_repeat_password.text():
                     if len(self.edit_password.text()) >= 6:
                         user = User(
-                            name_user=' '.join(
-                                [name[0].upper() + name[1:].lower() for name in self.edit_name.text().split()]),
+                            name_user=self.edit_name.text().lower(),
                             login=self.edit_login.text(),
                         )
                         user.set_password(self.edit_password.text())
@@ -943,7 +947,7 @@ class NewLesson(QDialog):
                  self.check_metacognitive_skills.isChecked()):
 
             self.data = {
-                "lesson_topic": self.edit_lesson_topic.text(),
+                "lesson_topic": self.edit_lesson_topic.text().lower(),
                 "subject": self.combo_subjects.currentText(),
                 "lesson_type": self.combo_lesson_type.currentText(),
                 "class": self.combo_class.currentText(),
@@ -1202,6 +1206,7 @@ class Constructor(QWidget):
             "}"
         )
         self.line_edit_found_method.setFixedHeight(int(self.window().width() / 30.5))
+        self.line_edit_found_method.returnPressed.connect(self.found)
         layout_found.addWidget(self.line_edit_found_method)
 
         self.btn_found = QPushButton()
@@ -1215,7 +1220,7 @@ class Constructor(QWidget):
         )
         self.btn_found.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
         self.btn_found.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
-        # self.btn_found.clicked.connect(self.found)
+        self.btn_found.clicked.connect(self.found)
         layout_found.addWidget(self.btn_found)
 
         layout_2.addLayout(layout_found)
@@ -1361,6 +1366,7 @@ class Constructor(QWidget):
 
     def button_stage_flag(self, button):
         self.flag_stage = SESSION.query(Stage).filter(Stage.name_stage == button.text()).first().id
+        self.filter_stage_methods = self.filter_methods.filter(Methods.id_stage_method.like(self.flag_stage)).all()
         self.show_methods_stage()
 
     def save_lesson(self):
@@ -1427,6 +1433,7 @@ class Constructor(QWidget):
                 )
             self.my_methods[0].show_my_methods()
             self.my_methods[0].show_time_methods()
+            self.filter_stage_methods = self.filter_methods.filter(Methods.id_stage_method.like(self.flag_stage)).all()
             self.show_methods_stage()
 
     def del_lesson(self):
@@ -1481,9 +1488,6 @@ class Constructor(QWidget):
             QMessageBox.critical(self, "Ошибка", "Вы не использовали все время урока", QMessageBox.Ok)
 
     def show_methods_stage(self):
-        # Забираем все методы в соответствии с выбранным нами этапом урока
-        filter_stage_methods = self.filter_methods.filter(Methods.id_stage_method.like(self.flag_stage)).all()
-
         # Удаление всех элементов из прошлого списка обектов методов
         for i in reversed(range(len(self.object_methods))):
             del self.object_methods[i]
@@ -1493,18 +1497,18 @@ class Constructor(QWidget):
 
         # Удаляем все методы, входящие в список моих методов из общего списка
         # Чтобы повторно не отображать методы в панели
-        for i in reversed(range(len(filter_stage_methods))):
-            if filter_stage_methods[i].id in id_my_methods:
-                del filter_stage_methods[i]
+        for i in reversed(range(len(self.filter_stage_methods))):
+            if self.filter_stage_methods[i].id in id_my_methods:
+                del self.filter_stage_methods[i]
 
         # Создаем обекты-методы вносим их в лейаут
         layout = QVBoxLayout()
-        for i in range(len(filter_stage_methods)):
-            self.object_methods.append(Method(self, filter_stage_methods[i]))
+        for i in range(len(self.filter_stage_methods)):
+            self.object_methods.append(Method(self, self.filter_stage_methods[i]))
             layout.addWidget(self.object_methods[i])
 
         widget = QWidget()
-        widget.setGeometry(0, 0, int(self.main_window.geometry.height() / 1.1), 116 * len(filter_stage_methods))
+        widget.setGeometry(0, 0, int(self.main_window.geometry.height() / 1.1), 116 * len(self.filter_stage_methods))
         widget.setLayout(layout)
         widget.setStyleSheet(
             ".QWidget {"
@@ -1513,6 +1517,13 @@ class Constructor(QWidget):
         )
         self.scroll_main_methods.setWidget(widget)
         self.scroll_main_methods.show()
+
+    def found(self):
+        self.filter_stage_methods = self.filter_methods.filter(
+            Methods.id_stage_method.like(self.flag_stage),
+            (Methods.name_method.like(f"%{self.line_edit_found_method.text().lower()}%") |
+             Methods.text.like(f"%{self.line_edit_found_method.text().lower()}%"))).all()
+        self.show_methods_stage()
 
 
 class Method(QWidget):
@@ -1612,6 +1623,8 @@ class Method(QWidget):
             self.show_my_methods()
             self.btn_add.hide()
             self.btn_del.show()
+            self.main_window.filter_stage_methods = self.main_window.filter_methods.filter(
+                Methods.id_stage_method.like(self.main_window.flag_stage)).all()
             self.main_window.show_methods_stage()
             self.show_time_methods()
 
@@ -1622,6 +1635,8 @@ class Method(QWidget):
     def del_method(self):
         del self.main_window.my_methods[self.main_window.my_methods.index(self)]
         self.show_my_methods()
+        self.main_window.filter_stage_methods = self.main_window.filter_methods.filter(
+            Methods.id_stage_method.like(self.main_window.flag_stage)).all()
         self.main_window.show_methods_stage()
         self.show_time_methods()
 
@@ -1671,8 +1686,8 @@ class MethodMoreDetails(QDialog):
         self.setWindowIcon(QIcon(PATH_SPLASH_SCREEN))
         self.setModal(True)
         self.setWindowTitle(data.name_method[0].upper() + data.name_method[1:].lower())
-        self.setFixedSize(int(main_window.main_window.geometry.width() / 2),
-                          int(main_window.main_window.geometry.height() / 2))
+        self.setFixedSize(int(main_window.main_window.geometry.width() / 1.9),
+                          int(main_window.main_window.geometry.height() / 1.9))
         self.main_window = main_window
         self.data = data
         self.initUI()
@@ -1684,8 +1699,8 @@ class MethodMoreDetails(QDialog):
             'background-color: #76b7c7;'
             '}'
         )
-        self.background.resize(int(self.main_window.main_window.geometry.width() / 2),
-                               int(self.main_window.main_window.geometry.height() / 2))
+        self.background.resize(int(self.main_window.main_window.geometry.width() / 1.9),
+                               int(self.main_window.main_window.geometry.height() / 1.9))
 
         layout = QGridLayout(self)
 
@@ -1698,8 +1713,11 @@ class MethodMoreDetails(QDialog):
         self.title_method.setWordWrap(True)
         layout.addWidget(self.title_method, 0, 0, 1, 4)
 
-        self.time_and_сlass_method = QLabel("   " + self.data.time + "' минут;    " + SESSION.query(Classes).filter(
-            Classes.id == self.data.id_classes_number).first().name_class + " Класс   ", self)
+        classes = SESSION.query(Classes).filter(Classes.id == self.data.id_classes_number).first().name_class
+        author = SESSION.query(User).filter(User.id == self.data.id_user).first().name_user
+        self.time_and_сlass_method = QLabel(
+            "\n   " + self.data.time + "' минут;    " + classes + " Класс   \n\n" +
+            "   Автор: " + ' '.join([elem[0].upper() + elem[1:].lower() for elem in author.split()]) + "    \n", self)
         self.time_and_сlass_method.setStyleSheet(
             ".QLabel {"
             'background-color: #FFA25F;'
@@ -1746,6 +1764,7 @@ class MethodMoreDetails(QDialog):
 
 class ResultLesson(QWidget):
     back_constructor_event = pyqtSignal(dict)
+    back_menu_event = pyqtSignal()
 
     def __init__(self, main_window, data):
         super().__init__(main_window)
@@ -1812,8 +1831,8 @@ class ResultLesson(QWidget):
         self.btn_save_lesson.clicked.connect(self.save_lesson)
         layout_v_btn_result.addWidget(self.btn_save_lesson, 1, 0, 1, 3)
 
-        self.btn_print_lesson = QPushButton("Печать", self)
-        self.btn_print_lesson.setStyleSheet(
+        self.btn_menu = QPushButton("Меню", self)
+        self.btn_menu.setStyleSheet(
             '.QPushButton {'
             f'min-height: {self.main_window.normal.normal_xy(50, 0)[0]}px;'
             f'min-width: {self.main_window.normal.normal_xy(200, 0)[0]}px;'
@@ -1831,7 +1850,8 @@ class ResultLesson(QWidget):
                                                                       'border-style: inset;'
                                                                       '}'
         )
-        layout_v_btn_result.addWidget(self.btn_print_lesson, 2, 0, 1, 3)
+        self.btn_menu.clicked.connect(self.back_menu)
+        layout_v_btn_result.addWidget(self.btn_menu, 2, 0, 1, 3)
 
         widget_btn_result = QWidget(self)
         widget_btn_result.setLayout(layout_v_btn_result)
@@ -1859,7 +1879,13 @@ class ResultLesson(QWidget):
                     TypeMethod.id == method.data.id_type_method).first().name_method,
                  method.data.name_method, method.data.text, method.data.time])
 
-        self.document = get_document_result_word(self.data["lesson_topic"], self.data["subject"], self.data["class"],
+        if id_current_user is None:
+            teacher = " - "
+        else:
+            teacher = SESSION.query(User).filter(User.id == id_current_user).first().name_user
+
+        self.document = get_document_result_word(self.data["lesson_topic"], teacher, self.data["subject"],
+                                                 self.data["class"],
                                                  self.data["lesson_duration"], competence, methods)
         self.document_result.setHtml("fdf")
 
@@ -1888,8 +1914,8 @@ class ResultLesson(QWidget):
             })
 
     def save_lesson(self):
-        file, _ = QFileDialog.getSaveFileName(self, "Сохранение файла", './', "Text files (*.docx *doc)")
-        if file != "":
+        file_name = QFileDialog.getSaveFileName(self, "Сохранение файла", None, "Text files (*.docx *doc)")[0]
+        if file_name != "":
             """documents_lesson = SESSION.query(user).filter(user.id == 2).first().documents_lesson
             user = user(
                 id=2,
@@ -1897,7 +1923,11 @@ class ResultLesson(QWidget):
             )
             SESSION.add(user)
             SESSION.commit()"""
-            self.document.save(f'{file.split("/")[-1]}')
+            self.document.save(f'{file_name.split("/")[-1]}')
+            QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
+
+    def back_menu(self):
+        self.back_menu_event.emit()
 
 
 class MyMethodMenu(QWidget):
@@ -1941,6 +1971,7 @@ class MyMethodMenu(QWidget):
             "}"
         )
         self.line_edit_found_method.setFixedHeight(int(self.window().width() / 30.5))
+        self.line_edit_found_method.returnPressed.connect(self.found)
         layout_found.addWidget(self.line_edit_found_method)
 
         self.btn_found = QPushButton()
@@ -2014,19 +2045,20 @@ class MyMethodMenu(QWidget):
         layout_my_method_menu.addWidget(self.scroll_my_method_menu, 1, 0)
 
         self.setLayout(layout_my_method_menu)
+        self.filter_my_method_menu = SESSION.query(Methods).filter(Methods.id_user.like(id_current_user)).all()
         self.show_methods_stage()
 
     def show_methods_stage(self):
         object_methods = []
-        filter_my_method_menu = SESSION.query(Methods).filter(Methods.id_user.like(id_current_user)).all()
 
         layout = QVBoxLayout()
-        for i in range(len(filter_my_method_menu)):
-            object_methods.append(MyMethod(self, filter_my_method_menu[i]))
+        for i in range(len(self.filter_my_method_menu)):
+            object_methods.append(MyMethod(self, self.filter_my_method_menu[i]))
             layout.addWidget(object_methods[i])
 
         self.widget_list_methods = QWidget(self)
-        self.widget_list_methods.setGeometry(0, 0, int(self.window().width() / 1.25), 116 * len(filter_my_method_menu))
+        self.widget_list_methods.setGeometry(0, 0, int(self.window().width() / 1.25),
+                                             116 * len(self.filter_my_method_menu))
         self.widget_list_methods.setLayout(layout)
         self.widget_list_methods.setStyleSheet(
             ".QWidget {"
@@ -2042,6 +2074,7 @@ class MyMethodMenu(QWidget):
         if self.new_method.exec_() == QDialog.Accepted:
             SESSION.add(self.new_method.data)
             SESSION.commit()
+            self.filter_my_method_menu = SESSION.query(Methods).filter(Methods.id_user.like(id_current_user)).all()
             self.show_methods_stage()
         self.setDisabled(False)
 
@@ -2049,7 +2082,11 @@ class MyMethodMenu(QWidget):
         self.back_menu_event.emit()
 
     def found(self):
-        pass
+        self.filter_my_method_menu = SESSION.query(Methods).filter(
+            Methods.id_user == id_current_user,
+            (Methods.name_method.like(f"%{self.line_edit_found_method.text().lower()}%") |
+             Methods.text.like(f"%{self.line_edit_found_method.text().lower()}%"))).all()
+        self.show_methods_stage()
 
 
 class MyMethod(QWidget):
@@ -2115,12 +2152,14 @@ class MyMethod(QWidget):
         method = SESSION.query(Methods).filter(Methods.id == self.data.id).first()
         SESSION.delete(method)
         SESSION.commit()
+        self.main_window.filter_my_method_menu = SESSION.query(Methods).filter(
+            Methods.id_user.like(id_current_user)).all()
         self.main_window.show_methods_stage()
 
     def edit(self):
         self.main_window.setDisabled(True)
         data = {
-            "name_method": self.data.name_method,
+            "name_method": self.data.name_method[0].upper() + self.data.name_method[1:].lower(),
             "time": int(self.data.time),
             "id_classes_number": self.data.id_classes_number,
             "id_type_method": self.data.id_type_method,
@@ -2143,6 +2182,8 @@ class MyMethod(QWidget):
             SESSION.delete(method)
             SESSION.add(self.new_method.data)
             SESSION.commit()
+            self.main_window.filter_my_method_menu = SESSION.query(Methods).filter(
+                Methods.id_user.like(id_current_user)).all()
             self.main_window.show_methods_stage()
         self.main_window.setDisabled(False)
 
@@ -2448,7 +2489,7 @@ class NewMethod(QDialog):
     def valid_options_new_method(self):
         if self.edit_method_topic.text() != "" and self.text_method.toPlainText() != "":
             self.data = Methods(
-                name_method=self.edit_method_topic.text(),
+                name_method=self.edit_method_topic.text().lower(),
                 time=self.edit_method_duration.value(),
                 id_user=id_current_user,
                 id_classes_number=SESSION.query(Classes).filter(
