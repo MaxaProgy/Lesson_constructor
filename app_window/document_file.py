@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 def get_document_result_word(topic_lesson, teacher, subject, lesson_class, duration, competence, methods):
     from docx import Document
 

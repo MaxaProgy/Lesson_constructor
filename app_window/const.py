@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from app_window.data.classes import Classes
 from app_window.data.quote import Quote
 from app_window.data.fgos import Fgos

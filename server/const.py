@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from server.data.classes import Classes
 from server.data.quote import Quote
 from server.data.fgos import Fgos

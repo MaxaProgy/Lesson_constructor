@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sqlalchemy
 from sqlalchemy import orm
 from sqlalchemy_serializer import SerializerMixin
@@ -16,6 +18,7 @@ class Methods(SqlAlchemyBase, SerializerMixin):
     id_classes_number = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("classes.id"))
     id_type_method = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("type_method.id"))
     id_stage_method = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("stage.id"))
+    id_fgos = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("fgos.id"))
     creative_thinking = sqlalchemy.Column(sqlalchemy.Boolean)
     critical_thinking = sqlalchemy.Column(sqlalchemy.Boolean)
     communication = sqlalchemy.Column(sqlalchemy.Boolean)
@@ -23,7 +26,7 @@ class Methods(SqlAlchemyBase, SerializerMixin):
     metacognitive_skills = sqlalchemy.Column(sqlalchemy.Boolean)
     literacy = sqlalchemy.Column(sqlalchemy.Boolean)
 
-    id_fgos = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("fgos.id"))
+    is_local = sqlalchemy.Column(sqlalchemy.Boolean)
     text = sqlalchemy.Column(sqlalchemy.Text)
 
     user = orm.relation('User')

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sqlalchemy
 from sqlalchemy import orm
 from sqlalchemy_serializer import SerializerMixin
@@ -14,8 +16,7 @@ class User(SqlAlchemyBase, SerializerMixin):
     email = sqlalchemy.Column(sqlalchemy.String)
     hashed_password = sqlalchemy.Column(sqlalchemy.String)
 
-    # documents_lesson = sqlalchemy.Column(sqlalchemy.String)
-
+    documents_lesson = orm.relation("DocumentsLesson", back_populates='user')
     methods = orm.relation("Methods", back_populates='user')
     save_lesson = orm.relation("SaveLesson", back_populates='user')
 

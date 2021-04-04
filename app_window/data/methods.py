@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sqlalchemy
 from sqlalchemy import orm
 from sqlalchemy_serializer import SerializerMixin
@@ -25,7 +27,6 @@ class Methods(SqlAlchemyBase, SerializerMixin):
     literacy = sqlalchemy.Column(sqlalchemy.Boolean)
 
     is_local = sqlalchemy.Column(sqlalchemy.Boolean)
-
     text = sqlalchemy.Column(sqlalchemy.Text)
 
     user = orm.relation('User')
