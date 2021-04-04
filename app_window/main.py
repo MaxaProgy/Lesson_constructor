@@ -5,17 +5,19 @@ import time
 import random
 
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QDateTime
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
     QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox, QVBoxLayout, \
     QScrollArea, QFrame, QHBoxLayout, QDialog, QListWidget, QTextEdit, QSpinBox, QFileDialog
+
 from sqlalchemy import or_
 
 from app_window.const import *
 from app_window.data import db_session
 from app_window.data.methods import Methods
 from app_window.data.save_lesson import SaveLesson
+from app_window.data.documents_lesson import DocumentsLesson
 from app_window.document_file import get_document_result_word
 
 id_current_user = None
@@ -1380,21 +1382,34 @@ class Constructor(QWidget):
         self.show_methods_stage()
 
     def save_lesson(self):
-        if not id_current_user is None:
-            if int(self.time_lesson.text().split()[2]) == 0:
-                session = db_session.create_session()
-                if self.data["lesson_topic"] in [item.name for item in session.query(SaveLesson).filter(
-                        SaveLesson.id_user == id_current_user).all()]:
-                    reply = QMessageBox.question(self, "Предупреждение",
-                                                 "Урок с таким названием уже сущестует. Вы хотите перезаписать?",
-                                                 QMessageBox.Yes | QMessageBox.No)
-                    if reply == QMessageBox.Yes:
-                        lesson = session.query(SaveLesson).filter(
-                            SaveLesson.name == self.data["lesson_topic"],
-                            SaveLesson.id_user == id_current_user).first()
-                        session.delete(lesson)
-                        session.commit()
+        session = db_session.create_session()
+        if id_current_user is None:
+            QMessageBox.critical(self, "Ошибка", "Вы не авторизированы", QMessageBox.Ok)
 
+        elif int(self.time_lesson.text().split()[2]) != 0:
+            QMessageBox.critical(self, "Ошибка", "Вы не использовали все время урока", QMessageBox.Ok)
+
+        else:
+            if self.data["lesson_topic"] in [item.name for item in session.query(SaveLesson).filter(
+                    SaveLesson.id_user == id_current_user).all()]:
+                reply = QMessageBox.question(self, "Предупреждение",
+                                             "Урок с таким названием уже сущестует. Вы хотите перезаписать?",
+                                             QMessageBox.Yes | QMessageBox.No)
+                if reply == QMessageBox.Yes:
+                    lesson = session.query(SaveLesson).filter(
+                        SaveLesson.name == self.data["lesson_topic"],
+                        SaveLesson.id_user == id_current_user).first()
+                    session.delete(lesson)
+                    session.commit()
+                    save_lesson = SaveLesson(
+                        name=self.data["lesson_topic"],
+                        ids=';'.join([str(method.data.id) for method in self.my_methods]),
+                        id_user=id_current_user,
+                    )
+                    session.add(save_lesson)
+                    session.commit()
+                    QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
+            else:
                 save_lesson = SaveLesson(
                     name=self.data["lesson_topic"],
                     ids=';'.join([str(method.data.id) for method in self.my_methods]),
@@ -1403,10 +1418,6 @@ class Constructor(QWidget):
                 session.add(save_lesson)
                 session.commit()
                 QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
-            else:
-                QMessageBox.critical(self, "Ошибка", "Вы не использовали все время урока", QMessageBox.Ok)
-        else:
-            QMessageBox.critical(self, "Ошибка", "Вы не авторизированы", QMessageBox.Ok)
 
     def open_lesson(self):
         if not id_current_user is None:
@@ -1933,14 +1944,30 @@ class ResultLesson(QWidget):
     def save_lesson(self):
         file_name = QFileDialog.getSaveFileName(self, "Сохранение файла", None, "Text files (*.docx *doc)")[0]
         if file_name != "":
-            """documents_lesson = SESSION.query(user).filter(user.id == 2).first().documents_lesson
-            user = user(
-                id=2,
-                documents_lesson=,
+            session = db_session.create_session()
+
+            competence = [(self.data["competence"]["creative_thinking"], "Креативное мышление"),
+                          (self.data["competence"]["critical_thinking"], "Критическое мышление"),
+                          (self.data["competence"]["literacy"], "Грамотность"),
+                          (self.data["competence"]["cooperation"], "Кооперация"),
+                          (self.data["competence"]["communication"], "Коммуникация"),
+                          (self.data["competence"]["metacognitive_skills"], "Метакогнитивные навыки")]
+            competence = [i[1] for i in competence if i[0]]
+            methods = [str(method.data.id) for method in self.data["methods"]]
+
+            documents_lesson = DocumentsLesson(
+                id_user=id_current_user,
+                date=QDateTime.currentDateTimeUtc(),
+                lesson_topic=self.data["lesson_topic"],
+                class_lesson=self.data["class"],
+                subject=self.data["subject"],
+                lesson_duration=self.data["lesson_duration"],
+                competence=';'.join(competence),
+                ids=';'.join(methods),
             )
-            SESSION.add(user)
-            SESSION.commit()"""
-            self.document.save(f'{file_name.split("/")[-1]}')
+            session.add(documents_lesson)
+            session.commit()
+            self.document.save(f'{file_name}')
             QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
 
     def back_menu(self):

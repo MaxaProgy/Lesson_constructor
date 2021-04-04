@@ -13,25 +13,27 @@ if not os.path.isfile("../server/db/lesson_constructor_server_db.sqlite"):
     db_session.global_init("../server/db/lesson_constructor_server_db.sqlite")
     session = db_session.create_session()
 
-    for method in zip(data['название'], data['время'], data['классы'], data['индивидуальная/ групповая'],
-                      data['этап урока'], data['креативное мышление'], data['критическое мышление'],
+    for method in zip(data['название'], data['время'], data['автор'], data['классы'],
+                      data['тип урока'], data['этап урока'],
+                      data['креативное мышление'], data['критическое мышление'],
                       data['коммуникация'], data['кооперация'], data['метакогнитивные навыки'],
                       data['грамотность'], data['фгос'], data['локально'], data['текст']):
         new_method = Methods(
             name_method=method[0],
             time=method[1],
-            id_classes_number=method[2],
-            id_type_method=method[3],
-            id_stage_method=method[4],
-            creative_thinking=method[5],
-            critical_thinking=method[6],
-            communication=method[7],
-            cooperation=method[8],
-            metacognitive_skills=method[9],
-            literacy=method[10],
-            id_fgos=method[11],
-            is_local=method[12],
-            text=method[13],
+            id_user=method[2],
+            id_classes_number=method[3],
+            id_type_method=method[4],
+            id_stage_method=method[5],
+            creative_thinking=method[6],
+            critical_thinking=method[7],
+            communication=method[8],
+            cooperation=method[9],
+            metacognitive_skills=method[10],
+            literacy=method[11],
+            id_fgos=method[12],
+            is_local=method[13],
+            text=method[14],
         )
         session.add(new_method)
         session.commit()
