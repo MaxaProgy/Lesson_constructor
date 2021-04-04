@@ -7,6 +7,7 @@ import random
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt, pyqtSignal, QDateTime
 from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QAxContainer import QAxWidget
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
     QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox, QVBoxLayout, \
     QScrollArea, QFrame, QHBoxLayout, QDialog, QListWidget, QTextEdit, QSpinBox, QFileDialog
@@ -407,6 +408,8 @@ class Login(QDialog):
         self.btn_registration = QPushButton("Регистрация", self)
         self.btn_registration.setStyleSheet(
             '.QPushButton {'
+            f'min-height: {self.main_window.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.main_window.normal.normal_xy(200, 0)[0]}px;'
             'background-color: #FFA25F;'
             'border-style: outset;'
             'border-width: 2px;'
@@ -421,9 +424,6 @@ class Login(QDialog):
                                                                       'border-style: inset;'
                                                                       '}'
         )
-        self.btn_registration.resize(*self.main_window.normal.normal_proportion(50, 50))
-        self.btn_registration.move(self.geometry().width() - self.main_window.normal.normal_proportion(200, 0)[0] - 50,
-                                   20)
         self.btn_registration.clicked.connect(self.registration_user)
 
         # -----------------------------------------
@@ -464,14 +464,15 @@ class Login(QDialog):
 
         layout_new_method = QGridLayout()
         layout_new_method.setContentsMargins(int(self.window().width() / 25.5), int(self.window().width() / 25.5),
-                                             int(self.window().width() / 25.5), int(self.window().width() / 15.5))
+                                             int(self.window().width() / 25.5), int(self.window().width() / 35.5))
         layout_new_method.addWidget(self.text_login, 0, 0)
         layout_new_method.addWidget(self.edit_email, 0, 1)
 
         layout_new_method.addWidget(self.text_password, 1, 0)
         layout_new_method.addWidget(self.edit_password, 1, 1)
 
-        layout_new_method.addWidget(self.btn_ok_valid, 2, 0, 0, 2)
+        layout_new_method.addWidget(self.btn_ok_valid, 2, 0, 1, 2)
+        layout_new_method.addWidget(self.btn_registration, 3, 0, 1, 2)
 
         self.setLayout(layout_new_method)
 
@@ -676,8 +677,8 @@ class NewLesson(QDialog):
         QDialog.__init__(self)
         self.main_window = main_window
         self.setParent(self.main_window)
-        self.setGeometry(self.main_window.geometry.width() // 4, self.main_window.geometry.height() // 4,
-                         self.main_window.geometry.width() // 2, self.main_window.geometry.height() // 2)
+        self.setGeometry(self.main_window.geometry.width() // 4.8, self.main_window.geometry.height() // 4.8,
+                         self.main_window.geometry.width() // 1.7, self.main_window.geometry.height() // 1.7)
         self.initUI()
 
     def initUI(self):
@@ -855,21 +856,21 @@ class NewLesson(QDialog):
             "}"
         )
         # -----------------------------------------
-        self.check_creative_thinking = QCheckBox('Креативное мышление')
+        self.check_creative_thinking = QCheckBox('Креативное \nмышление')
         self.check_creative_thinking.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "}"
         )
         # -----------------------------------------
-        self.check_critical_thinking = QCheckBox('Критическое мышление')
+        self.check_critical_thinking = QCheckBox('Критическое \nмышление')
         self.check_critical_thinking.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "}"
         )
         # -----------------------------------------
-        self.check_metacognitive_skills = QCheckBox('Метакогнитивные навыки')
+        self.check_metacognitive_skills = QCheckBox('Метакогнитивные \nнавыки')
         self.check_metacognitive_skills.setStyleSheet(
             ".QCheckBox {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -1257,7 +1258,7 @@ class Constructor(QWidget):
             "background-color:transparent;"
             "}"
         )
-        self.layout_constructor_h_3.addWidget(widget_2, 0, 1, 0, 4)
+        self.layout_constructor_h_3.addWidget(widget_2, 0, 1, 0, 3)
 
         layout_3_constructor = QVBoxLayout()
         # -------------------------------------------
@@ -1373,7 +1374,7 @@ class Constructor(QWidget):
 
         layout_btn_save_open_del.addWidget(self.btn_del_lesson)
         layout_3_constructor.addLayout(layout_btn_save_open_del)
-        self.layout_constructor_h_3.addLayout(layout_3_constructor, 0, 5, 0, 2)
+        self.layout_constructor_h_3.addLayout(layout_3_constructor, 0, 4, 0, 2)
 
     def button_stage_flag(self, button):
         session = db_session.create_session()
@@ -1436,29 +1437,26 @@ class Constructor(QWidget):
 
     def open_select_lesson(self):
         self.open.close()
-        reply = QMessageBox.question(self, "Открытие", "Данный урок может содержать не выбранные вами компетенции. "
-                                                       "Открыть урок?", QMessageBox.Yes | QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            self.my_methods = []
-            session = db_session.create_session()
-            for id_method in session.query(SaveLesson).filter(
-                    SaveLesson.name == self.list_view.currentItem().text(),
-                    SaveLesson.id_user == id_current_user).first().ids.split(";"):
-                self.my_methods.append(Method(self, session.query(Methods).filter(Methods.id == id_method).first()))
-                self.my_methods[-1].btn_add.hide()
-                self.my_methods[-1].btn_del.show()
-                self.my_methods[-1].background.setStyleSheet(
-                    '.QLabel {'
-                    f'min-height: {100}px;'
-                    f'min-width: {int(self.my_methods[-1].main_window.scroll_my_methods.size().width())}px;'
-                    'margin-bottom: 16px;'
-                    'background-color: #FFA25F;'
-                    '}'
-                )
-            self.my_methods[0].show_my_methods()
-            self.my_methods[0].show_time_methods()
-            self.filter_stage_methods = self.filter_methods.filter(Methods.id_stage_method.like(self.flag_stage)).all()
-            self.show_methods_stage()
+        self.my_methods = []
+        session = db_session.create_session()
+        for id_method in session.query(SaveLesson).filter(
+                SaveLesson.name == self.list_view.currentItem().text(),
+                SaveLesson.id_user == id_current_user).first().ids.split(";"):
+            self.my_methods.append(Method(self, session.query(Methods).filter(Methods.id == id_method).first()))
+            self.my_methods[-1].btn_add.hide()
+            self.my_methods[-1].btn_del.show()
+            self.my_methods[-1].background.setStyleSheet(
+                '.QLabel {'
+                f'min-height: {100}px;'
+                f'min-width: {int(self.my_methods[-1].main_window.scroll_my_methods.size().width())}px;'
+                'margin-bottom: 16px;'
+                'background-color: #FFA25F;'
+                '}'
+            )
+        self.my_methods[0].show_my_methods()
+        self.my_methods[0].show_time_methods()
+        self.filter_stage_methods = self.filter_methods.filter(Methods.id_stage_method.like(self.flag_stage)).all()
+        self.show_methods_stage()
 
     def del_lesson(self):
         if not id_current_user is None:
@@ -1557,6 +1555,8 @@ class Method(QWidget):
         super(Method, self).__init__(main_window.main_window)
         self.main_window = main_window
         self.data = data
+        self.setGeometry(0, 0,
+                         self.main_window.scroll_main_methods.size().width(), 100)
         self.initUI()
 
     def initUI(self):
@@ -1570,8 +1570,9 @@ class Method(QWidget):
             'border-radius: 14px'
             '}'
         )
-        layout = QHBoxLayout(self)
-        self.method_time = QLabel(self.data.time + "'", self)
+        layout = QHBoxLayout()
+
+        self.method_time = QLabel(self.data.time + "'   ")
         self.method_time.setStyleSheet(
             '.QLabel {'
             'font-family: "Impact";'
@@ -1579,16 +1580,18 @@ class Method(QWidget):
             '}'
         )
         self.method_time.setWordWrap(True)
-        layout.addWidget(self.method_time)
+        layout.addWidget(self.method_time, 0)
 
-        self.label_lesson_topic = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:].lower(), self)
+        self.label_lesson_topic = QLabel(self.data.name_method[0].upper() + self.data.name_method[1:].lower())
         self.label_lesson_topic.setWordWrap(True)
         self.label_lesson_topic.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.main_window.normal.normal_font(24)}px;"
             "}"
         )
-        layout.addWidget(self.label_lesson_topic)
+        layout.addWidget(self.label_lesson_topic, 1)
+
+        self.setLayout(layout)
 
         self.btn_more_details = QPushButton(self)
         self.btn_more_details.setStyleSheet(
@@ -1599,9 +1602,10 @@ class Method(QWidget):
             f'border-image: url({PATH_BUTTON_PADROBNEE_HOVER});'
             '}'
         )
-        self.btn_more_details.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(175, 60))
-        self.btn_more_details.setFixedWidth(self.main_window.main_window.normal.normal_proportion(175, 0)[0])
-        layout.addWidget(self.btn_more_details)
+        self.btn_more_details.setFixedSize(*self.main_window.main_window.normal.normal_proportion(175, 60))
+        self.btn_more_details.move(int(self.main_window.scroll_main_methods.size().width() / 1.15) -
+                                   self.main_window.main_window.normal.normal_proportion(205, 0)[0],
+                                   (100 - self.main_window.main_window.normal.normal_proportion(40, 0)[0]) // 2)
 
         self.btn_add = QPushButton(self)
         self.btn_add.setStyleSheet(
@@ -1612,9 +1616,10 @@ class Method(QWidget):
             f'border-image: url({PATH_BUTTON_ADD_HOVER});'
             '}'
         )
-        self.btn_add.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(40, 40))
-        self.btn_add.setFixedWidth(self.main_window.main_window.normal.normal_proportion(40, 0)[0])
-        layout.addWidget(self.btn_add)
+        self.btn_add.setFixedSize(*self.main_window.main_window.normal.normal_proportion(40, 40))
+        self.btn_add.move(int(self.main_window.scroll_main_methods.size().width() / 1.1) -
+                          self.main_window.main_window.normal.normal_proportion(20, 0)[0],
+                          (100 - self.main_window.main_window.normal.normal_proportion(40, 0)[0]) // 2)
 
         self.btn_del = QPushButton(self)
         self.btn_del.setStyleSheet(
@@ -1625,9 +1630,10 @@ class Method(QWidget):
             f'border-image: url({PATH_BUTTON_DEL_HOVER});'
             '}'
         )
-        self.btn_del.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(40, 40))
-        self.btn_del.setFixedWidth(self.main_window.main_window.normal.normal_proportion(40, 0)[0])
-        layout.addWidget(self.btn_del)
+        self.btn_del.setFixedSize(*self.main_window.main_window.normal.normal_proportion(40, 40))
+        self.btn_del.move(int(self.main_window.scroll_main_methods.size().width() / 1.1) -
+                          self.main_window.main_window.normal.normal_proportion(20, 0)[0],
+                          (100 - self.main_window.main_window.normal.normal_proportion(60, 0)[0]) // 2)
         self.btn_del.hide()
 
         self.btn_add.clicked.connect(self.add_method)
@@ -1640,12 +1646,22 @@ class Method(QWidget):
             self.main_window.my_methods.append(self)
             self.background.setStyleSheet(
                 '.QLabel {'
-                f'min-height: {100}px;'
-                f'min-width: {int(self.main_window.scroll_my_methods.size().width() / 1.2)}px;'
+                f'min-height: {80}px;'
+                f'min-width: {int(self.main_window.scroll_my_methods.size().width() / 1.1)}px;'
                 'margin-bottom: 16px;'
                 'background-color: #FFA25F;'
                 '}'
             )
+            self.background.setFixedWidth(int(self.main_window.scroll_my_methods.size().width() / 1.1))
+
+            self.btn_more_details.move(int(self.main_window.scroll_my_methods.size().width() / 1.15) -
+                                       self.main_window.main_window.normal.normal_proportion(205, 0)[0],
+                                       (80 - self.main_window.main_window.normal.normal_proportion(40, 0)[0]) // 2)
+
+            self.btn_del.move(int(self.main_window.scroll_my_methods.size().width() / 1.1) -
+                              self.main_window.main_window.normal.normal_proportion(20, 0)[0],
+                              (100 - self.main_window.main_window.normal.normal_proportion(60, 0)[0]) // 2)
+
             self.show_my_methods()
             self.btn_add.hide()
             self.btn_del.show()
@@ -1669,15 +1685,18 @@ class Method(QWidget):
     def show_my_methods(self):
         layout = QGridLayout()
         for method in self.main_window.my_methods:
+            method.setFixedHeight(80)
             layout.addWidget(method)
 
         widget = QWidget()
+
         widget.setLayout(layout)
         widget.setStyleSheet(
             ".QWidget {"
             "background-color:transparent;"
             "}"
         )
+        widget.setGeometry(0, 0, int(self.main_window.window().height() / 1.1), 96 * len(self.main_window.my_methods))
         self.main_window.scroll_my_methods.setWidget(widget)
 
     def show_time_methods(self):
@@ -1915,7 +1934,6 @@ class ResultLesson(QWidget):
         self.document = get_document_result_word(self.data["lesson_topic"], teacher, self.data["subject"],
                                                  self.data["class"],
                                                  self.data["lesson_duration"], competence, methods)
-        self.document_result.setHtml("fdf")
 
         layout_result.addWidget(self.document_result, 0, 2, 3, 5)
 
