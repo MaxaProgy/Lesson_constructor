@@ -2,13 +2,12 @@ import os
 
 import pandas as pd
 
-from server.data import db_session
-from server.data.methods import Methods
+from app_window.data import db_session
+from app_window.data.methods import Methods
 
-
-if not os.path.isfile("../server/db/lesson_constructor_server_db.sqlite"):
-    data = pd.read_csv('../server/db/Карточки.csv')
-    db_session.global_init("../server/db/lesson_constructor_server_db.sqlite")
+if not os.path.isfile("../app_window/db/lesson_constructor_client_db.sqlite"):
+    data = pd.read_csv('../app_window/db/Карточки.csv')
+    db_session.global_init("../app_window/db/lesson_constructor_client_db.sqlite")
     session = db_session.create_session()
 
     for method in zip(data['название'], data['время'], data['классы'], data['индивидуальная/ групповая'],
@@ -34,5 +33,5 @@ if not os.path.isfile("../server/db/lesson_constructor_server_db.sqlite"):
         session.add(new_method)
         session.commit()
 else:
-    db_session.global_init("../server/db/lesson_constructor_server_db.sqlite")
+    db_session.global_init("../app_window/db/lesson_constructor_client_db.sqlite")
     session = db_session.create_session()

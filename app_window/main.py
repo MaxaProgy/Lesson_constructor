@@ -367,7 +367,7 @@ class Login(QDialog):
         )
         self.background_form.resize(self.geometry().width(), self.geometry().height())
 
-        self.text_login = QLabel("Логин")
+        self.text_login = QLabel("Email")
         self.text_login.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -533,7 +533,7 @@ class Registration(QDialog):
             "}"
         )
         # -----------------------------------------
-        self.text_login = QLabel("Логин")
+        self.text_login = QLabel("Email")
         self.text_login.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
@@ -981,19 +981,20 @@ class Constructor(QWidget):
 
     def __init__(self, main_window, data):
         super().__init__(main_window)
-        self.data_lesson = data
+        self.data = data
         self.main_window = main_window
         self.setGeometry(0, 0, self.main_window.geometry.width(), self.main_window.geometry.height())
 
         session = db_session.create_session()
         self.filter_methods = session.query(Methods).filter(
-            or_(Methods.creative_thinking == data['competence']['creative_thinking'],
-                Methods.critical_thinking == data['competence']['critical_thinking'],
-                Methods.communication == data['competence']['communication'],
-                Methods.cooperation == data['competence']['cooperation'],
-                Methods.metacognitive_skills == data['competence']['metacognitive_skills'],
-                Methods.literacy == data['competence']['literacy'])
-        )
+            or_(Methods.is_local == False, Methods.id_user == id_current_user),
+            or_(Methods.creative_thinking == self.data['competence']['creative_thinking'],
+                Methods.critical_thinking == self.data['competence']['critical_thinking'],
+                Methods.communication == self.data['competence']['communication'],
+                Methods.cooperation == self.data['competence']['cooperation'],
+                Methods.metacognitive_skills == self.data['competence']['metacognitive_skills'],
+                Methods.literacy == self.data['competence']['literacy']))
+
         self.flag_stage = 0  # id Командообразования
         self.object_methods = []
         self.my_methods = []
@@ -1009,7 +1010,7 @@ class Constructor(QWidget):
         self.layout_constructor_h_3.setContentsMargins(0, int(self.window().width() / 25.5), 0,
                                                        int(self.window().width() / 25.5))
         # Кнопки этапов урока
-        if self.data_lesson['acquaintance']:
+        if self.data['acquaintance']:
             self.btn_stage_acquaintance = QPushButton("Знакомство", self)
             self.btn_stage_acquaintance.setMinimumSize(*self.main_window.normal.normal_proportion(55, 80))
             self.btn_stage_acquaintance.setStyleSheet(
@@ -1174,7 +1175,7 @@ class Constructor(QWidget):
         )
 
         self.group_button_stage = QButtonGroup(self)
-        if self.data_lesson['acquaintance']:
+        if self.data['acquaintance']:
             self.group_button_stage.addButton(self.btn_stage_acquaintance)
         self.group_button_stage.addButton(self.btn_team_building)
         self.group_button_stage.addButton(self.btn_new_material)
@@ -1188,7 +1189,7 @@ class Constructor(QWidget):
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(25, int(self.window().width() / 18.5), 10, int(self.window().width() / 12.5))
-        if self.data_lesson['acquaintance']:
+        if self.data['acquaintance']:
             layout.addWidget(self.btn_stage_acquaintance)
         layout.addWidget(self.btn_team_building)
         layout.addWidget(self.btn_new_material)
@@ -1259,7 +1260,7 @@ class Constructor(QWidget):
         layout_3_constructor = QVBoxLayout()
         # -------------------------------------------
         layout_time_back_ok = QHBoxLayout()
-        self.time_lesson = QLabel(f"Время урока: {self.data_lesson['lesson_duration']} минут")
+        self.time_lesson = QLabel(f"Время урока: {self.data['lesson_duration']} минут")
         self.time_lesson.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(20)}px;"
@@ -1382,20 +1383,20 @@ class Constructor(QWidget):
         if not id_current_user is None:
             if int(self.time_lesson.text().split()[2]) == 0:
                 session = db_session.create_session()
-                if self.data_lesson["lesson_topic"] in [item.name for item in session.query(SaveLesson).filter(
+                if self.data["lesson_topic"] in [item.name for item in session.query(SaveLesson).filter(
                         SaveLesson.id_user == id_current_user).all()]:
                     reply = QMessageBox.question(self, "Предупреждение",
                                                  "Урок с таким названием уже сущестует. Вы хотите перезаписать?",
                                                  QMessageBox.Yes | QMessageBox.No)
                     if reply == QMessageBox.Yes:
                         lesson = session.query(SaveLesson).filter(
-                            SaveLesson.name == self.data_lesson["lesson_topic"],
+                            SaveLesson.name == self.data["lesson_topic"],
                             SaveLesson.id_user == id_current_user).first()
                         session.delete(lesson)
                         session.commit()
 
                 save_lesson = SaveLesson(
-                    name=self.data_lesson["lesson_topic"],
+                    name=self.data["lesson_topic"],
                     ids=';'.join([str(method.data.id) for method in self.my_methods]),
                     id_user=id_current_user,
                 )
@@ -1482,20 +1483,20 @@ class Constructor(QWidget):
             self.create_result_event.emit(
                 {
                     "methods": self.my_methods,
-                    "lesson_topic": self.data_lesson["lesson_topic"],
-                    "subject": self.data_lesson["subject"],
-                    "lesson_type": self.data_lesson["lesson_type"],
-                    "class": self.data_lesson["class"],
-                    "class_characteristic": self.data_lesson["class_characteristic"],
-                    "lesson_duration": self.data_lesson["lesson_duration"],
-                    "acquaintance": self.data_lesson["acquaintance"],
+                    "lesson_topic": self.data["lesson_topic"],
+                    "subject": self.data["subject"],
+                    "lesson_type": self.data["lesson_type"],
+                    "class": self.data["class"],
+                    "class_characteristic": self.data["class_characteristic"],
+                    "lesson_duration": self.data["lesson_duration"],
+                    "acquaintance": self.data["acquaintance"],
                     "competence": {
-                        "creative_thinking": self.data_lesson["competence"]["creative_thinking"],
-                        "literacy": self.data_lesson["competence"]["literacy"],
-                        "communication": self.data_lesson["competence"]["communication"],
-                        "cooperation": self.data_lesson["competence"]["cooperation"],
-                        "critical_thinking": self.data_lesson["competence"]["critical_thinking"],
-                        "metacognitive_skills": self.data_lesson["competence"]["metacognitive_skills"]
+                        "creative_thinking": self.data["competence"]["creative_thinking"],
+                        "literacy": self.data["competence"]["literacy"],
+                        "communication": self.data["competence"]["communication"],
+                        "cooperation": self.data["competence"]["cooperation"],
+                        "critical_thinking": self.data["competence"]["critical_thinking"],
+                        "metacognitive_skills": self.data["competence"]["metacognitive_skills"]
                     }
                 })
         else:
@@ -1624,7 +1625,7 @@ class Method(QWidget):
 
     def add_method(self):
         time_my_methods = [int(method.data.time) for method in self.main_window.my_methods]
-        if sum(time_my_methods) + int(self.data.time) <= self.main_window.data_lesson['lesson_duration'] + 20:
+        if sum(time_my_methods) + int(self.data.time) <= self.main_window.data['lesson_duration'] + 20:
             self.main_window.my_methods.append(self)
             self.background.setStyleSheet(
                 '.QLabel {'
@@ -1673,21 +1674,21 @@ class Method(QWidget):
             method.method_time.setText(method.data.time + "'")
 
         sum_1 = sum([int(method.data.time) for method in self.main_window.my_methods])
-        if sum_1 > self.main_window.data_lesson['lesson_duration']:
+        if sum_1 > self.main_window.data['lesson_duration']:
             count = 0
-            k = self.main_window.data_lesson['lesson_duration'] / sum_1
+            k = self.main_window.data['lesson_duration'] / sum_1
             for method in self.main_window.my_methods:
                 cur_time = int(round(int(method.method_time.text()[:-1]) * k, 0))
                 count += cur_time
                 method.method_time.setText(str(cur_time) + "'")
 
             self.main_window.my_methods[-1].method_time.setText(str(
-                int(self.main_window.my_methods[-1].method_time.text()[:-1]) + self.main_window.data_lesson[
+                int(self.main_window.my_methods[-1].method_time.text()[:-1]) + self.main_window.data[
                     'lesson_duration'] - count) + "'")
             sum_1 = sum([int(method.method_time.text()[:-1]) for method in self.main_window.my_methods])
 
         self.main_window.time_lesson.setText(
-            "Время урока: " + str(self.main_window.data_lesson['lesson_duration'] - sum_1) + " минут")
+            "Время урока: " + str(self.main_window.data['lesson_duration'] - sum_1) + " минут")
 
     def details(self):
         self.method_info = MethodMoreDetails(self.data, self.main_window)
@@ -2194,6 +2195,7 @@ class MyMethod(QWidget):
                 "metacognitive_skills": self.data.metacognitive_skills,
 
             },
+            "is_local": self.data.is_local,
             "text": self.data.text,
         }
         self.new_method = NewMethod(self.main_window, data)
@@ -2232,6 +2234,7 @@ class NewMethod(QDialog):
                     "metacognitive_skills": False,
 
                 },
+                "is_local": True,
                 "text": "",
             }
         self.data = data
@@ -2307,6 +2310,13 @@ class NewMethod(QDialog):
         # -----------------------------------------
         self.text_competence_method = QLabel("Компетенции")
         self.text_competence_method.setStyleSheet(
+            ".QLabel {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "min-width: 12em;"
+            "}"
+        )
+        self.text_local = QLabel("Разместить локально")
+        self.text_local.setStyleSheet(
             ".QLabel {"
             f"font: bold {self.main_window.normal.normal_font(18)}px;"
             "min-width: 12em;"
@@ -2425,6 +2435,24 @@ class NewMethod(QDialog):
             "}"
         )
         # -----------------------------------------
+        self.radio_btn_local_yes = QRadioButton('Да')
+        self.radio_btn_local_yes.setStyleSheet(
+            ".QRadioButton {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        self.radio_btn_local_no = QRadioButton('Нет')
+        self.radio_btn_local_no.setStyleSheet(
+            ".QRadioButton {"
+            f"font: bold {self.main_window.normal.normal_font(18)}px;"
+            "}"
+        )
+        self.radio_btn_local_no.setChecked(self.data["is_local"])
+        self.radio_btn_local_yes.setChecked(not self.data["is_local"])
+        self.btn_radio_group = QButtonGroup()
+        self.btn_radio_group.addButton(self.radio_btn_local_yes)
+        self.btn_radio_group.addButton(self.radio_btn_local_no)
+        # -----------------------------------------
         self.text_method = QTextEdit()
         self.text_method.setText(self.data["text"])
         self.text_method.setStyleSheet(
@@ -2501,8 +2529,14 @@ class NewMethod(QDialog):
         )
         layout_new_method.addWidget(widget_competence, 6, 1)
 
-        layout_new_method.addWidget(self.text_method_text, 7, 0)
-        layout_new_method.addWidget(self.text_method, 7, 1)
+        layout_new_method.addWidget(self.text_local, 7, 0)
+        layout_local = QGridLayout()
+        layout_local.addWidget(self.radio_btn_local_yes, 1, 0)
+        layout_local.addWidget(self.radio_btn_local_no, 1, 1)
+        layout_new_method.addLayout(layout_local, 7, 1)
+
+        layout_new_method.addWidget(self.text_method_text, 8, 0)
+        layout_new_method.addWidget(self.text_method, 8, 1)
 
         self.setLayout(layout_new_method)
 
@@ -2528,6 +2562,7 @@ class NewMethod(QDialog):
                 cooperation=self.check_cooperation.isChecked(),
                 metacognitive_skills=self.check_metacognitive_skills.isChecked(),
                 literacy=self.check_literacy.isChecked(),
+                is_local=self.radio_btn_local_yes.isChecked(),
                 id_fgos=session.query(Fgos).filter(Fgos.name_fgos == self.combo_fgos_method.currentText()).first().id,
                 text=self.text_method.toPlainText(),
             )

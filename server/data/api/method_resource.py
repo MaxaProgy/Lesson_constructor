@@ -19,6 +19,7 @@ parser.add_argument('cooperation', required=True, type=str)
 parser.add_argument('metacognitive_skills', required=True, type=str)
 parser.add_argument('literacy', required=True, type=str)
 parser.add_argument('text', required=True, type=str)
+parser.add_argument('is_local', required=True, type=str)
 
 
 def abort_if_method_not_found(method_id):
@@ -35,7 +36,7 @@ class MethodResource(Resource):
         method = session.query(Methods).get(method_id)
         return jsonify({'method': method.to_dict(
             only=('name_method', 'time', 'id_user', 'id_classes_number', 'id_type_method', 'id_stage_method',
-                  'id_fgos', {'competence': method.to_dict('creative_thinking', 'critical_thinking',
+                  'id_fgos', 'is_local', {'competence': method.to_dict('creative_thinking', 'critical_thinking',
                                                            'communication', 'cooperation',
                                                            'metacognitive_skills', 'literacy', )}, 'text',))})
 
@@ -54,7 +55,7 @@ class MethodsListResource(Resource):
         methods = session.query(Methods).all()
         return jsonify({'methods': [item.to_dict(
             only=('name_method', 'time', 'id_user', 'id_classes_number', 'id_type_method', 'id_stage_method',
-                  'id_fgos', {'competence': item.to_dict('creative_thinking', 'critical_thinking',
+                  'id_fgos', 'is_local', {'competence': item.to_dict('creative_thinking', 'critical_thinking',
                                                          'communication', 'cooperation',
                                                          'metacognitive_skills', 'literacy', )}, 'text',))
             for item in methods]})
@@ -76,6 +77,7 @@ class MethodsListResource(Resource):
             cooperation=args['cooperation'],
             metacognitive_skills=args['metacognitive_skills'],
             literacy=args['literacy'],
+            is_local=args['is_local'],
             text=args['text'],
         )
         session.add(method)
