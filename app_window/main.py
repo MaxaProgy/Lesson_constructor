@@ -513,6 +513,16 @@ class MyLesson(QWidget):
         )
         layout = QHBoxLayout(self)
 
+        self.label_date = QLabel(QDateTime().fromTime_t(self.data.date).toString("dd-MM-yyyy hh:mm"), self)
+        self.label_date.setWordWrap(True)
+        self.label_date.setStyleSheet(
+            ".QLabel {"
+            f"margin-left: {int(self.main_window.window().width() / 25.5)};"
+            f"font: bold {self.main_window.main_window.normal.normal_font(24)}px;"
+            "}"
+        )
+        layout.addWidget(self.label_date)
+
         self.label_lesson_topic = QLabel(self.data.lesson_topic[0].upper() + self.data.lesson_topic[1:].lower(), self)
         self.label_lesson_topic.setWordWrap(True)
         self.label_lesson_topic.setStyleSheet(
@@ -654,7 +664,7 @@ class DocumentLesson(QDialog):
                      method.name_method, method.text, method.time])
 
             document = get_document_result_word(self.data.lesson_topic, teacher, self.data.subject,
-                                                     self.data.class_lesson, self.data.lesson_duration,
+                                                self.data.class_lesson, self.data.lesson_duration,
                                                 self.data.competence.split(';'), methods)
 
             document.save(f'{file_name}')
@@ -1960,23 +1970,6 @@ class Method(QWidget):
         time_my_methods = [int(method.data.time) for method in self.main_window.my_methods]
         if sum(time_my_methods) + int(self.data.time) <= self.main_window.data['lesson_duration'] + 20:
             self.main_window.my_methods.append(self)
-            self.background.setStyleSheet(
-                '.QLabel {'
-                f'min-height: {80}px;'
-                f'min-width: {int(self.main_window.scroll_my_methods.size().width() / 1.1)}px;'
-                'margin-bottom: 16px;'
-                'background-color: #FFA25F;'
-                '}'
-            )
-            self.background.setFixedWidth(int(self.main_window.scroll_my_methods.size().width() / 1.1))
-
-            self.btn_more_details.move(int(self.main_window.scroll_my_methods.size().width() / 1.15) -
-                                       self.main_window.main_window.normal.normal_proportion(205, 0)[0],
-                                       (80 - self.main_window.main_window.normal.normal_proportion(40, 0)[0]) // 2)
-
-            self.btn_del.move(int(self.main_window.scroll_my_methods.size().width() / 1.1) -
-                              self.main_window.main_window.normal.normal_proportion(20, 0)[0],
-                              (100 - self.main_window.main_window.normal.normal_proportion(60, 0)[0]) // 2)
 
             self.show_my_methods()
             self.btn_add.hide()
@@ -2002,6 +1995,24 @@ class Method(QWidget):
         layout = QGridLayout()
         for method in self.main_window.my_methods:
             method.setFixedHeight(80)
+            method.background.setStyleSheet(
+                '.QLabel {'
+                f'min-height: {80}px;'
+                f'min-width: {int(method.main_window.scroll_my_methods.size().width() / 1.1)}px;'
+                'margin-bottom: 16px;'
+                'background-color: #FFA25F;'
+                '}'
+            )
+            method.background.setFixedWidth(int(self.main_window.scroll_my_methods.size().width() / 1.1))
+
+            method.btn_more_details.move(int(method.main_window.scroll_my_methods.size().width() / 1.15) -
+                                         method.main_window.main_window.normal.normal_proportion(205, 0)[0],
+                                         (80 - method.main_window.main_window.normal.normal_proportion(40, 0)[0]) // 2)
+
+            method.btn_del.move(int(method.main_window.scroll_my_methods.size().width() / 1.1) -
+                                self.main_window.main_window.normal.normal_proportion(20, 0)[0],
+                                (100 - method.main_window.main_window.normal.normal_proportion(60, 0)[0]) // 2)
+
             layout.addWidget(method)
 
         widget = QWidget()
@@ -2291,7 +2302,7 @@ class ResultLesson(QWidget):
 
             documents_lesson = DocumentsLesson(
                 id_user=id_current_user,
-                # date=QDateTime.currentDateTimeUtc(),
+                date=QDateTime.currentDateTime().toTime_t(),
                 lesson_topic=self.data["lesson_topic"].lower(),
                 class_lesson=self.data["class"],
                 subject=self.data["subject"].lower(),
