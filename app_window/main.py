@@ -82,6 +82,7 @@ class MainWindow(QMainWindow):
         self.menu.setAttribute(Qt.WA_DeleteOnClose)
         self.menu.create_my_methods_event.connect(self.close_menu_on_my_method)
         self.menu.create_my_constructor_event.connect(self.close_menu_on_constructor)
+        self.menu.create_my_lessons_menu_event.connect(self.close_menu_on_my_lessons_menu)
         self.menu.show()
 
     def run_constructor(self, data):
@@ -103,6 +104,22 @@ class MainWindow(QMainWindow):
         self.my_method_menu.setAttribute(Qt.WA_DeleteOnClose)
         self.my_method_menu.back_menu_event.connect(self.close_my_method_on_menu)
         self.my_method_menu.show()
+
+    def run_my_lessons_menu(self):
+        self.my_lessons_menu = MyLessonsMenu(self)
+        self.my_lessons_menu.setAttribute(Qt.WA_DeleteOnClose)
+        self.my_lessons_menu.back_menu_event.connect(self.close_my_lessons_menu_on_menu)
+        self.my_lessons_menu.show()
+
+    def close_my_lessons_menu_on_menu(self):
+        self.my_lessons_menu.close()
+        self.my_lessons_menu = None
+        self.run_menu()
+
+    def close_menu_on_my_lessons_menu(self):
+        self.menu.close()
+        self.menu = None
+        self.run_my_lessons_menu()
 
     def close_menu_on_constructor(self, data):
         self.menu.close()
@@ -147,6 +164,7 @@ class MainWindow(QMainWindow):
 
 class Menu(QWidget):
     create_my_methods_event = pyqtSignal()
+    create_my_lessons_menu_event = pyqtSignal()
     create_my_constructor_event = pyqtSignal(dict)
 
     def __init__(self, main_window):
@@ -281,7 +299,7 @@ class Menu(QWidget):
                                                           '}'
         )
         layout_btn_menu.addWidget(self.btn_my_lessons, 3, 0)
-        self.btn_my_lessons.clicked.connect(self.create_my_lessons)
+        self.btn_my_lessons.clicked.connect(self.create_my_lessons_menu)
 
         if id_current_user is None:
             self.btn_my_lessons.hide()
@@ -320,8 +338,8 @@ class Menu(QWidget):
     def create_my_methods(self):
         self.create_my_methods_event.emit()
 
-    def create_my_lessons(self):
-        pass
+    def create_my_lessons_menu(self):
+        self.create_my_lessons_menu_event.emit()
 
     def login_user(self):
         self.hide()
@@ -344,6 +362,304 @@ class Menu(QWidget):
         self.btn_my_methods.hide()
         self.btn_profile_exit.hide()
         self.btn_profile_login.show()
+
+
+class MyLessonsMenu(QWidget):
+    back_menu_event = pyqtSignal()
+
+    def __init__(self, main_window):
+        super(MyLessonsMenu, self).__init__(main_window)
+        self.main_window = main_window
+        self.setGeometry(0, 0, self.main_window.geometry.width(), self.main_window.geometry.height())
+        self.initUI()
+
+    def initUI(self):
+        layout_my_lessons_menu = QGridLayout()
+        layout_my_lessons_menu.setContentsMargins(int(self.window().width() / 10.5), int(self.window().width() / 35.5),
+                                                  int(self.window().width() / 10.5), int(self.window().width() / 25.5))
+        # -----------------------------------------
+
+        # -----------------------------------------
+        layout_my_lessons_menu_head = QHBoxLayout()
+        self.btn_back = QPushButton()
+        self.btn_back.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_BACK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
+            '}'
+        )
+        self.btn_back.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
+        layout_my_lessons_menu_head.addWidget(self.btn_back)
+        self.btn_back.clicked.connect(self.back)
+        # -----------------------------------------
+        layout_found = QHBoxLayout()
+
+        self.line_edit_found_my_lessons_menu = QLineEdit()
+        self.line_edit_found_my_lessons_menu.setStyleSheet(
+            ".QLineEdit {"
+            f"font: bold {self.main_window.normal.normal_font(22)}px;"
+            "}"
+        )
+        self.line_edit_found_my_lessons_menu.setFixedHeight(int(self.window().width() / 30.5))
+        self.line_edit_found_my_lessons_menu.textChanged.connect(self.found)
+        layout_found.addWidget(self.line_edit_found_my_lessons_menu)
+
+        self.btn_found = QPushButton()
+        self.btn_found.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_FOUND});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_FOUND_HOVER});'
+            '}'
+        )
+        self.btn_found.setMinimumSize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_found.setFixedWidth(self.main_window.normal.normal_proportion(75, 0)[0])
+        self.btn_found.clicked.connect(self.found)
+        layout_found.addWidget(self.btn_found)
+
+        widget_found = QWidget()
+        widget_found.setLayout(layout_found)
+        widget_found.setStyleSheet(
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
+        )
+
+        layout_my_lessons_menu_head.addWidget(widget_found)
+        # -----------------------------------------
+
+        widget_my_lessons_menu_head = QWidget()
+        widget_my_lessons_menu_head.setLayout(layout_my_lessons_menu_head)
+        widget_my_lessons_menu_head.setStyleSheet(
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
+        )
+
+        layout_my_lessons_menu.addWidget(widget_my_lessons_menu_head, 0, 0)
+        # -----------------------------------------
+
+        # -----------------------------------------
+
+        self.scroll_my_lessons_menu = QScrollArea(self)
+        self.scroll_my_lessons_menu.setStyleSheet(
+            ".QScrollArea {"
+            "background-color:transparent;"
+            "}"
+        )
+        self.scroll_my_lessons_menu.setFrameShape(QFrame.NoFrame)
+        self.scroll_my_lessons_menu.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_my_lessons_menu.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        layout_my_lessons_menu.addWidget(self.scroll_my_lessons_menu, 1, 0)
+
+        self.setLayout(layout_my_lessons_menu)
+        session = db_session.create_session()
+        self.filter_my_lessons_menu = session.query(DocumentsLesson).filter(
+            DocumentsLesson.id_user.like(id_current_user)).all()
+        self.show_my_lessons_menu()
+
+    def show_my_lessons_menu(self):
+        object_my_lessons = []
+
+        layout = QVBoxLayout()
+        for i in range(len(self.filter_my_lessons_menu)):
+            object_my_lessons.append(MyLesson(self, self.filter_my_lessons_menu[i]))
+            layout.addWidget(object_my_lessons[i])
+
+        self.widget_list_my_lessons = QWidget(self)
+        self.widget_list_my_lessons.setGeometry(0, 0, int(self.window().width() / 1.25),
+                                                116 * len(self.filter_my_lessons_menu))
+        self.widget_list_my_lessons.setLayout(layout)
+        self.widget_list_my_lessons.setStyleSheet(
+            ".QWidget {"
+            "background-color:transparent;"
+            "}"
+        )
+        self.scroll_my_lessons_menu.setWidget(self.widget_list_my_lessons)
+        self.scroll_my_lessons_menu.show()
+
+    def found(self):
+        session = db_session.create_session()
+        self.filter_my_lessons_menu = session.query(DocumentsLesson).filter(
+            DocumentsLesson.lesson_topic.like(f"%{self.line_edit_found_my_lessons_menu.text().lower()}%") |
+            DocumentsLesson.subject.like(f"%{self.line_edit_found_my_lessons_menu.text().lower()}%")).all()
+        self.show_my_lessons_menu()
+
+    def back(self):
+        self.back_menu_event.emit()
+
+
+class MyLesson(QWidget):
+    def __init__(self, main_window, data):
+        super(MyLesson, self).__init__(main_window.main_window)
+        self.main_window = main_window
+        self.data = data
+        self.initUI()
+
+    def initUI(self):
+        self.background = QLabel(self)
+        self.background.setStyleSheet(
+            '.QLabel {'
+            f'min-height: {100}px;'
+            f'min-width: {int(self.main_window.window().width() / 1.29)}px;'
+            'margin-bottom: 16px;'
+            'background-color: #FFA25F;'
+            'border-radius: 14px'
+            '}'
+        )
+        layout = QHBoxLayout(self)
+
+        self.label_lesson_topic = QLabel(self.data.lesson_topic[0].upper() + self.data.lesson_topic[1:].lower(), self)
+        self.label_lesson_topic.setWordWrap(True)
+        self.label_lesson_topic.setStyleSheet(
+            ".QLabel {"
+            f"margin-left: {int(self.main_window.window().width() / 25.5)};"
+            f"font: bold {self.main_window.main_window.normal.normal_font(24)}px;"
+            "}"
+        )
+        layout.addWidget(self.label_lesson_topic)
+
+        self.btn_more_details = QPushButton(self)
+        self.btn_more_details.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_PADROBNEE_HOVER});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_PADROBNEE});'
+            '}'
+        )
+        self.btn_more_details.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(175, 60))
+        self.btn_more_details.setFixedWidth(self.main_window.main_window.normal.normal_proportion(175, 0)[0])
+        layout.addWidget(self.btn_more_details)
+
+        self.btn_del = QPushButton(self)
+        self.btn_del.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_DEL});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_DEL_HOVER});'
+            '}'
+        )
+        self.btn_del.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(40, 40))
+        self.btn_del.setFixedWidth(self.main_window.main_window.normal.normal_proportion(40, 0)[0])
+        layout.addWidget(self.btn_del)
+
+        self.btn_del.clicked.connect(self.del_lesson)
+        self.btn_more_details.clicked.connect(self.more_details)
+
+    def del_lesson(self):
+        session = db_session.create_session()
+        lesson = session.query(DocumentsLesson).filter(DocumentsLesson.id == self.data.id).first()
+        session.delete(lesson)
+        session.commit()
+        self.main_window.filter_my_lessons_menu = session.query(DocumentsLesson).filter(
+            DocumentsLesson.id_user.like(id_current_user)).all()
+        self.main_window.show_my_lessons_menu()
+
+    def more_details(self):
+        self.main_window.setDisabled(True)
+        self.document_lesson = DocumentLesson(self.main_window, self.data)
+        if self.document_lesson.exec_() == QDialog.Accepted:
+            pass
+        self.main_window.setDisabled(False)
+
+
+class DocumentLesson(QDialog):
+    def __init__(self, main_window, data):
+        QDialog.__init__(self)
+        self.main_window = main_window.main_window
+        self.data = data
+        self.setParent(self.main_window)
+        self.setGeometry(int(self.main_window.geometry.width() / 6), int(self.main_window.geometry.height() / 6),
+                         int(self.main_window.geometry.width() / 1.5), int(self.main_window.geometry.height() / 1.5))
+        self.initUI()
+
+    def initUI(self):
+        self.background_form_options_document_lesson = QLabel(self)
+        self.background_form_options_document_lesson.setStyleSheet(
+            '.QLabel {'
+            'background-color: #76b7c7;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'min-width: 10em;'
+            'padding: 6px;'
+            '}'
+        )
+        self.background_form_options_document_lesson.resize(self.geometry().width(), self.geometry().height())
+
+        layout_document_lesson = QGridLayout()
+        self.btn_save_lesson = QPushButton("Сохранить", self)
+        self.btn_save_lesson.setStyleSheet(
+            '.QPushButton {'
+            f'min-height: {self.main_window.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.main_window.normal.normal_xy(200, 0)[0]}px;'
+            'background-color: #76b7c7;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'font: bold ' + self.main_window.normal.normal_font(17) + 'px;'
+                                                                      'min-width: 10em;'
+                                                                      'padding: 6px;'
+                                                                      '}'
+                                                                      '.QPushButton:hover {'
+                                                                      'background-color: #548490;'
+                                                                      'border-style: inset;'
+                                                                      '}'
+        )
+        self.btn_save_lesson.clicked.connect(self.save_lesson)
+        layout_document_lesson.addWidget(self.btn_save_lesson, 0, 0)
+
+        self.document_result = QTextEdit(self)
+        layout_document_lesson.addWidget(self.document_result, 0, 1, 0, 3)
+
+        self.setLayout(layout_document_lesson)
+
+        # -----------------------------------------
+        self.btn_back = QPushButton(self)
+        self.btn_back.setStyleSheet(
+            '.QPushButton {'
+            f'border-image: url({PATH_BUTTON_BACK});'
+            '}'
+            '.QPushButton:hover {'
+            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
+            '}'
+        )
+        self.btn_back.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back.move(15, 5)
+        self.btn_back.clicked.connect(self.back_my_lessons_menu)
+        # -----------------------------------------
+
+    def back_my_lessons_menu(self):
+        self.reject()
+
+    def save_lesson(self):
+        file_name = QFileDialog.getSaveFileName(self, "Сохранение файла", None, "Text files (*.docx *doc)")[0]
+        if file_name != "":
+
+            teacher = session.query(User).filter(User.id == id_current_user).first().name_user
+            methods = []
+            for id_method in self.data.ids.split(";"):
+                method = session.query(Methods).filter(Methods.id == id_method).first()
+                methods.append(
+                    [session.query(TypeMethod).filter(
+                        TypeMethod.id == method.id_type_method).first().name_method,
+                     method.name_method, method.text, method.time])
+
+            document = get_document_result_word(self.data.lesson_topic, teacher, self.data.subject,
+                                                     self.data.class_lesson, self.data.lesson_duration,
+                                                self.data.competence.split(';'), methods)
+
+            document.save(f'{file_name}')
+            QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
+            self.accept()
 
 
 class Login(QDialog):
@@ -427,8 +743,8 @@ class Login(QDialog):
         self.btn_registration.clicked.connect(self.registration_user)
 
         # -----------------------------------------
-        self.btn_back_valid = QPushButton(self)
-        self.btn_back_valid.setStyleSheet(
+        self.btn_back = QPushButton(self)
+        self.btn_back.setStyleSheet(
             '.QPushButton {'
             f'border-image: url({PATH_BUTTON_BACK});'
             '}'
@@ -436,12 +752,12 @@ class Login(QDialog):
             f'border-image: url({PATH_BUTTON_BACK_HOVER});'
             '}'
         )
-        self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_back_valid.move(15, 5)
-        self.btn_back_valid.clicked.connect(self.back_menu)
+        self.btn_back.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back.move(15, 5)
+        self.btn_back.clicked.connect(self.back_menu)
         # -----------------------------------------
-        self.btn_ok_valid = QPushButton("Войти")
-        self.btn_ok_valid.setStyleSheet(
+        self.btn_ok = QPushButton("Войти")
+        self.btn_ok.setStyleSheet(
             '.QPushButton {'
             f'min-height: {self.main_window.normal.normal_xy(50, 0)[0]}px;'
             f'min-width: {self.main_window.normal.normal_xy(200, 0)[0]}px;'
@@ -459,7 +775,7 @@ class Login(QDialog):
                                                                       'border-style: inset;'
                                                                       '}'
         )
-        self.btn_ok_valid.clicked.connect(self.valid_options)
+        self.btn_ok.clicked.connect(self.valid_options)
         # -----------------------------------------
 
         layout_new_method = QGridLayout()
@@ -471,7 +787,7 @@ class Login(QDialog):
         layout_new_method.addWidget(self.text_password, 1, 0)
         layout_new_method.addWidget(self.edit_password, 1, 1)
 
-        layout_new_method.addWidget(self.btn_ok_valid, 2, 0, 1, 2)
+        layout_new_method.addWidget(self.btn_ok, 2, 0, 1, 2)
         layout_new_method.addWidget(self.btn_registration, 3, 0, 1, 2)
 
         self.setLayout(layout_new_method)
@@ -597,8 +913,8 @@ class Registration(QDialog):
             "}"
         )
         # -----------------------------------------
-        self.btn_back_valid = QPushButton(self)
-        self.btn_back_valid.setStyleSheet(
+        self.btn_back = QPushButton(self)
+        self.btn_back.setStyleSheet(
             '.QPushButton {'
             f'border-image: url({PATH_BUTTON_BACK});'
             '}'
@@ -606,12 +922,12 @@ class Registration(QDialog):
             f'border-image: url({PATH_BUTTON_BACK_HOVER});'
             '}'
         )
-        self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_back_valid.move(15, 5)
-        self.btn_back_valid.clicked.connect(self.back_menu)
+        self.btn_back.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back.move(15, 5)
+        self.btn_back.clicked.connect(self.back_menu)
         # -----------------------------------------
-        self.btn_ok_valid = QPushButton(self)
-        self.btn_ok_valid.setStyleSheet(
+        self.btn_ok = QPushButton(self)
+        self.btn_ok.setStyleSheet(
             '.QPushButton {'
             f'border-image: url({PATH_BUTTON_OK});'
             '}'
@@ -619,9 +935,9 @@ class Registration(QDialog):
             f'border-image: url({PATH_BUTTON_OK_HOVER});'
             '}'
         )
-        self.btn_ok_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_ok_valid.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 5)
-        self.btn_ok_valid.clicked.connect(self.valid_options)
+        self.btn_ok.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_ok.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 5)
+        self.btn_ok.clicked.connect(self.valid_options)
         # -----------------------------------------
 
         layout_new_method = QGridLayout()
@@ -877,8 +1193,8 @@ class NewLesson(QDialog):
             "}"
         )
         # -----------------------------------------
-        self.btn_back_valid = QPushButton(self)
-        self.btn_back_valid.setStyleSheet(
+        self.btn_back = QPushButton(self)
+        self.btn_back.setStyleSheet(
             '.QPushButton {'
             f'border-image: url({PATH_BUTTON_BACK});'
             '}'
@@ -886,12 +1202,12 @@ class NewLesson(QDialog):
             f'border-image: url({PATH_BUTTON_BACK_HOVER});'
             '}'
         )
-        self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_back_valid.move(15, 5)
-        self.btn_back_valid.clicked.connect(self.back_menu)
+        self.btn_back.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back.move(15, 5)
+        self.btn_back.clicked.connect(self.back_menu)
         # -----------------------------------------
-        self.btn_ok_valid = QPushButton(self)
-        self.btn_ok_valid.setStyleSheet(
+        self.btn_ok = QPushButton(self)
+        self.btn_ok.setStyleSheet(
             '.QPushButton {'
             f'border-image: url({PATH_BUTTON_OK});'
             '}'
@@ -899,9 +1215,9 @@ class NewLesson(QDialog):
             f'border-image: url({PATH_BUTTON_OK_HOVER});'
             '}'
         )
-        self.btn_ok_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_ok_valid.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 5)
-        self.btn_ok_valid.clicked.connect(self.valid_options_new_lesson)
+        self.btn_ok.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_ok.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 5)
+        self.btn_ok.clicked.connect(self.valid_options_new_lesson)
 
         # -----------------------------------------
 
@@ -1975,10 +2291,10 @@ class ResultLesson(QWidget):
 
             documents_lesson = DocumentsLesson(
                 id_user=id_current_user,
-                date=QDateTime.currentDateTimeUtc(),
-                lesson_topic=self.data["lesson_topic"],
+                # date=QDateTime.currentDateTimeUtc(),
+                lesson_topic=self.data["lesson_topic"].lower(),
                 class_lesson=self.data["class"],
-                subject=self.data["subject"],
+                subject=self.data["subject"].lower(),
                 lesson_duration=self.data["lesson_duration"],
                 competence=';'.join(competence),
                 ids=';'.join(methods),
@@ -2507,8 +2823,8 @@ class NewMethod(QDialog):
         )
 
         # -----------------------------------------
-        self.btn_back_valid = QPushButton(self)
-        self.btn_back_valid.setStyleSheet(
+        self.btn_back = QPushButton(self)
+        self.btn_back.setStyleSheet(
             '.QPushButton {'
             f'border-image: url({PATH_BUTTON_BACK});'
             '}'
@@ -2516,12 +2832,12 @@ class NewMethod(QDialog):
             f'border-image: url({PATH_BUTTON_BACK_HOVER});'
             '}'
         )
-        self.btn_back_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_back_valid.move(15, 5)
-        self.btn_back_valid.clicked.connect(self.back_menu)
+        self.btn_back.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_back.move(15, 5)
+        self.btn_back.clicked.connect(self.back_menu)
         # -----------------------------------------
-        self.btn_ok_valid = QPushButton(self)
-        self.btn_ok_valid.setStyleSheet(
+        self.btn_ok = QPushButton(self)
+        self.btn_ok.setStyleSheet(
             '.QPushButton {'
             f'border-image: url({PATH_BUTTON_OK});'
             '}'
@@ -2529,9 +2845,9 @@ class NewMethod(QDialog):
             f'border-image: url({PATH_BUTTON_OK_HOVER});'
             '}'
         )
-        self.btn_ok_valid.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_ok_valid.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 5)
-        self.btn_ok_valid.clicked.connect(self.valid_options_new_method)
+        self.btn_ok.resize(*self.main_window.normal.normal_proportion(75, 75))
+        self.btn_ok.move(self.geometry().width() - self.main_window.normal.normal_proportion(75, 0)[0] - 12, 5)
+        self.btn_ok.clicked.connect(self.valid_options_new_method)
         # -----------------------------------------
 
         layout_new_method = QGridLayout()

@@ -10,7 +10,7 @@ class DocumentsLesson(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'documents_lesson'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    date = sqlalchemy.Column(sqlalchemy.Integer)
+    date = sqlalchemy.Column(sqlalchemy.DateTime)
 
     lesson_topic = sqlalchemy.Column(sqlalchemy.String)
     subject = sqlalchemy.Column(sqlalchemy.String)
