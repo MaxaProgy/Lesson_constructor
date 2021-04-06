@@ -3,7 +3,6 @@ from flask_restful import reqparse, abort, Resource
 from server.data import db_session
 from server.data.methods import Methods
 
-
 parser = reqparse.RequestParser()
 parser.add_argument('name_method', required=True, type=str)
 parser.add_argument('time', required=True, type=str)
@@ -36,9 +35,9 @@ class MethodResource(Resource):
         method = session.query(Methods).get(method_id)
         return jsonify({'method': method.to_dict(
             only=('name_method', 'time', 'id_user', 'id_classes_number', 'id_type_method', 'id_stage_method',
-                  'id_fgos', 'is_local', {'competence': method.to_dict('creative_thinking', 'critical_thinking',
-                                                           'communication', 'cooperation',
-                                                           'metacognitive_skills', 'literacy', )}, 'text',))})
+                  'id_fgos', 'is_local', 'creative_thinking', 'critical_thinking', 'communication', 'cooperation',
+                                                                       'metacognitive_skills', 'literacy',
+                  'text',))})
 
     def delete(self, method_id):
         abort_if_method_not_found(method_id)
@@ -55,10 +54,9 @@ class MethodsListResource(Resource):
         methods = session.query(Methods).all()
         return jsonify({'methods': [item.to_dict(
             only=('name_method', 'time', 'id_user', 'id_classes_number', 'id_type_method', 'id_stage_method',
-                  'id_fgos', 'is_local', {'competence': item.to_dict('creative_thinking', 'critical_thinking',
-                                                         'communication', 'cooperation',
-                                                         'metacognitive_skills', 'literacy', )}, 'text',))
-            for item in methods]})
+                  'id_fgos', 'is_local', 'creative_thinking', 'critical_thinking', 'communication', 'cooperation',
+                  'metacognitive_skills', 'literacy',
+                  'text',)) for item in methods]})
 
     def post(self):
         args = parser.parse_args()

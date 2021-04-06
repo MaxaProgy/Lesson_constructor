@@ -7,13 +7,13 @@ from flask_restful import Api
 
 from server.data.api.method_resource import MethodResource, MethodsListResource
 from server.data.api.save_lesson_resource import SaveLessonResource, SaveLessonListResource
-from server.data.api.user_resource import GetUserResource, PostUserResource
+from server.data.api.user_resource import PostUserResource, GetUserResource
 
 from server.const import *
 from flask_login import LoginManager
 
-logging.basicConfig(level=logging.INFO)
 
+logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 api = Api(app)
 login_manager = LoginManager()

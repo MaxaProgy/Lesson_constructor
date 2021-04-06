@@ -4,10 +4,10 @@ import sys
 import time
 import random
 
-from PyQt5 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QAxContainer
+from PyQt5.QAxContainer import QAxWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QDateTime
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QAxContainer import QAxWidget
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplashScreen, QDesktopWidget, QLabel, QWidget, QPushButton, \
     QGridLayout, QLineEdit, QCheckBox, QButtonGroup, QComboBox, QRadioButton, QMessageBox, QVBoxLayout, \
     QScrollArea, QFrame, QHBoxLayout, QDialog, QListWidget, QTextEdit, QSpinBox, QFileDialog
@@ -2235,8 +2235,6 @@ class ResultLesson(QWidget):
         )
         layout_result.addWidget(widget_btn_result, 0, 0, 1, 2)
 
-        self.document_result = QTextEdit(self)
-
         competence = [(self.data["competence"]["creative_thinking"], "Креативное мышление"),
                       (self.data["competence"]["critical_thinking"], "Критическое мышление"),
                       (self.data["competence"]["literacy"], "Грамотность"),
@@ -2262,7 +2260,24 @@ class ResultLesson(QWidget):
                                                  self.data["class"],
                                                  self.data["lesson_duration"], competence, methods)
 
-        layout_result.addWidget(self.document_result, 0, 2, 3, 5)
+        self.document.save("auxiliary_file.doc")
+        widget = QWidget()
+        widget.setStyleSheet(".QWidget {background-color: white}")
+        layout = QGridLayout()
+
+        self.wordDocument = QAxWidget("Word.Document")
+        path = os.path.join(os.path.abspath(os.curdir), "auxiliary_file.doc")
+        self.wordDocument.setControl(path)
+        os.remove(path)
+        """pStandart = self.wordDocument.querySubObject( "CommandBars( const QVariant & )", "Standard" )
+        pStandart.dynamicCall( "Enabled", True )
+        pStandart.dynamicCall( "Visible", True )"""
+
+
+        layout.addWidget(self.wordDocument)
+        layout.setContentsMargins(5,5,5,5)
+        widget.setLayout(layout)
+        layout_result.addWidget(widget, 0, 2, 3, 5)
 
         self.setLayout(layout_result)
 
@@ -2312,8 +2327,11 @@ class ResultLesson(QWidget):
             )
             session.add(documents_lesson)
             session.commit()
-            self.document.save(f'{file_name}')
+            self.wordDocument.dynamicCall("SaveAs(string)", file_name)
             QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
+
+
+
 
     def back_menu(self):
         self.back_menu_event.emit()

@@ -21,8 +21,10 @@ class GetUserResource(Resource):
         abort_if_user_not_found(user_id)
         session = db_session.create_session()
         user = session.query(User).get(user_id)
-        return jsonify({'user': user.to_dict(
-            only=('name_user', 'email', 'methods', 'save_lesson'))})
+        return jsonify({'user': {
+            'name_user': user.name_user,
+            'email': user.email, 'save_lesson': user.save_lesson,
+            "methods_id": [method.id for method in user.methods]}})
 
 
 class PostUserResource(Resource):
@@ -32,6 +34,8 @@ class PostUserResource(Resource):
         user = User(
             name_user=args['name_user'],
             email=args['email'],
+            save_lesson=[],
+            methods_id=[]
         )
         user.set_password(args['password'])
         session.add(user)
