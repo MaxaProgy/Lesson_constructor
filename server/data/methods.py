@@ -11,6 +11,9 @@ class Methods(SqlAlchemyBase, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
 
+    date_create = sqlalchemy.Column(sqlalchemy.Integer)
+    date_edit = sqlalchemy.Column(sqlalchemy.Integer)
+
     name_method = sqlalchemy.Column(sqlalchemy.String)
     time = sqlalchemy.Column(sqlalchemy.String)
 

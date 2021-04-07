@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-
 import sys
 import time
 import random
 
-from PyQt5 import QtGui, QtCore, QAxContainer
+from PyQt5 import QtGui, QtCore
 from PyQt5.QAxContainer import QAxWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QDateTime
 from PyQt5.QtGui import QIcon, QPixmap
@@ -22,6 +21,20 @@ from app_window.data.documents_lesson import DocumentsLesson
 from app_window.document_file import get_document_result_word
 
 id_current_user = None
+
+"""def send_method(method, type):
+    try:
+        data = {'type': type,
+                'method': method.to_dict(only=(
+                    'date_create', 'date_edit', 'name_method', 'time', 'id_user', 'id_classes_number', 'id_type_method',
+                    'id_stage_method',
+                    'id_fgos', 'is_local', 'creative_thinking', 'critical_thinking', 'communication', 'cooperation',
+                    'metacognitive_skills', 'literacy', 'text',))}
+        requests.post(url='http://127.0.0.1:8000/add_method', json=json.dumps(data)).json()
+    except Exception:
+        pass
+
+"""
 
 
 class Normalize:
@@ -59,7 +72,6 @@ class MainWindow(QMainWindow):
         self.normal = Normalize(self.geometry.width(), self.geometry.height())
 
         self.background = QLabel(self)
-
         self.initUI()
 
     def initUI(self):
@@ -533,18 +545,27 @@ class MyLesson(QWidget):
         )
         layout.addWidget(self.label_lesson_topic)
 
-        self.btn_more_details = QPushButton(self)
-        self.btn_more_details.setStyleSheet(
+        self.btn_save_lesson = QPushButton("Сохранить", self)
+        self.btn_save_lesson.setStyleSheet(
             '.QPushButton {'
-            f'border-image: url({PATH_BUTTON_PADROBNEE_HOVER});'
-            '}'
-            '.QPushButton:hover {'
-            f'border-image: url({PATH_BUTTON_PADROBNEE});'
-            '}'
+            f'min-height: {self.main_window.main_window.normal.normal_xy(50, 0)[0]}px;'
+            f'min-width: {self.main_window.main_window.normal.normal_xy(200, 0)[0]}px;'
+            'background-color: #76b7c7;'
+            'border-style: outset;'
+            'border-width: 2px;'
+            'border-radius: 10px;'
+            'border-color: beige;'
+            'font: bold ' + self.main_window.main_window.normal.normal_font(17) + 'px;'
+                                                                                  'min-width: 10em;'
+                                                                                  'padding: 6px;'
+                                                                                  '}'
+                                                                                  '.QPushButton:hover {'
+                                                                                  'background-color: #548490;'
+                                                                                  'border-style: inset;'
+                                                                                  '}'
         )
-        self.btn_more_details.setMinimumSize(*self.main_window.main_window.normal.normal_proportion(175, 60))
-        self.btn_more_details.setFixedWidth(self.main_window.main_window.normal.normal_proportion(175, 0)[0])
-        layout.addWidget(self.btn_more_details)
+        self.btn_save_lesson.clicked.connect(self.save_lesson)
+        layout.addWidget(self.btn_save_lesson)
 
         self.btn_del = QPushButton(self)
         self.btn_del.setStyleSheet(
@@ -560,7 +581,6 @@ class MyLesson(QWidget):
         layout.addWidget(self.btn_del)
 
         self.btn_del.clicked.connect(self.del_lesson)
-        self.btn_more_details.clicked.connect(self.more_details)
 
     def del_lesson(self):
         session = db_session.create_session()
@@ -571,89 +591,9 @@ class MyLesson(QWidget):
             DocumentsLesson.id_user.like(id_current_user)).all()
         self.main_window.show_my_lessons_menu()
 
-    def more_details(self):
-        self.main_window.setDisabled(True)
-        self.document_lesson = DocumentLesson(self.main_window, self.data)
-        if self.document_lesson.exec_() == QDialog.Accepted:
-            pass
-        self.main_window.setDisabled(False)
-
-
-class DocumentLesson(QDialog):
-    def __init__(self, main_window, data):
-        QDialog.__init__(self)
-        self.main_window = main_window.main_window
-        self.data = data
-        self.setParent(self.main_window)
-        self.setGeometry(int(self.main_window.geometry.width() / 6), int(self.main_window.geometry.height() / 6),
-                         int(self.main_window.geometry.width() / 1.5), int(self.main_window.geometry.height() / 1.5))
-        self.initUI()
-
-    def initUI(self):
-        self.background_form_options_document_lesson = QLabel(self)
-        self.background_form_options_document_lesson.setStyleSheet(
-            '.QLabel {'
-            'background-color: #76b7c7;'
-            'border-style: outset;'
-            'border-width: 2px;'
-            'border-radius: 10px;'
-            'border-color: beige;'
-            'min-width: 10em;'
-            'padding: 6px;'
-            '}'
-        )
-        self.background_form_options_document_lesson.resize(self.geometry().width(), self.geometry().height())
-
-        layout_document_lesson = QGridLayout()
-        self.btn_save_lesson = QPushButton("Сохранить", self)
-        self.btn_save_lesson.setStyleSheet(
-            '.QPushButton {'
-            f'min-height: {self.main_window.normal.normal_xy(50, 0)[0]}px;'
-            f'min-width: {self.main_window.normal.normal_xy(200, 0)[0]}px;'
-            'background-color: #76b7c7;'
-            'border-style: outset;'
-            'border-width: 2px;'
-            'border-radius: 10px;'
-            'border-color: beige;'
-            'font: bold ' + self.main_window.normal.normal_font(17) + 'px;'
-                                                                      'min-width: 10em;'
-                                                                      'padding: 6px;'
-                                                                      '}'
-                                                                      '.QPushButton:hover {'
-                                                                      'background-color: #548490;'
-                                                                      'border-style: inset;'
-                                                                      '}'
-        )
-        self.btn_save_lesson.clicked.connect(self.save_lesson)
-        layout_document_lesson.addWidget(self.btn_save_lesson, 0, 0)
-
-        self.document_result = QTextEdit(self)
-        layout_document_lesson.addWidget(self.document_result, 0, 1, 0, 3)
-
-        self.setLayout(layout_document_lesson)
-
-        # -----------------------------------------
-        self.btn_back = QPushButton(self)
-        self.btn_back.setStyleSheet(
-            '.QPushButton {'
-            f'border-image: url({PATH_BUTTON_BACK});'
-            '}'
-            '.QPushButton:hover {'
-            f'border-image: url({PATH_BUTTON_BACK_HOVER});'
-            '}'
-        )
-        self.btn_back.resize(*self.main_window.normal.normal_proportion(75, 75))
-        self.btn_back.move(15, 5)
-        self.btn_back.clicked.connect(self.back_my_lessons_menu)
-        # -----------------------------------------
-
-    def back_my_lessons_menu(self):
-        self.reject()
-
     def save_lesson(self):
         file_name = QFileDialog.getSaveFileName(self, "Сохранение файла", None, "Text files (*.docx *doc)")[0]
         if file_name != "":
-
             teacher = session.query(User).filter(User.id == id_current_user).first().name_user
             methods = []
             for id_method in self.data.ids.split(";"):
@@ -667,9 +607,8 @@ class DocumentLesson(QDialog):
                                                 self.data.class_lesson, self.data.lesson_duration,
                                                 self.data.competence.split(';'), methods)
 
-            document.save(f'{file_name}')
+            document.save(file_name)
             QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
-            self.accept()
 
 
 class Login(QDialog):
@@ -1729,6 +1668,7 @@ class Constructor(QWidget):
                     session.delete(lesson)
                     session.commit()
                     save_lesson = SaveLesson(
+                        date_edit=QDateTime.currentDateTime().toTime_t(),
                         name=self.data["lesson_topic"],
                         ids=';'.join([str(method.data.id) for method in self.my_methods]),
                         id_user=id_current_user,
@@ -1738,6 +1678,8 @@ class Constructor(QWidget):
                     QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
             else:
                 save_lesson = SaveLesson(
+                    date_create=QDateTime.currentDateTime().toTime_t(),
+                    date_edit=QDateTime.currentDateTime().toTime_t(),
                     name=self.data["lesson_topic"],
                     ids=';'.join([str(method.data.id) for method in self.my_methods]),
                     id_user=id_current_user,
@@ -2261,23 +2203,13 @@ class ResultLesson(QWidget):
                                                  self.data["lesson_duration"], competence, methods)
 
         self.document.save("auxiliary_file.doc")
-        widget = QWidget()
-        widget.setStyleSheet(".QWidget {background-color: white}")
-        layout = QGridLayout()
 
         self.wordDocument = QAxWidget("Word.Document")
         path = os.path.join(os.path.abspath(os.curdir), "auxiliary_file.doc")
         self.wordDocument.setControl(path)
         os.remove(path)
-        """pStandart = self.wordDocument.querySubObject( "CommandBars( const QVariant & )", "Standard" )
-        pStandart.dynamicCall( "Enabled", True )
-        pStandart.dynamicCall( "Visible", True )"""
 
-
-        layout.addWidget(self.wordDocument)
-        layout.setContentsMargins(5,5,5,5)
-        widget.setLayout(layout)
-        layout_result.addWidget(widget, 0, 2, 3, 5)
+        layout_result.addWidget(self.wordDocument, 0, 2, 3, 4)
 
         self.setLayout(layout_result)
 
@@ -2329,9 +2261,6 @@ class ResultLesson(QWidget):
             session.commit()
             self.wordDocument.dynamicCall("SaveAs(string)", file_name)
             QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
-
-
-
 
     def back_menu(self):
         self.back_menu_event.emit()
@@ -2587,6 +2516,7 @@ class MyMethod(QWidget):
             },
             "is_local": self.data.is_local,
             "text": self.data.text,
+            "date_create": self.data.date_create
         }
         self.new_method = NewMethod(self.main_window, data)
         if self.new_method.exec_() == QDialog.Accepted:
@@ -2609,6 +2539,8 @@ class NewMethod(QDialog):
             data = {}
         if not data:
             data = {
+                "date_create": QDateTime.currentDateTime().toTime_t(),
+                "date_edit": QDateTime.currentDateTime().toTime_t(),
                 "name_method": "",
                 "time": 0,
                 "id_classes_number": 1,
@@ -2627,6 +2559,9 @@ class NewMethod(QDialog):
                 "is_local": True,
                 "text": "",
             }
+
+        else:
+            data["date_edit"] = QDateTime.currentDateTime().toTime_t()
         self.data = data
         self.setParent(self.main_window)
         self.setGeometry(int(self.main_window.geometry.width() / 6), int(self.main_window.geometry.height() / 6),
@@ -2937,6 +2872,8 @@ class NewMethod(QDialog):
         if self.edit_method_topic.text() != "" and self.text_method.toPlainText() != "":
             session = db_session.create_session()
             self.data = Methods(
+                date_create=self.data["date_create"],
+                date_edit=self.data["date_edit"],
                 name_method=self.edit_method_topic.text().lower(),
                 time=self.edit_method_duration.value(),
                 id_user=id_current_user,

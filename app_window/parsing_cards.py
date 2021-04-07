@@ -12,27 +12,30 @@ if not os.path.isfile("../app_window/db/lesson_constructor_client_db.sqlite"):
     db_session.global_init("../app_window/db/lesson_constructor_client_db.sqlite")
     session = db_session.create_session()
 
-    for method in zip(data['название'], data['время'], data['автор'], data['классы'],
+    for method in zip(data['дата создания'], data['дата изменения'], data['название'], data['время'],
+                      data['автор'], data['классы'],
                       data['тип урока'], data['этап урока'],
                       data['креативное мышление'], data['критическое мышление'],
                       data['коммуникация'], data['кооперация'], data['метакогнитивные навыки'],
                       data['грамотность'], data['фгос'], data['локально'], data['текст']):
         new_method = Methods(
-            name_method=method[0],
-            time=method[1],
-            id_user=method[2],
-            id_classes_number=method[3],
-            id_type_method=method[4],
-            id_stage_method=method[5],
-            creative_thinking=method[6],
-            critical_thinking=method[7],
-            communication=method[8],
-            cooperation=method[9],
-            metacognitive_skills=method[10],
-            literacy=method[11],
-            id_fgos=method[12],
-            is_local=method[13],
-            text=method[14],
+            date_create=method[0],
+            date_edit=method[1],
+            name_method=method[2],
+            time=method[3],
+            id_user=method[4],
+            id_classes_number=method[5],
+            id_type_method=method[6],
+            id_stage_method=method[7],
+            creative_thinking=method[8],
+            critical_thinking=method[9],
+            communication=method[10],
+            cooperation=method[11],
+            metacognitive_skills=method[12],
+            literacy=method[13],
+            id_fgos=method[14],
+            is_local=method[15],
+            text=method[16],
         )
         session.add(new_method)
         session.commit()

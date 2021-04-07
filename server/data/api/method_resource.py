@@ -36,7 +36,7 @@ class MethodResource(Resource):
         return jsonify({'method': method.to_dict(
             only=('name_method', 'time', 'id_user', 'id_classes_number', 'id_type_method', 'id_stage_method',
                   'id_fgos', 'is_local', 'creative_thinking', 'critical_thinking', 'communication', 'cooperation',
-                                                                       'metacognitive_skills', 'literacy',
+                  'metacognitive_skills', 'literacy',
                   'text',))})
 
     def delete(self, method_id):
