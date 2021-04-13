@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import json
 import sys
 import time
 import random
 
+import requests
 from PyQt5 import QtGui, QtCore
 from PyQt5.QAxContainer import QAxWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QDateTime
@@ -22,19 +24,19 @@ from app_window.document_file import get_document_result_word
 
 id_current_user = None
 
-"""def send_method(method, type):
+
+def send_methods():
     try:
-        data = {'type': type,
-                'method': method.to_dict(only=(
+        session = db_session.create_session()
+        methods = session.query(Methods).filter(Methods.id_user == id_current_user).all()
+        data = {'method': [item.to_dict(only=(
                     'date_create', 'date_edit', 'name_method', 'time', 'id_user', 'id_classes_number', 'id_type_method',
                     'id_stage_method',
                     'id_fgos', 'is_local', 'creative_thinking', 'critical_thinking', 'communication', 'cooperation',
-                    'metacognitive_skills', 'literacy', 'text',))}
-        requests.post(url='http://127.0.0.1:8000/add_method', json=json.dumps(data)).json()
+                    'metacognitive_skills', 'literacy', 'text',)) for item in methods]}
+        requests.post(url='http://127.0.0.1:5000/update_data', json=json.dumps(data)).json()
     except Exception:
         pass
-
-"""
 
 
 class Normalize:
@@ -341,9 +343,9 @@ class Menu(QWidget):
 
     def create_new_lesson(self):
         self.hide()
-        self.new_lesson = NewLesson(self.main_window)
-        if self.new_lesson.exec_() == QDialog.Accepted:
-            self.create_my_constructor_event.emit(self.new_lesson.data)
+        new_lesson = NewLesson(self.main_window)
+        if new_lesson.exec_() == QDialog.Accepted:
+            self.create_my_constructor_event.emit(new_lesson.data)
         else:
             self.show()
 
@@ -365,6 +367,7 @@ class Menu(QWidget):
 
             global id_current_user
             id_current_user = self.login.id_user
+            send_methods()
         self.show()
 
     def exit_user(self):
@@ -2247,18 +2250,19 @@ class ResultLesson(QWidget):
             competence = [i[1] for i in competence if i[0]]
             methods = [str(method.data.id) for method in self.data["methods"]]
 
-            documents_lesson = DocumentsLesson(
-                id_user=id_current_user,
-                date=QDateTime.currentDateTime().toTime_t(),
-                lesson_topic=self.data["lesson_topic"].lower(),
-                class_lesson=self.data["class"],
-                subject=self.data["subject"].lower(),
-                lesson_duration=self.data["lesson_duration"],
-                competence=';'.join(competence),
-                ids=';'.join(methods),
-            )
-            session.add(documents_lesson)
-            session.commit()
+            if not id_current_user is None:
+                documents_lesson = DocumentsLesson(
+                    id_user=id_current_user,
+                    date=QDateTime.currentDateTime().toTime_t(),
+                    lesson_topic=self.data["lesson_topic"].lower(),
+                    class_lesson=self.data["class"],
+                    subject=self.data["subject"].lower(),
+                    lesson_duration=self.data["lesson_duration"],
+                    competence=';'.join(competence),
+                    ids=';'.join(methods),
+                )
+                session.add(documents_lesson)
+                session.commit()
             self.wordDocument.dynamicCall("SaveAs(string)", file_name)
             QMessageBox.information(self, "Ок", "Урок сохранен", QMessageBox.Ok)
 

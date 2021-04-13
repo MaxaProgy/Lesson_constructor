@@ -27,9 +27,12 @@ app.config['SECRET_KEY'] = os.urandom(24)
 @app.route('/update_data', methods=['POST'])
 def update_data():
     data = json.loads(request.json)
-
     session = db_session.create_session()
-    for client_method in data:
+    for method in session.query(Methods).filter(Methods.id_user == data['method'][0]['id_user']).all():
+        session.delete(method)
+    session.commit()
+
+    for client_method in data['method']:
         new_method = Methods(
             date_create=client_method["date_create"],
             date_edit=client_method["date_edit"],
@@ -49,17 +52,8 @@ def update_data():
             id_fgos=client_method["id_fgos"],
             text=client_method["text"],
         )
-        for server_method in session.query(Methods).all():
-            if client_method["date_create"] == server_method.date_create \
-                    and client_method["id_user"] == server_method.id_user:
-                if client_method["date_edit"] > server_method.date_edit:
-                    session.delete(server_method)
-                    session.add(new_method)
-                    session.commit()
-                break
-        else:
-            session.add(new_method)
-            session.commit()
+        session.add(new_method)
+    session.commit()
 
     return jsonify(request.json)
 
@@ -74,4 +68,4 @@ api.add_resource(GetUserResource, '/api/v1/user/<int:user_id>')
 api.add_resource(PostUserResource, '/api/v1/users')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=8000)
+    app.run(debug=True, host='127.0.0.1', port=5000)
