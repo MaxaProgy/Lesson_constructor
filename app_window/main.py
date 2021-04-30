@@ -25,18 +25,100 @@ from app_window.document_file import get_document_result_word
 id_current_user = None
 
 
-def send_methods():
-    try:
-        session = db_session.create_session()
-        methods = session.query(Methods).filter(Methods.id_user == id_current_user).all()
-        data = {'method': [item.to_dict(only=(
-                    'date_create', 'date_edit', 'name_method', 'time', 'id_user', 'id_classes_number', 'id_type_method',
-                    'id_stage_method',
-                    'id_fgos', 'is_local', 'creative_thinking', 'critical_thinking', 'communication', 'cooperation',
-                    'metacognitive_skills', 'literacy', 'text',)) for item in methods]}
-        requests.post(url='http://127.0.0.1:5000/update_data', json=json.dumps(data)).json()
-    except Exception:
-        pass
+def post_server_methods():
+    session = db_session.create_session()
+    methods = session.query(Methods).filter(Methods.id_user == id_current_user).all()
+    data = {'method': [item.to_dict(only=(
+                'date_create', 'date_edit', 'name_method', 'time', 'id_user', 'id_classes_number', 'id_type_method',
+                'id_stage_method',
+                'id_fgos', 'is_local', 'creative_thinking', 'critical_thinking', 'communication', 'cooperation',
+                'metacognitive_skills', 'literacy', 'text',)) for item in methods]}
+    requests.post(url='http://127.0.0.1:5000/post_data_methods', json=json.dumps(data)).json()
+
+
+def get_server_methods():
+    session = db_session.create_session()
+    data = requests.get(url='http://127.0.0.1:5000/get_data_methods').json()
+    for method in session.query(Methods).all():
+        session.delete(method)
+    session.commit()
+
+    for client_method in data['method']:
+        new_method = Methods(
+            date_create=client_method["date_create"],
+            date_edit=client_method["date_edit"],
+            name_method=client_method["name_method"],
+            time=client_method["time"],
+            id_user=client_method["id_user"],
+            id_classes_number=client_method["id_classes_number"],
+            id_type_method=client_method["id_type_method"],
+            id_stage_method=client_method["id_stage_method"],
+            creative_thinking=client_method["creative_thinking"],
+            critical_thinking=client_method["critical_thinking"],
+            communication=client_method["communication"],
+            cooperation=client_method["cooperation"],
+            metacognitive_skills=client_method["metacognitive_skills"],
+            literacy=client_method["literacy"],
+            is_local=client_method["is_local"],
+            id_fgos=client_method["id_fgos"],
+            text=client_method["text"],
+        )
+        session.add(new_method)
+    session.commit()
+
+
+def post_server_save_lessons():
+    session = db_session.create_session()
+    save_lessons = session.query(SaveLesson).filter(SaveLesson.id_user == id_current_user).all()
+    data = {'save_lessons': [item.to_dict(only=(
+        'date_create', 'date_edit', 'name', 'ids', 'id_user',)) for item in save_lessons]}
+    requests.post(url='http://127.0.0.1:5000/post_data_save_lessons', json=json.dumps(data)).json()
+
+
+def get_server_save_lessons():
+    session = db_session.create_session()
+    data = requests.get(url='http://127.0.0.1:5000/get_data_save_lessons').json()
+    for save_lesson in session.query(SaveLesson).all():
+        session.delete(save_lesson)
+    session.commit()
+
+    for client_save_lesson in data['method']:
+        save_lesson = SaveLesson(
+            date_create=client_save_lesson["date_create"],
+            date_edit=client_save_lesson["date_edit"],
+            name=client_save_lesson["name"],
+            ids=client_save_lesson["ids"],
+            id_user=client_save_lesson["id_user"],
+        )
+        session.add(save_lesson)
+    session.commit()
+
+
+def post_server_user():
+    session = db_session.create_session()
+    user = session.query(User).filter(User.id == id_current_user).all()
+    data = {'user': [user.to_dict(only=(
+        'name_user', 'email', 'hashed_password',))]}
+    requests.post(url='http://127.0.0.1:5000/post_data_user', json=json.dumps(data)).json()
+
+
+def get_server_users():
+    session = db_session.create_session()
+    data = requests.get(url='http://127.0.0.1:5000/get_data_users').json()
+    for user in session.query(User).all():
+        session.delete(user)
+    session.commit()
+
+    for client_user in data['users']:
+        save_lesson = SaveLesson(
+            date_create=client_user["date_create"],
+            date_edit=client_user["date_edit"],
+            name=client_user["name"],
+            ids=client_user["ids"],
+            id_user=client_user["id_user"],
+        )
+        session.add(save_lesson)
+    session.commit()
 
 
 class Normalize:
@@ -367,7 +449,6 @@ class Menu(QWidget):
 
             global id_current_user
             id_current_user = self.login.id_user
-            send_methods()
         self.show()
 
     def exit_user(self):
@@ -1684,7 +1765,7 @@ class Constructor(QWidget):
                     date_create=QDateTime.currentDateTime().toTime_t(),
                     date_edit=QDateTime.currentDateTime().toTime_t(),
                     name=self.data["lesson_topic"],
-                    ids=';'.join([str(method.data.id) for method in self.my_methods]),
+                    ids=';'.join([str(method.data.date_create) for method in self.my_methods]),
                     id_user=id_current_user,
                 )
                 session.add(save_lesson)
