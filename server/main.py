@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-import os
-
 from flask import Flask
 import logging
 
@@ -15,6 +13,7 @@ from server.const import *
 from flask_login import LoginManager
 
 from server.data.methods import Methods
+from server.data.save_lesson import SaveLesson
 
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
@@ -24,12 +23,15 @@ login_manager.init_app(app)
 app.config['SECRET_KEY'] = os.urandom(24)
 
 
-@app.route('/update_data', methods=['POST'])
-def update_data():
+@app.route('/post_data_methods', methods=['POST'])
+def post_data_methods():
     data = json.loads(request.json)
-
     session = db_session.create_session()
-    for client_method in data:
+    for method in session.query(Methods).filter(Methods.id_user == data['method'][0]['id_user']).all():
+        session.delete(method)
+    session.commit()
+
+    for client_method in data['method']:
         new_method = Methods(
             date_create=client_method["date_create"],
             date_edit=client_method["date_edit"],
@@ -49,19 +51,77 @@ def update_data():
             id_fgos=client_method["id_fgos"],
             text=client_method["text"],
         )
-        for server_method in session.query(Methods).all():
-            if client_method["date_create"] == server_method.date_create \
-                    and client_method["id_user"] == server_method.id_user:
-                if client_method["date_edit"] > server_method.date_edit:
-                    session.delete(server_method)
-                    session.add(new_method)
-                    session.commit()
-                break
-        else:
-            session.add(new_method)
-            session.commit()
+        session.add(new_method)
+    session.commit()
 
     return jsonify(request.json)
+
+
+@app.route('/get_data_methods', methods=['GET'])
+def get_data_methods():
+    session = db_session.create_session()
+    methods = session.query(Methods).all()
+    data = {'method': [item.to_dict(only=(
+        'date_create', 'date_edit', 'name_method', 'time', 'id_user', 'id_classes_number', 'id_type_method',
+        'id_stage_method',
+        'id_fgos', 'is_local', 'creative_thinking', 'critical_thinking', 'communication', 'cooperation',
+        'metacognitive_skills', 'literacy', 'text',)) for item in methods]}
+    return jsonify(data)
+
+
+@app.route('/post_data_user', methods=['POST'])
+def post_data_user():
+    data = json.loads(request.json)
+    session = db_session.create_session()
+    new_user = User(
+        name_user=data['user'][0]["name_user"],
+        email=data['user'][0]["email"],
+        hashed_password=data['user'][0]["hashed_password"],
+    )
+    session.add(new_user)
+    session.commit()
+
+    return jsonify(request.json)
+
+
+@app.route('/get_data_users', methods=['GET'])
+def get_data_users():
+    session = db_session.create_session()
+    users = session.query(User).all()
+    data = {'users': [item.to_dict(only=(
+        'name_user', 'email', 'hashed_password', )) for item in users]}
+    return jsonify(data)
+
+
+@app.route('/post_data_save_lessons', methods=['POST'])
+def post_data_save_lessons():
+    data = json.loads(request.json)
+    session = db_session.create_session()
+    for save_lesson in session.query(SaveLesson).filter(SaveLesson.id_user == data['save_lessons'][0]['id_user']).all():
+        session.delete(save_lesson)
+    session.commit()
+
+    for client_save_lesson in data['save_lessons']:
+        save_lesson = Methods(
+            date_create=client_save_lesson["date_create"],
+            date_edit=client_save_lesson["date_edit"],
+            name=client_save_lesson["name"],
+            ids=client_save_lesson["ids"],
+            id_user=client_save_lesson["id_user"],
+        )
+        session.add(save_lesson)
+    session.commit()
+
+    return jsonify(request.json)
+
+
+@app.route('/get_data_save_lessons', methods=['GET'])
+def get_data_save_lessons():
+    session = db_session.create_session()
+    save_lessons = session.query(SaveLesson).all()
+    data = {'save_lessons': [item.to_dict(only=(
+        'date_create', 'date_edit', 'name', 'ids', 'id_user',)) for item in save_lessons]}
+    return jsonify(data)
 
 
 api.add_resource(MethodResource, '/api/v1/method/<int:method_id>')
@@ -74,4 +134,4 @@ api.add_resource(GetUserResource, '/api/v1/user/<int:user_id>')
 api.add_resource(PostUserResource, '/api/v1/users')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=8000)
+    app.run(debug=True, host='127.0.0.1', port=5000)

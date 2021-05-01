@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from server.data import db_session
 from server.data.classes import Classes
 from server.data.quote import Quote
 from server.data.fgos import Fgos
@@ -9,6 +8,8 @@ from server.data.class_characteristic import ClassCharacteristic
 from server.data.lesson_type import LessonType
 from server.data.subject import Subject
 from server.data.user import User
+
+from server.parsing_cards import *
 
 
 db_session.global_init("../server/db/lesson_constructor_server_db.sqlite")
